@@ -495,3 +495,37 @@ queue는 `campaigns/calib2-linux-v1/schedule.json --allow-draft --stop-before 21
 
 - 69 pair는 모두 정확히 한 shard에만 있다. 23개 셀의 반복 3개는 모두 두 PC에 2/1로 갈라진다. 두 PC 모두 모든 fault 종류를 받는다.
 - 고정 태그는 `linux-v1-frozen-20261023`이다. 206-40은 이 태그 시점의 school-pc에서 `start.sh --shard campaigns/linux-v1/shards/206-40.json`으로 수집을 시작한다(종료 시각 제한 없음).
+
+### 7.19 surge 기록 단계 수정, 누수 서비스 pair 전 초기화 (2026-10-26)
+
+**surge-l3-r01 기록 단계 실패 — 수집 조건은 그대로, 기록 단계만 수정.**
+- 10/23 #15 `linux-v1-surge-l3-r01`(fault_then_control)은 두 run 모두 complete, evaluate-pair valid였다. 마지막 incident-record 단계만 `ValueError: Unsupported root-cause scope`로 실패해 큐가 멈췄다(rc 1).
+- 원인: `generate-campaign.py`는 surge profile에 `scope_kind: workload_entrypoint`를 쓰는데, `generate-incident-record.py`는 M2 시절 이름 `entrypoint`만 받았다.
+- 수정(`scripts/generate-incident-record.py`):
+  - `workload_entrypoint`를 `entrypoint`와 같은 workload 범위로 받아 profile 값 그대로 기록한다(cause_family workload, injection_layer Workload / L7, chaos 객체 없음).
+  - scope와 fault 종류가 맞지 않으면(surge인데 service_instance 등) 거부한다.
+  - `--runs-dir`/`--incidents-dir` 인자를 추가했다(기본값은 그대로, 테스트용).
+  - 기록 파일을 `yaml.safe_dump`로 쓴다. 이전 기록에는 `runtime_assessment.phase_plan`이 `!!python/tuple`로 들어가 `yaml.safe_load`로 읽히지 않았다. 10/23까지 만든 incident 파일은 그대로 두었다(읽을 때 tuple 태그 처리 필요).
+- 같은 종류 불일치 점검: generator가 만드는 target_kind(service_node / dependency_edge / workload_entrypoint), scope_kind(service_instance / dependency_edge / workload_entrypoint), fault type 5종을 run-attended(fault_manifest.render, confirm_surge), evaluate-pair, generate-incident-record, workload_evidence, label-schema와 대조했다. 불일치는 위 scope 검사와 tuple 직렬화 2건이었다. canonicalize·re2-projection은 fault 값을 쓰지 않는다.
+- 테스트 `tests/test_incident_pipeline.py`: 동결 seed로 생성한 profile 중 cpu·pod·delay·loss와 surge L1·L2·L3 각각을 두 pair 순서로, 가짜 run 폴더(클러스터·k6 없음)에서 fault-record → evaluate-pair → incident record까지 돌려 is_valid_run과 scope를 확인한다.
+- surge-l3-r01 처리: run 폴더와 `status.json`은 건드리지 않았다(전후 sha256·mtime 동일). 기존 두 run으로 incident-record 단계만 다시 돌렸다.
+  - 로그: `audits/pair-linux-v1-surge-l3-r01/incident-record-rerun-20261026.log`
+  - 결과: `incidents/inc-linux-v1-surge-l3-r01.yaml` — is_valid_run true, impact confirmed(latency_increase), recovered.
+  - `runs/_campaign/linux-v1/decisions.yaml`에 `resolved_pairs` 항목을 추가했다(pair ID, 실패 원인, 재실행 로그 경로, 날짜).
+- `run-campaign.py`는 `resolved_pairs`를 완료로 보고 건너뛴다. 각 항목은 pair_id, failure_cause, manual_rerun_log(존재하는 파일), resolved_on이 있어야 한다. 재시작 dry-run에서 `skip resolved linux-v1-surge-l3-r01` 뒤 #19부터 시작함을 확인했다.
+
+**currencyservice·paymentservice 메모리 누수 — 수집 조건 추가: pair 시작 전 누수 서비스 초기화.**
+- 206-39 조사: 두 서비스가 약 22 MiB/h씩 늘어 512Mi limit에서 약 22.5시간마다 exit 137로 재시작된다. 부하가 없어도 생긴다. run 도중 재시작이 끼면 control이 무효가 되거나 장애와 무관한 이상이 데이터에 섞인다.
+- 206-40 확인(읽기만, 10/26 09:00 UTC):
+  - 두 Pod 모두 재시작 11회(Pod는 10/16 생성). 마지막 종료는 exit 137, Kubernetes reason은 `OOMKilled`가 아니라 `Error`로 나온다(currency 10/25 15:54:25Z, payment 15:54:18Z, 이전 시작 10/24 18:16:09Z → 약 21.6시간). 커널 로그는 권한이 없어 OOM kill인지 liveness probe(grpc, timeout 1 s) kill인지 구분하지 못했다.
+  - 현재 메모리 currency 409 Mi, payment 414 Mi(15:54 재시작 후 약 17시간). Prometheus 기준 2시간마다 약 43 Mi(약 21.5 Mi/h) 증가.
+  - 이미 수집한 8 pair(16 run, #1~#15)는 이 초기화 없이 수집됐다. environment-before/after의 restarts를 비교하면 두 서비스는 모든 run에서 8 → 8로, **run 도중 재시작은 없었다.** 바뀐 것은 pod_failure 대상(checkoutservice 8→14, recommendationservice 6→12)뿐이고 장애 자체에 의한 것이다.
+  - 다만 run 시작 시 메모리 상태는 run마다 달랐다(canonical metrics, server 컨테이너): 첫 run 시작 currency 220 / payment 186 Mi → 마지막 run 끝 481 / 479 Mi. pair 안에서도 뒤 run이 10~40 Mi 높다. 마지막 run 종료 시 limit까지 약 31 Mi가 남아, 큐가 surge 실패로 멈추지 않았다면 다음 pair 도중 재시작됐을 가능성이 높다.
+- 구현:
+  - 대상 목록은 `campaigns/linux-v1/pre-pair-reset.yaml`(services, ready_timeout_seconds 300)에 둔다.
+  - `run-campaign.py`는 pair 전 게이트 통과 뒤, settle 전에 두 서비스의 Pod를 `kubectl delete pod`로 지우고(`scripts/pod_reset.py`), 새 Pod만 남아 모두 Ready가 될 때까지 기다린다. 시간 안에 Ready가 안 되면 큐를 멈춘다(rc 5). 이어서 settle 300초, settle 뒤 게이트는 그대로다.
+  - `rollout restart`는 쓰지 않는다. Deployment pod template에 restartedAt annotation이 들어가 환경 fingerprint가 바뀌기 때문이다(테스트로 확인). Pod 삭제는 fingerprint를 바꾸지 않는다(namespace·node UID, Deployment template, 이미지 digest만 들어감).
+  - 기록: 지운 Pod와 새 Pod의 이름·UID·시각을 queue.log, `runs/_campaign/linux-v1/pre-pair-reset/<pair-id>.json`, pair audit(`pre-pair-reset.json`, status.json `pre_pair_reset`)에 남긴다.
+  - `run-attended.py`의 environment-before/after에 `pod_memory`(metrics-server working set, Pod별)를 추가했다. fingerprint에는 들어가지 않고, API 오류는 기록만 하고 run을 멈추지 않는다.
+- 테스트 `tests/test_pod_reset.py`: Pod 삭제 전후 fingerprint 동일(rollout restart면 달라짐), 새 Pod가 Ready가 되기 전에는 다음 단계로 안 감, 시간 초과 시 settle·pair 없이 멈춤, settle 전에 초기화가 끝나고 로그에 남음, audit 복사.
+- 의미: #19부터의 pair는 "pair 시작 전 누수 서비스 초기화" 조건으로 수집된다. #1~#15(8 pair)는 초기화 없이, 두 서비스 메모리가 약 200~480 Mi인 상태로 수집됐다. 재시작은 끼지 않았으므로 제외하지 않고, 분석 때 이 차이를 공변량·한계로 다룬다.

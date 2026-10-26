@@ -42,6 +42,33 @@ def kube(*args, input=None):
     return p.stdout
 
 
+MEMORY_UNITS = {"Ki": 2**10, "Mi": 2**20, "Gi": 2**30, "k": 10**3, "M": 10**6, "G": 10**9, "": 1}
+
+
+def quantity_bytes(value):
+    number = value.rstrip("KkMGi")
+    return int(float(number) * MEMORY_UNITS[value[len(number):]])
+
+
+def pod_memory():
+    """Container working-set memory per pod from metrics-server, so the memory
+    state at run start (leaking currency/payment services, SETUP-REVIEW 7.19)
+    can be checked later. Not part of the fingerprint; an API error is recorded
+    instead of failing the run."""
+    try:
+        data = json.loads(kube("get","--raw","/apis/metrics.k8s.io/v1beta1/namespaces/sentrix/pods"))
+        pods = {}
+        for item in data["items"]:
+            containers = {c["name"]: quantity_bytes(c["usage"]["memory"]) for c in item["containers"]}
+            pods[item["metadata"]["name"]] = {"app": item["metadata"].get("labels",{}).get("app"),
+                                              "sampled_at": item.get("timestamp"), "window": item.get("window"),
+                                              "containers_bytes": containers,
+                                              "total_mib": round(sum(containers.values())/2**20, 1)}
+        return {"source": "metrics.k8s.io working set", "observed_at": now(), "pods": pods}
+    except Exception as exc:
+        return {"source": "metrics.k8s.io working set", "observed_at": now(), "error": str(exc)}
+
+
 def snapshot():
     pods = json.loads(kube("get","pods","-n","sentrix","-o","json"))
     ns = json.loads(kube("get","namespace","sentrix","-o","json"))
@@ -57,7 +84,7 @@ def snapshot():
     restarts = {p["metadata"]["uid"]+"/"+c["name"]:c["restartCount"] for p in pods["items"] for c in p["status"].get("containerStatuses",[])}
     fingerprint = digest({"namespace":ns["metadata"]["uid"],"nodes":sorted(n["metadata"]["uid"] for n in nodes["items"]),"config":sorted(configs,key=lambda o:(o['kind'],o['name'])),"images":images})
     healthy = bool(pods['items']) and all(p['status'].get('phase')=='Running' and all(c.get('ready') for c in p['status'].get('containerStatuses',[])) for p in pods['items'])
-    return {"captured_at":now(),"fingerprint":fingerprint,"healthy":healthy,"restarts":restarts,"pods":pods,"objects":objects}
+    return {"captured_at":now(),"fingerprint":fingerprint,"healthy":healthy,"restarts":restarts,"pod_memory":pod_memory(),"pods":pods,"objects":objects}
 
 
 def no_active_chaos():

@@ -12,6 +12,8 @@ import unittest
 from unittest.mock import patch
 import warnings
 
+import yaml
+
 from test_data_views import module
 import host_state
 
@@ -196,6 +198,48 @@ class CampaignBlockTests(unittest.TestCase):
         with patch.object(campaign, "kubectl_json", return_value=empty), \
              patch.object(campaign, "ntp_synchronized", return_value="yes"):
             self.assertEqual(campaign.gate(), [])
+
+    def failed_audit(self, fault_run_id):
+        audit = self.root / "audits" / ("pair-" + fault_run_id)
+        audit.mkdir(parents=True)
+        (audit / "status.json").write_text(json.dumps({"complete": False, "phase": "failed",
+                                                       "failed_step": "incident-record"}))
+        (audit / "incident-record-rerun.log").write_text("ok")
+        return audit
+
+    def decisions(self, entries):
+        state = self.root / "runs/_campaign/t"
+        state.mkdir(parents=True, exist_ok=True)
+        (state / "decisions.yaml").write_text(yaml.safe_dump({"resolved_pairs": entries}))
+
+    def test_failed_audit_stops_queue_without_resolution(self):
+        self.failed_audit("f1")
+        rc, out = self.main("--dry-run")
+        self.assertEqual(rc, 2)
+        self.assertIn("incomplete audit", out)
+
+    def test_resolved_pair_is_skipped_not_rerun(self):
+        audit = self.failed_audit("f1")
+        status = (audit / "status.json").read_text()
+        self.decisions([{"pair_id": "p1-pod_failure", "failure_cause": "scope check",
+                         "manual_rerun_log": "audits/pair-f1/incident-record-rerun.log",
+                         "resolved_on": "2026-10-26"}])
+        rc, out = self.main("--dry-run")
+        self.assertEqual(rc, 0)
+        self.assertIn("skip resolved p1-pod_failure", out)
+        ids = [json.loads(line)["pair_id"] for line in out.splitlines() if line.startswith("{")]
+        self.assertEqual(ids, [p["pair_id"] for p in self.pairs[1:]])
+        self.assertEqual((audit / "status.json").read_text(), status)
+
+    def test_resolved_entry_needs_all_fields_and_existing_log(self):
+        self.failed_audit("f1")
+        base = {"pair_id": "p1-pod_failure", "failure_cause": "x",
+                "manual_rerun_log": "audits/pair-f1/incident-record-rerun.log", "resolved_on": "2026-10-26"}
+        for entry in ({k: v for k, v in base.items() if k != "failure_cause"},
+                      {**base, "manual_rerun_log": "audits/pair-f1/missing.log"}):
+            self.decisions([entry])
+            with self.assertRaises(SystemExit):
+                campaign.main(["--schedule", str(self.schedule), "--dry-run"])
 
     def test_log_closed_on_stop_file_exit(self):
         state = self.root / "runs/_campaign/t"

@@ -1,0 +1,16 @@
+# Pre-pair reset of memory-leaking services (scripts/pod_reset.py, run-campaign.py).
+# Before every pair (after the pre-pair gate, before the settle period) the pods
+# of these services are deleted with `kubectl delete pod` and the queue waits
+# until each has only new, Ready pods. Never `kubectl rollout restart` (it
+# changes the Deployment pod template and so the environment fingerprint).
+# Reason: currencyservice and paymentservice leak ~22 MiB/h and are killed
+# (exit 137) at the 512Mi limit about every 22.5 h, even without load
+# (206-39 investigation, docs/SETUP-REVIEW-20261016.md 7.19). Added 2026-10-26;
+# pairs collected before that (206-40: schedule 1-15) ran without it.
+schema_version: 1
+namespace: sentrix
+services:
+  - currencyservice
+  - paymentservice
+ready_timeout_seconds: 300
+poll_seconds: 2

@@ -6,8 +6,19 @@
 * A pair whose audit exists but did not complete stops the queue. The run IDs
   are never reused or overwritten; decide manually (retry under a new attempt
   ID, or mark it excluded in runs/_campaign/<id>/decisions.yaml).
+* decisions.yaml resolved_pairs: a pair whose collection was valid but whose
+  post-collection step failed and was re-run by hand counts as complete and is
+  skipped; its run folders and status.json stay untouched. Each entry needs
+  pair_id, failure_cause, manual_rerun_log (an existing path under the repo)
+  and resolved_on.
 * Between pairs: no unrecovered Chaos object, all pods Ready, then a settle
   period of normal observation (default 300 s).
+* Pre-pair reset (campaigns/<id>/pre-pair-reset.yaml, scripts/pod_reset.py):
+  after the pre-pair gate and before the settle period, the pods of the listed
+  memory-leaking services are deleted (kubectl delete pod, never rollout
+  restart) and the queue waits until the new pods are Ready; a timeout stops
+  the queue (rc 5). What was deleted and when goes to queue.log,
+  runs/_campaign/<id>/pre-pair-reset/<pair-id>.json and the pair audit.
 * Create runs/_campaign/<id>/STOP to stop gracefully after the current pair.
 * Draft profiles (fault-params.yaml status != frozen) are refused unless
   --allow-draft is given, which is only for calibration rehearsals.
@@ -43,6 +54,7 @@ import yaml
 
 from campaign_shard import load_shard
 from host_state import environment_id, ntp_synchronized
+import pod_reset
 
 ROOT = Path(__file__).resolve().parents[1]
 K3S_DATA = Path("/var/lib/rancher")
@@ -60,6 +72,13 @@ def kubectl_json(*args):
     if p.returncode:
         raise RuntimeError(p.stderr.strip())
     return json.loads(p.stdout)
+
+
+def kubectl_run(*args):
+    p = subprocess.run(["kubectl", "--request-timeout=10s", *args], capture_output=True, text=True, timeout=30)
+    if p.returncode:
+        raise RuntimeError(p.stderr.strip())
+    return p.stdout
 
 
 def gate():
@@ -89,6 +108,23 @@ def pair_status(fault_id):
     if not path.exists():
         return None
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+RESOLVED_KEYS = ("pair_id", "failure_cause", "manual_rerun_log", "resolved_on")
+
+
+def resolved_pairs(decisions, root=None):
+    """Pair IDs of decisions.yaml resolved_pairs, refusing incomplete entries."""
+    root = ROOT if root is None else root
+    ids = set()
+    for entry in (decisions or {}).get("resolved_pairs") or []:
+        missing = [k for k in RESOLVED_KEYS if not (isinstance(entry, dict) and entry.get(k))]
+        if missing:
+            raise ValueError(f"resolved_pairs entry {entry!r} lacks {missing}")
+        if not (Path(root) / entry["manual_rerun_log"]).exists():
+            raise ValueError(f"resolved_pairs {entry['pair_id']}: manual_rerun_log {entry['manual_rerun_log']} not found")
+        ids.add(entry["pair_id"])
+    return ids
 
 
 def select_pairs(pairs, only=None, fault_types=None, shard=None):
@@ -144,6 +180,7 @@ def main(argv=None):
     ap.add_argument("--min-free-gib", type=float, default=20,
                     help="stop before a pair when runs/ or the k3s data dir has less free space")
     ap.add_argument("--shard", help="campaigns/<id>/shards/<environment id>.json: run only this PC's pairs")
+    ap.add_argument("--pre-pair-reset", help="reset config (default: pre-pair-reset.yaml next to the schedule)")
     ap.add_argument("--allow-draft", action="store_true")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args(argv)
@@ -165,11 +202,21 @@ def main(argv=None):
         if shard_name != env_id and not args.dry_run:
             raise SystemExit(f"--shard {args.shard} is for PC {shard_name!r}, this PC's environment id is {env_id!r} "
                              "(SENTRIX_ENVIRONMENT_ID / linux/config/local.env / hostname)")
+    try:
+        args.reset_cfg = pod_reset.load_config(args.pre_pair_reset or Path(args.schedule).parent / "pre-pair-reset.yaml")
+    except ValueError as e:
+        raise SystemExit(f"pre-pair reset: {e}")
+    if args.pre_pair_reset and args.reset_cfg is None:
+        raise SystemExit(f"--pre-pair-reset {args.pre_pair_reset} not found")
     state_dir = ROOT / "runs" / "_campaign" / campaign
     state_dir.mkdir(parents=True, exist_ok=True)
     decisions_path = state_dir / "decisions.yaml"
     decisions = yaml.safe_load(decisions_path.read_text(encoding="utf-8")) if decisions_path.exists() else {}
     excluded = set((decisions or {}).get("excluded_pairs", []))
+    try:
+        resolved = resolved_pairs(decisions)
+    except ValueError as e:
+        raise SystemExit(f"{decisions_path}: {e}")
     known_types = {p["fault_type"] for p in schedule["pairs"]}
     unknown = sorted(set(args.fault_types or []) - known_types)
     if unknown:
@@ -184,15 +231,17 @@ def main(argv=None):
         if args.fault_types or deadline or shard_name:
             note(f"block: fault types={args.fault_types or 'all'} stop-before={deadline.isoformat() if deadline else None} "
                  f"shard={shard_name} host={env_id} pairs selected={len(pairs)}")
-        return run_queue(args, pairs, excluded, state_dir, deadline, note)
+        return run_queue(args, pairs, excluded, state_dir, deadline, note, resolved)
 
 
-def run_queue(args, pairs, excluded, state_dir, deadline, note):
+def run_queue(args, pairs, excluded, state_dir, deadline, note, resolved=frozenset()):
     executed = 0
     for p in pairs:
         status = pair_status(p["fault_run_id"])
         if p["pair_id"] in excluded:
             note(f"skip excluded {p['pair_id']}"); continue
+        if p["pair_id"] in resolved:
+            note(f"skip resolved {p['pair_id']} (decisions.yaml resolved_pairs)"); continue
         if status and status.get("complete"):
             continue
         if status:
@@ -206,8 +255,10 @@ def run_queue(args, pairs, excluded, state_dir, deadline, note):
                "--control-id", p["control_run_id"], "--fault-id", p["fault_run_id"],
                "--control-profile", p["control_profile"], "--fault-profile", p["fault_profile"],
                "--pair-order", p["pair_order"], "--k6-bin", args.k6_bin]
+        reset_cfg = getattr(args, "reset_cfg", None)
         if args.dry_run:
-            print(json.dumps({"schedule_index": p["schedule_index"], "pair_id": p["pair_id"], "argv": cmd}))
+            print(json.dumps({"schedule_index": p["schedule_index"], "pair_id": p["pair_id"], "argv": cmd,
+                              "pre_pair_reset": reset_cfg["services"] if reset_cfg else None}))
             executed += 1
             continue
         if not fits_before(datetime.now().astimezone(), deadline, args.settle_seconds, args.pair_minutes):
@@ -219,6 +270,16 @@ def run_queue(args, pairs, excluded, state_dir, deadline, note):
         problems = gate()
         if problems:
             note("STOP: pre-pair gate failed: " + "; ".join(problems)); return 3
+        if reset_cfg:
+            try:
+                record = pod_reset.reset(reset_cfg, kubectl_json, kubectl_run, note=note)
+            except (TimeoutError, RuntimeError, subprocess.TimeoutExpired) as e:
+                note(f"STOP: pre-pair reset failed before {p['pair_id']}: {e}"); return 5
+            record["pair_id"] = p["pair_id"]
+            reset_path = state_dir / "pre-pair-reset" / (p["pair_id"] + ".json")
+            reset_path.parent.mkdir(parents=True, exist_ok=True)
+            reset_path.write_text(json.dumps(record, indent=2), encoding="utf-8")
+            cmd += ["--pre-pair-reset", str(reset_path)]
         note(f"settle {args.settle_seconds}s before {p['pair_id']}")
         time.sleep(args.settle_seconds)
         problems = gate()

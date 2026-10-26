@@ -46,6 +46,7 @@ Evidence
 | 10/16 | RAM 15 GiB에 맞춰 관측 스택 축소: 보존 12h, Prometheus 2Gi / Tempo 3Gi / Loki 1Gi limit, Loki 결과 캐시·rules sidecar·Chaos DNS 서버 끔 | 앱 서비스 limit(실험 조건)은 건드리지 않음 |
 | 10/19 | **처리 용량 C = 6 tx/s**, 평소 부하 0.4C = **2.4 tx/s**, surge 3.6 / 4.8 / 6.0 tx/s | capacity sweep 실측(8 tx/s에서 p99 545 ms로 FAIL) |
 | 10/19 | 시험 pair를 2개가 아니라 **4개(cpu, delay, loss, pod)** 로 진행, Tempo limit 4Gi로 상향 예정 | loss 측정값 ±3 %p 흔들림, pod 효과 약 30초 지연, 8 tx/s에서 Tempo 78 % |
+| 10/26 | **pair 시작 전 누수 서비스 초기화**: 매 pair 전(settle 전) currencyservice·paymentservice Pod를 `kubectl delete pod`로 지우고 Ready 대기(`campaigns/linux-v1/pre-pair-reset.yaml`). rollout restart 금지 | 두 서비스가 약 22 MiB/h 누수로 512Mi에서 약 22.5시간마다 재시작(exit 137). run 도중 재시작은 control 무효·무관한 이상을 만듦. 이미 수집한 8 pair(206-40 #1~#15)는 초기화 없이 수집됐고 run 도중 재시작은 없었음(SETUP-REVIEW 7.19) |
 
 ## 3. 데이터 전략
 
@@ -102,6 +103,7 @@ run 하나 = 25분(1500초):
 - 사용자 부하: k6 constant arrival rate, 0.4C = 2.4 tx/s. 거래 = 홈 → 상품 → 장바구니 담기 → 장바구니 보기 → 결제.
 - 장애 강도 초안: CPU worker 1 · load 100 %, delay 100 ms ± 10 ms, loss 2 %, pod-failure 300초. **시험 pair 결과로 확정 예정.**
 - run 시작 전 게이트: NTP 동기화, 모든 Pod Ready, Chaos 잔류 없음, 디스크 여유 ≥ 20 GiB. run마다 boot_id 기록.
+- pair 시작 전 누수 서비스 초기화(10/26부터): 게이트 뒤 currencyservice·paymentservice Pod 삭제 → 새 Pod Ready → settle 300초. 각 run의 environment-before/after에 Pod별 메모리(`pod_memory`) 기록.
 
 ## 6. 캠페인 구성 (linux-v1)
 
@@ -230,6 +232,7 @@ docs/          설계·실측 기록·마일스톤
 | 네트워크 불안정(GitHub release, Claude API) | 차트 캐시, 측정은 tmux 안에서 |
 | tier와 수집 날짜 겹침 | matched control이 같은 날 수집되어 일부 상쇄, 한계로 기록 |
 | 단일 PC에서 앱·관측 스택 자원 공유 | 실제 운영 환경을 그대로 대표하지 않음을 한계로 기록 |
+| currencyservice·paymentservice 메모리 누수(약 22 MiB/h, 약 22.5시간마다 재시작) | pair 전 Pod 초기화(10/26부터). 그 전 8 pair는 run 시작 메모리가 약 200~480 Mi로 달라 공변량·한계로 기록 |
 | 데이터셋 한계 | mem·disk·socket 장애 없음, 장애 강도 1개, 복합 장애·배포 변경 없음, 장기 정상 데이터 없음 |
 
 ## 15. 열린 결정

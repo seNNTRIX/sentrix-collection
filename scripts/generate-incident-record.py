@@ -56,6 +56,11 @@ def load_transactions(run_dir):
     return [r for r in rows if r["stage"] == "TRANSACTION_SUMMARY"]
 
 
+def read_json(path):
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
 def compute_control_baseline(control_run_dir):
     """Steady-state (warmup..duration-cooldown) success rate / p50 / p99
     from a control run's OWN transactions -- same window definition
@@ -106,14 +111,22 @@ def select_control_match(run_dir, control_dir, profile, fingerprint, summaries, 
     follows the fault run, so it is matched against the fault run's end."""
     pair_order = profile.get("pair_order") or "control_then_fault"
     if pair_order == "fault_then_control":
-        runtime = json.load(open(os.path.join(run_dir, "runtime.json"), encoding="utf-8"))
+        runtime = read_json(os.path.join(run_dir, "runtime.json"))
         match_at = datetime.fromisoformat((runtime.get("finished_at") or runtime["started_at"]).replace("Z", "+00:00"))
     else:
         match_at = min(datetime.fromisoformat(r["event_time"].replace("Z", "+00:00")) for r in summaries)
     return match_control(control_dir, profile, fingerprint, match_at, control_generation, pair_order=pair_order)
 
 
-def main():
+# Root-cause scopes an incident can name. linux-v1 profiles (scripts/generate-campaign.py)
+# write service_instance / dependency_edge / workload_entrypoint; M2 surge
+# profiles wrote entrypoint. Both entrypoint spellings are the same workload
+# scope (external workload -> frontend) and are recorded as the profile names them.
+SCOPE_KINDS = ("service_instance", "dependency_edge", "entrypoint", "workload_entrypoint")
+WORKLOAD_SCOPE_KINDS = ("entrypoint", "workload_entrypoint")
+
+
+def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--run-id", required=True)
     ap.add_argument("--incident-id", required=True)
@@ -128,10 +141,12 @@ def main():
         "Its own steady-state success/p50/p99 is the baseline impact/recovery "
         "are evaluated against -- required, not optional, per evaluation-policy-v1.md.",
     )
-    args = ap.parse_args()
+    ap.add_argument("--runs-dir", default=os.path.join(ROOT, "runs"))
+    ap.add_argument("--incidents-dir", default=os.path.join(ROOT, "incidents"))
+    args = ap.parse_args(argv)
 
-    run_dir = os.path.join(ROOT, "runs", args.run_id)
-    control_dir = os.path.join(ROOT, "runs", args.control_run_id)
+    run_dir = os.path.join(args.runs_dir, args.run_id)
+    control_dir = os.path.join(args.runs_dir, args.control_run_id)
     with open(os.path.join(run_dir, "fault-record.json"), "r", encoding="utf-8") as f:
         fault_record = json.load(f)
     with open(os.path.join(run_dir, "run-manifest.yaml"), "r", encoding="utf-8") as f:
@@ -148,7 +163,7 @@ def main():
 
     summaries = load_transactions(run_dir)
     run_assessment = assess_run(run_dir, args.data_generation)
-    before = json.load(open(os.path.join(run_dir, "environment-before.json"), encoding="utf-8"))
+    before = read_json(os.path.join(run_dir, "environment-before.json"))
     match = select_control_match(run_dir, control_dir, profile, before["fingerprint"], summaries,
                                  args.control_data_generation)
 
@@ -203,11 +218,13 @@ def main():
     }
     cause_family, injection_layer, scope_kind = taxonomy.get(fault_type, ("unknown", "unknown", "unknown"))
     scope_kind = profile.get('fault', {}).get('scope_kind', scope_kind)
-    if scope_kind not in ('service_instance', 'dependency_edge', 'entrypoint'):
-        raise ValueError('Unsupported root-cause scope')
+    if scope_kind not in SCOPE_KINDS:
+        raise ValueError(f"Unsupported root-cause scope {scope_kind!r} (expected one of {SCOPE_KINDS})")
+    if (fault_type == "traffic_surge") != (scope_kind in WORKLOAD_SCOPE_KINDS):
+        raise ValueError(f"root-cause scope {scope_kind!r} does not fit fault type {fault_type!r}")
     # collection PC (hostname) from the fault run's runtime.json; None for runs before it was recorded
     runtime_path = os.path.join(run_dir, "runtime.json")
-    environment_id = (json.load(open(runtime_path, encoding="utf-8")).get("environment_id")
+    environment_id = (read_json(runtime_path).get("environment_id")
                       if os.path.exists(runtime_path) else None)
     chaos_object = None if fault_record["fault_kind"] == "workload" else f"{fault_record['fault_kind']}/{fault_record['fault_name']}"
     record = {
@@ -288,13 +305,15 @@ def main():
         and v["dropped_iterations_under_threshold"]
     )
 
-    incidents_dir = os.path.join(ROOT, "incidents")
-    os.makedirs(incidents_dir, exist_ok=True)
-    out_path = os.path.join(incidents_dir, f"{args.incident_id}.yaml")
-    atomic_write(out_path, yaml.dump(record, sort_keys=False, default_flow_style=False), preserve=True)
+    os.makedirs(args.incidents_dir, exist_ok=True)
+    out_path = os.path.join(args.incidents_dir, f"{args.incident_id}.yaml")
+    # JSON round trip: assess_run's phase_plan tuples otherwise become
+    # !!python/tuple tags that yaml.safe_load (dataset readers) refuses.
+    text = yaml.safe_dump(json.loads(json.dumps(record)), sort_keys=False, default_flow_style=False)
+    atomic_write(out_path, text, preserve=True)
 
     print(f"wrote {out_path}")
-    print(yaml.dump(record, sort_keys=False, default_flow_style=False))
+    print(text)
     if not v["is_valid_run"]:
         raise SystemExit(1)
 

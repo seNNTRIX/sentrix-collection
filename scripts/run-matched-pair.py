@@ -49,6 +49,7 @@ def main(argv=None):
     ap.add_argument('--control-profile', required=True); ap.add_argument('--fault-profile', required=True)
     ap.add_argument('--pair-order', choices=ORDERS, help='defaults to the pair_order saved in both profiles')
     ap.add_argument('--k6-bin', default='k6')
+    ap.add_argument('--pre-pair-reset', help="run-campaign's pre-pair reset record, copied into the pair audit")
     ap.add_argument('--dry-run', action='store_true', help='print the planned commands and exit')
     args = ap.parse_args(argv)
     saved = {profile_order(args.control_profile), profile_order(args.fault_profile)}
@@ -69,6 +70,12 @@ def main(argv=None):
     audit.mkdir(parents=True, exist_ok=False)
     state = {'complete': False, 'control_id': args.control_id, 'fault_id': args.fault_id,
              'pair_order': args.pair_order, 'steps': {}}
+    if args.pre_pair_reset:
+        reset = json.loads(Path(args.pre_pair_reset).read_text(encoding='utf-8'))
+        save_json(audit / 'pre-pair-reset.json', reset)
+        state['pre_pair_reset'] = {svc: {'deleted': [p['name'] for p in r['deleted']], 'deleted_at': r['deleted_at'],
+                                         'new': [p['name'] for p in r.get('new', [])], 'ready_at': r.get('ready_at')}
+                                   for svc, r in reset['services'].items()}
     with exclusive_export(ROOT / 'runs' / '.matched-pair-lock'):
         for name, command in steps:
             state['phase'] = name; state['updated_at'] = datetime.now(timezone.utc).isoformat()
