@@ -4,6 +4,7 @@ Ranking model: shared-weight LambdaRank over (window, candidate) rows. A query
 group is one window of one case; the label is 1 for the root-cause candidate.
 No service identity is an input (only f_* columns of the chosen bundle).
 """
+from functools import partial
 import itertools
 
 import lightgbm as lgb
@@ -16,6 +17,7 @@ from features.schema import CANDIDATES
 
 SEED = 0
 RANK_GRID = {"num_leaves": [7, 15, 31], "n_estimators": [100, 300], "min_child_samples": [20, 100]}
+LOSO_GRID = {"num_leaves": [7, 15], "n_estimators": [100, 300], "min_child_samples": [20, 100]}
 DET_GRID = {"num_leaves": [15, 31], "n_estimators": [100, 300], "min_child_samples": [20, 100]}
 COMMON = {"learning_rate": 0.05, "random_state": SEED, "deterministic": True, "force_row_wise": True,
           "n_jobs": 4, "verbose": -1}
@@ -32,10 +34,11 @@ def model_size(p):
 
 
 # ---------------------------------------------------------------- ranking
-def fit_ranker(df, cols, params):
+def fit_ranker(df, cols, params, extra=None):
+    """extra: additional LightGBM arguments that are not tuned (e.g. monotone_constraints)."""
     df = df.sort_values(["meta_case_id", "meta_window", "meta_candidate"])
     groups = df.groupby(["meta_case_id", "meta_window"], sort=False).size().to_numpy()
-    m = lgb.LGBMRanker(objective="lambdarank", **COMMON, **params)
+    m = lgb.LGBMRanker(objective="lambdarank", **COMMON, **params, **(extra or {}))
     m.fit(df[cols], df["target"], group=groups)
     return m
 
@@ -51,14 +54,17 @@ def rank_avg5(model, df, cols):
     return M.ranking_summary([(s, i) for _, s, i, _ in rows])["Avg@5"]
 
 
-def select_params(df, cols, folds, grid_def, fit, evaluate):
-    """Inner CV inside the training folds: train on one repetition, validate on another."""
+def select_params(df, cols, folds, grid_def, fit, evaluate, key="meta_fold"):
+    """Inner CV inside the training folds: train on the other groups, validate on one.
+
+    key="meta_fold": groups are repetitions; key="meta_root_cause": groups are root-cause services (LOSO).
+    """
     best, best_score = None, -np.inf
     for p in grid(grid_def):
         scores = []
         for val in folds:
-            tr = df[df["meta_fold"].isin([f for f in folds if f != val])]
-            va = df[df["meta_fold"] == val]
+            tr = df[df[key].isin([f for f in folds if f != val])]
+            va = df[df[key] == val]
             scores.append(evaluate(fit(tr, cols, p), va, cols))
         s = float(np.mean(scores))
         if s > best_score + 1e-12 or (abs(s - best_score) <= 1e-12 and model_size(p) < model_size(best)):
@@ -66,18 +72,19 @@ def select_params(df, cols, folds, grid_def, fit, evaluate):
     return best, best_score
 
 
-def cv_ranker(df, cols, candidates=CANDIDATES, fixed_params=None):
+def cv_ranker(df, cols, candidates=CANDIDATES, fixed_params=None, extra=None):
     """Outer 3-fold by repetition. Returns per-case rows (out-of-fold), chosen params, models."""
+    fit = fit_ranker if extra is None else partial(fit_ranker, extra=extra)
     oof, chosen, models, scored = [], {}, {}, []
     folds = sorted(df["meta_fold"].unique())
     for test in folds:
         train_df = df[df["meta_fold"] != test]
         train_folds = [f for f in folds if f != test]
         if fixed_params is None:
-            params, inner = select_params(train_df, cols, train_folds, RANK_GRID, fit_ranker, rank_avg5)
+            params, inner = select_params(train_df, cols, train_folds, RANK_GRID, fit, rank_avg5)
         else:
             params, inner = fixed_params, None
-        model = fit_ranker(train_df, cols, params)
+        model = fit(train_df, cols, params)
         rows, sdf = score_cases(model, df[df["meta_fold"] == test], cols, candidates)
         oof += rows
         scored.append(sdf[["meta_case_id", "meta_window", "meta_rel", "meta_candidate", "meta_root_cause",
@@ -85,6 +92,25 @@ def cv_ranker(df, cols, candidates=CANDIDATES, fixed_params=None):
         chosen[int(test)] = {"params": params, "inner_avg5": inner}
         models[int(test)] = model
     return oof, chosen, models, pd.concat(scored, ignore_index=True)
+
+
+def loso_ranker(df, cols, extra=None, grid_def=None):
+    """Leave-one-root-cause-service-out. For held-out service s: test = cases whose root cause is s,
+    train = all other cases (s still appears there as a negative candidate). Hyperparameters by inner
+    LOSO over the training services. Returns per-case rows (out-of-fold over all cases) and chosen params."""
+    fit = fit_ranker if extra is None else partial(fit_ranker, extra=extra)
+    grid_def = LOSO_GRID if grid_def is None else grid_def
+    oof, chosen = [], {}
+    services = sorted(df["meta_root_cause"].unique())
+    for held in services:
+        train_df = df[df["meta_root_cause"] != held]
+        inner_services = [s for s in services if s != held]
+        params, inner = select_params(train_df, cols, inner_services, grid_def, fit, rank_avg5, key="meta_root_cause")
+        model = fit(train_df, cols, params)
+        rows, _ = score_cases(model, df[df["meta_root_cause"] == held], cols)
+        oof += rows
+        chosen[held] = {"params": params, "inner_avg5": inner}
+    return oof, chosen
 
 
 # ---------------------------------------------------------------- detection
