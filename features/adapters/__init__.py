@@ -19,3 +19,13 @@ class Case:
     repetition: int
     onset: float         # effect/injection time used for labels, Unix seconds
     path: Path
+    # linux-v1 only (RE2-OB keeps the defaults). Times are Unix seconds; a control run carries
+    # the sham times of its matched fault run (same onset offset and phase lengths).
+    kind: str = "fault"                  # "fault" | "control"
+    target_kind: str = "service_node"    # service_node | dependency_edge | workload_entrypoint
+    pair_id: str = ""
+    run_start: float | None = None
+    injection: float | None = None       # injection_observed_at
+    removal: float | None = None         # removal_observed_at
+    recovery: float | None = None        # recovery_confirmed_at (None if not confirmed)
+    eligible: bool = True                # data_valid and injection_valid and impact_confirmed
