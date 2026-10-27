@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SentriX Poster v5</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#13244f; --ink:#1d2027; --muted:#5f6673; --line:#c9cfdb; --soft:#f3f5f9; --accent:#2f5fb3; --paper:#fff; --bg:#e6e8ec; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); font-family:"Noto Sans KR",sans-serif; color:var(--ink); }
+  .poster { width:1000px; margin:24px auto; background:var(--paper); aspect-ratio:841/1189; display:flex; flex-direction:column; box-shadow:0 6px 24px rgba(0,0,0,.18); }
+  @media (max-width:1040px){ .poster{ width:calc(100% - 32px); margin:16px; aspect-ratio:auto; } }
+
+  header { background:var(--navy); color:#fff; display:grid; grid-template-columns:110px 1fr 190px; align-items:center; padding:20px 28px 16px; gap:16px; }
+  .qr { width:96px; height:96px; background:#fff; border-radius:6px; padding:8px; }
+  .qr svg { width:100%; height:100%; display:block; }
+  .qrcap { font-size:10px; color:#c9d2e6; text-align:center; margin-top:4px; }
+  .ttl { text-align:center; }
+  .ttl h1 { margin:0; font-size:26px; font-weight:700; letter-spacing:-.3px; }
+  .ttl .sub { margin-top:10px; font-size:14px; color:#dfe5f2; line-height:1.5; }
+  .adv { align-self:end; text-align:right; font-size:14.5px; font-weight:700; }
+
+  main { flex:1; padding:20px 26px 24px; display:flex; flex-direction:column; gap:16px; }
+  .mid { flex:1; }
+  .mid .col > section { display:flex; flex-direction:column; }
+  .mid .col > section.fill { flex:1; justify-content:space-around; }
+  h2 { margin:0 0 8px; background:var(--navy); color:#fff; font-size:16.5px; font-weight:700; padding:5px 12px; }
+  ul { margin:0; padding-left:18px; font-size:13.8px; line-height:1.75; }
+  li b { font-weight:700; }
+  .cols { display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+  .col { display:flex; flex-direction:column; gap:14px; }
+  .divider { border-left:1.5px solid var(--line); }
+  .cap { font-size:11.5px; color:var(--muted); text-align:center; margin-top:4px; }
+  h4 { margin:8px 0 2px; font-size:14px; padding-left:8px; border-left:4px solid var(--ink); }
+  h4:first-child { margin-top:0; }
+  svg text { font-family:"Noto Sans KR",sans-serif; }
+
+  /* light web screenshots */
+  .shots { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .win { border:1px solid #b9c0cd; border-radius:4px; overflow:hidden; background:#fff; font-size:8px; color:#333; }
+  .win .bar { height:12px; background:#eceef2; border-bottom:1px solid #d5d9e0; display:flex; align-items:center; gap:3px; padding:0 5px; }
+  .win .bar i { width:5px; height:5px; border-radius:50%; background:#c4c8d0; display:block; }
+  .win .bar span { margin-left:6px; font-size:7px; color:#8a909b; }
+  .app { display:grid; grid-template-columns:44px 1fr; height:162px; }
+  .side { background:#1d2b4f; color:#c9d3ea; padding:6px 4px; font-size:7px; line-height:1.9; }
+  .side b { color:#fff; font-size:8px; display:block; margin-bottom:4px; }
+  .side .on { background:#34477a; border-radius:2px; padding:0 3px; color:#fff; }
+  .content { padding:6px 7px; background:#f6f7fa; }
+  .content .h { font-size:8.5px; font-weight:700; margin-bottom:4px; }
+  .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin-bottom:5px; }
+  .card { background:#fff; border:1px solid #e1e4ea; border-radius:3px; padding:3px 4px; }
+  .card .l { color:#8a909b; font-size:6.5px; }
+  .card .v { font-weight:700; font-size:9px; }
+  .card .v.r { color:#c0392b; }
+  .box { background:#fff; border:1px solid #e1e4ea; border-radius:3px; padding:4px; }
+  .rk { display:grid; grid-template-columns:8px 1fr 22px; gap:3px; align-items:center; margin:3px 0; font-size:7px; }
+  .rk .b { grid-column:2/4; height:3px; background:#e8ebf0; border-radius:2px; }
+  .rk .b i { display:block; height:100%; border-radius:2px; background:#2f5fb3; }
+  .rk.top .b i { background:#c0392b; }
+
+  table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  th, td { padding:5px 4px; text-align:center; border-bottom:1px solid var(--line); }
+  thead th { border-top:2px solid var(--ink); border-bottom:1.5px solid var(--ink); font-weight:700; }
+  tbody tr:last-child td { border-bottom:2px solid var(--ink); }
+  td:first-child, th:first-child { text-align:left; }
+  tr.ours td { font-weight:700; }
+  .note { font-size:10.5px; color:var(--muted); text-align:right; margin-top:3px; }
+
+  /* APM-style screens */
+  .win2 { border:1px solid #b9c0cd; border-radius:5px; overflow:hidden; background:#fff; color:#2a2f3a; font-size:7.6px; box-shadow:0 1px 4px rgba(0,0,0,.08); }
+  .win2 .tb { height:13px; background:#eceef2; border-bottom:1px solid #d5d9e0; display:flex; align-items:center; gap:3px; padding:0 6px; }
+  .win2 .tb i { width:5px; height:5px; border-radius:50%; background:#c4c8d0; display:block; }
+  .win2 .tb span { margin-left:6px; font-size:7px; color:#6b7280; }
+  .win2 .tb em { margin-left:auto; font-style:normal; font-size:7px; color:#8a909b; }
+  .win2 .nav { display:flex; gap:9px; align-items:center; padding:4px 8px; background:#1d2b4f; color:#b9c5e0; font-size:7.4px; }
+  .win2 .nav b { color:#fff; font-size:8px; margin-right:6px; }
+  .win2 .nav .on { color:#fff; border-bottom:1.5px solid #7aa5ff; padding-bottom:1px; }
+  .win2 .nav .rt { margin-left:auto; color:#d5ddef; border:1px solid #3c4d78; border-radius:3px; padding:0 4px; }
+  .mapgrid { display:grid; grid-template-columns:1.15fr 1fr; gap:6px; padding:6px; background:#f7f8fb; }
+  .map { width:100%; background:#fff; border:1px solid #e3e6ec; border-radius:3px; }
+  table.red { width:100%; border-collapse:collapse; font-size:7.2px; background:#fff; border:1px solid #e3e6ec; }
+  table.red th { font-weight:700; color:#6b7280; text-align:right; padding:3px 4px; border:0; border-bottom:1px solid #e3e6ec; background:#fafbfc; }
+  table.red th:first-child, table.red td:first-child { text-align:left; }
+  table.red td { text-align:right; padding:3px 4px; border:0; border-bottom:1px solid #f0f2f5; }
+  table.red tr:last-child td { border-bottom:0; }
+  table.red tr.bad td:last-child { color:#d64532; font-weight:700; }
+  table.red tr.warn td:first-child { font-weight:700; }
+  .d { display:inline-block; width:5px; height:5px; border-radius:50%; margin-right:3px; vertical-align:middle; }
+  .d.r { background:#d64532; } .d.o { background:#e08a1e; } .d.g { background:#2e9c5b; }
+  .inc-h { display:flex; align-items:center; gap:6px; padding:4px 8px; border-bottom:1px solid #e3e6ec; font-size:8px; }
+  .inc-h .sev { background:#fdecea; color:#c0392b; border:1px solid #f1b8b0; border-radius:3px; padding:0 4px; font-weight:700; font-size:7px; }
+  .inc-h .mut { margin-left:auto; color:#8a909b; font-size:7px; }
+  .incgrid { display:grid; grid-template-columns:1.25fr 1fr; gap:6px; padding:6px; background:#f7f8fb; }
+  .pane { background:#fff; border:1px solid #e3e6ec; border-radius:3px; padding:5px 6px; }
+  .pane .pt { font-size:7.2px; color:#6b7280; font-weight:700; margin-bottom:3px; }
+  .wf .sp { position:relative; height:10px; margin:2px 0; }
+  .wf .sp span { position:absolute; left:0; top:0; font-size:6.4px; color:#444; width:46%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:10px; }
+  .wf .sp i { position:absolute; top:2px; height:6px; border-radius:1px; }
+  .wf .sp i.fe { background:#7aa5ff; }
+  .wf .sp i.pc { background:#e08a1e; }
+  .wf .sp i.cu { background:#2e9c5b; }
+  .wf .sp i.st { background:repeating-linear-gradient(90deg,#e08a1e 0 5px,#f7d2a3 5px 6px); }
+  .rk2 { display:grid; grid-template-columns:10px 1fr 20px; gap:4px; align-items:center; padding:3px 0; border-bottom:1px solid #f0f2f5; }
+  .rk2 b { color:#6b7280; } .rk2 small { color:#8a909b; font-size:6.5px; } .rk2 em { font-style:normal; font-weight:700; text-align:right; }
+  .rk2.top div div { color:#c0392b; font-weight:700; } .rk2.top em { color:#c0392b; }
+  .ev { font-size:6.8px; line-height:1.55; color:#444; }
+</style>
+</head>
+<body>
+<div class="poster">
+  <header>
+    <div>
+      <div class="qr">
+        <svg viewBox="0 0 21 21" shape-rendering="crispEdges">
+          <rect width="21" height="21" fill="#fff"/>
+          <g fill="#13244f">
+            <path d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM14 0h7v7h-7zM15 1v5h5V1zM16 2h3v3h-3zM0 14h7v7H0zM1 15v5h5v-5zM2 16h3v3H2z"/>
+            <path d="M8 0h1v2H8zM10 1h2v1h-2zM9 3h2v2H9zM12 4h1v3h-1zM8 6h2v1H8zM0 8h2v1H0zM3 8h3v1H3zM8 8h4v1H8zM14 8h1v2h-1zM17 8h4v1h-4zM1 10h2v2H1zM5 10h3v1H5zM10 10h1v3h-1zM12 9h1v2h-1zM15 11h3v1h-3zM19 10h2v2h-2zM0 12h1v1H0zM4 12h2v1H4zM7 12h2v2H7zM13 12h2v1h-2zM17 13h1v3h-1zM8 15h2v1H8zM11 14h2v2h-2zM14 14h2v1h-2zM19 14h1v2h-1zM9 17h1v4H9zM11 17h3v1h-3zM15 16h2v2h-2zM18 17h3v1h-3zM12 19h2v2h-2zM15 19h1v2h-1zM17 19h2v1h-2zM20 19h1v2h-1z"/>
+          </g>
+        </svg>
+      </div>
+      <div class="qrcap">GitHub QR코드</div>
+    </div>
+    <div class="ttl">
+      <h1>관측 데이터 기반 마이크로서비스 장애 원인 분석 시스템 SentriX</h1>
+      <div class="sub">[이름1], [이름2], [이름3]<br>[학교] [학과]</div>
+    </div>
+    <div class="adv">지도교수: [성함] 교수</div>
+  </header>
+
+  <main>
+    <section>
+      <h2>Background</h2>
+      <ul>
+        <li>마이크로서비스 환경은 서비스 간 호출이 연쇄적으로 이어져 있어, 한 서비스의 장애가 <b>여러 서비스의 지연과 오류로 동시에 나타남</b>.</li>
+        <li>기존 모니터링 도구는 이상 증상은 보여주지만, <b>실제 원인 서비스를 찾는 과정은 운영자의 경험에 의존</b>함.</li>
+        <li>이에 본 프로젝트는 지표·로그·트레이스를 함께 분석하여 <b>장애 원인 서비스와 원인 후보 순위</b>를 제시하는 시스템을 구현함.</li>
+      </ul>
+    </section>
+
+    <div class="cols mid">
+      <div class="col">
+        <section>
+          <h2>Methodology</h2>
+          <ul>
+            <li>Kubernetes(k3s) 환경에 <b>Online Boutique</b>를 배포하고, Chaos Mesh로 CPU 과부하·Pod 장애·네트워크 지연·패킷 손실·트래픽 급증을 주입함.</li>
+            <li>장애 실험마다 동일 조건의 <b>대조 실험을 쌍으로 수집</b>하여, 장애로 인한 변화만 비교할 수 있도록 함.</li>
+            <li>서비스와 서비스 간 호출을 그래프로 표현하고, 각 노드·간선의 이상 점수로 <b>원인 후보 순위</b>를 산출함.</li>
+          </ul>
+        </section>
+        <section class="fill">
+          <h2>Model Architecture</h2>
+          <svg viewBox="0 0 450 250" width="100%">
+            <defs><marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L8 4L0 8z" fill="#444"/></marker></defs>
+            <g font-size="10" text-anchor="middle">
+              <!-- inputs -->
+              <rect x="6" y="20" width="70" height="30" fill="#fff" stroke="#444"/><text x="41" y="39">Metrics</text>
+              <rect x="6" y="65" width="70" height="30" fill="#fff" stroke="#444"/><text x="41" y="84">Traces</text>
+              <rect x="6" y="110" width="70" height="30" fill="#fff" stroke="#444"/><text x="41" y="129">Logs</text>
+              <!-- feature -->
+              <rect x="104" y="20" width="96" height="120" fill="#f3f5f9" stroke="#444" stroke-dasharray="4 3"/>
+              <text x="152" y="36" font-weight="700">Feature</text><text x="152" y="49" font-weight="700">Extractor</text>
+              <rect x="114" y="60" width="76" height="22" fill="#fff" stroke="#444"/><text x="152" y="75">30s Window</text>
+              <rect x="114" y="90" width="76" height="22" fill="#fff" stroke="#444"/><text x="152" y="105">Node / Edge</text>
+              <text x="152" y="130" font-size="8.5" fill="#666">+ missing mask</text>
+              <!-- graph encoder -->
+              <rect x="228" y="20" width="104" height="120" fill="#f3f5f9" stroke="#444" stroke-dasharray="4 3"/>
+              <text x="280" y="36" font-weight="700">Service Graph</text><text x="280" y="49" font-weight="700">Encoder</text>
+              <g stroke="#888" stroke-width="1"><line x1="248" y1="95" x2="275" y2="72"/><line x1="248" y1="95" x2="275" y2="118"/><line x1="275" y1="72" x2="310" y2="95"/><line x1="275" y1="118" x2="310" y2="95"/></g>
+              <line x1="248" y1="95" x2="310" y2="95" stroke="#2f5fb3" stroke-width="2"/>
+              <circle cx="248" cy="95" r="7" fill="#fff" stroke="#444"/><circle cx="275" cy="72" r="7" fill="#fff" stroke="#444"/>
+              <circle cx="275" cy="118" r="7" fill="#fff" stroke="#444"/><circle cx="310" cy="95" r="7" fill="#2f5fb3" stroke="#2f5fb3"/>
+              <!-- heads -->
+              <rect x="360" y="20" width="84" height="30" fill="#fff" stroke="#444"/><text x="402" y="34">Anomaly</text><text x="402" y="45">Detector</text>
+              <rect x="360" y="65" width="84" height="30" fill="#fff" stroke="#2f5fb3" stroke-width="1.6"/><text x="402" y="79">Root-cause</text><text x="402" y="90">Ranker</text>
+              <rect x="360" y="110" width="84" height="30" fill="#fff" stroke="#444"/><text x="402" y="124">Fault-type</text><text x="402" y="135">Classifier</text>
+            </g>
+            <g stroke="#444" stroke-width="1.2" fill="none" marker-end="url(#a)">
+              <path d="M76 35 H102"/><path d="M76 80 H102"/><path d="M76 125 H102"/>
+              <path d="M200 80 H226"/>
+              <path d="M332 80 L346 80 L346 35 L358 35"/><path d="M332 80 H358"/><path d="M346 80 L346 125 L358 125"/>
+            </g>
+            <!-- outputs -->
+            <g font-size="10">
+              <rect x="6" y="168" width="438" height="72" fill="#fff" stroke="#c9cfdb"/>
+              <text x="18" y="187" font-weight="700">Output</text>
+              <text x="18" y="206">· 이상 여부 및 이상 점수</text>
+              <text x="18" y="224">· 원인 후보 Top-k (서비스 또는 서비스 간 호출)</text>
+              <text x="250" y="206">· 장애 유형 (CPU / Pod / 지연 / 손실 / 급증)</text>
+              <text x="250" y="224">· 판단 근거가 된 지표</text>
+            </g>
+          </svg>
+          <div class="cap">모델 전체 아키텍처</div>
+        </section>
+      </div>
+
+      <div class="col">
+        <section class="fill">
+          <h2>UI &amp; Service Architecture</h2>
+          <div class="win2">
+            <div class="tb"><i></i><i></i><i></i><span>sentrix · APM · Service Map</span><em>env: online-boutique</em></div>
+            <div class="nav"><b>SentriX</b><span class="on">Service Map</span><span>Services</span><span>Traces</span><span>Incidents</span><span class="rt">Last 15 min ▾</span></div>
+            <div class="mapgrid">
+              <svg viewBox="0 0 250 150" class="map">
+                <g stroke="#c5ccd8" stroke-width="1.1" fill="none">
+                  <path d="M40 75 L105 22"/><path d="M40 75 L105 50"/><path d="M40 75 L105 100"/><path d="M40 75 L105 128"/>
+                  <path d="M40 75 L170 75"/>
+                  <path d="M105 22 L170 75"/><path d="M105 128 L170 75"/><path d="M105 128 L170 108"/><path d="M105 128 L170 140"/><path d="M105 128 L215 118"/>
+                  <path d="M105 100 L170 140" stroke-dasharray="2 2"/><path d="M105 50 L215 32"/>
+                </g>
+                <path d="M40 75 L170 75" stroke="#d64532" stroke-width="2.4"/>
+                <g font-size="6.4" text-anchor="middle">
+                  <circle cx="40" cy="75" r="13" fill="#fdecea" stroke="#d64532" stroke-width="1.6"/><text x="40" y="96">frontend</text>
+                  <circle cx="105" cy="22" r="9" fill="#e9f6ee" stroke="#2e9c5b"/><text x="105" y="40">recommendation</text>
+                  <circle cx="105" cy="50" r="8" fill="#e9f6ee" stroke="#2e9c5b"/><text x="122" y="61">currency</text>
+                  <circle cx="105" cy="100" r="8" fill="#e9f6ee" stroke="#2e9c5b"/><text x="88" y="114">cart</text>
+                  <circle cx="105" cy="128" r="9" fill="#e9f6ee" stroke="#2e9c5b"/><text x="105" y="146">checkout</text>
+                  <circle cx="170" cy="75" r="11" fill="#fff4e5" stroke="#e08a1e" stroke-width="1.6"/><text x="170" y="94">productcatalog</text>
+                  <circle cx="170" cy="108" r="7" fill="#e9f6ee" stroke="#2e9c5b"/><text x="181" y="112" text-anchor="start">payment</text>
+                  <circle cx="170" cy="140" r="7" fill="#e9f6ee" stroke="#2e9c5b"/><text x="196" y="143">shipping</text>
+                  <circle cx="215" cy="118" r="7" fill="#e9f6ee" stroke="#2e9c5b"/><text x="232" y="131">email</text>
+                  <circle cx="215" cy="32" r="7" fill="#eef1f6" stroke="#9aa3b5"/><text x="215" y="22">ad</text>
+                </g>
+              </svg>
+              <table class="red">
+                <tr><th>Service</th><th>Req/s</th><th>Err</th><th>p99</th></tr>
+                <tr class="bad"><td><i class="d r"></i>frontend</td><td>12.0</td><td>0.0%</td><td>3.59 s</td></tr>
+                <tr class="warn"><td><i class="d o"></i>productcatalog</td><td>59.8</td><td>0.0%</td><td>1.2 ms</td></tr>
+                <tr><td><i class="d g"></i>currency</td><td>60.1</td><td>0.0%</td><td>1.7 ms</td></tr>
+                <tr><td><i class="d g"></i>recommendation</td><td>4.8</td><td>0.0%</td><td>9.8 ms</td></tr>
+                <tr><td><i class="d g"></i>checkout</td><td>2.4</td><td>0.0%</td><td>72 ms</td></tr>
+                <tr><td><i class="d g"></i>payment</td><td>2.4</td><td>0.0%</td><td>3.1 ms</td></tr>
+              </table>
+            </div>
+          </div>
+          <div class="cap">메인 페이지 — 서비스 맵 · 서비스별 요청/오류/지연</div>
+
+          <div class="win2" style="margin-top:8px">
+            <div class="tb"><i></i><i></i><i></i><span>sentrix · Incidents · #INC-0128</span><em>14:32:10 탐지</em></div>
+            <div class="inc-h"><span class="sev">이상 탐지</span><b>frontend 응답 지연 증가</b><span class="mut">탐지 점수 0.91 · 지속 5분</span></div>
+            <div class="incgrid">
+              <div class="pane">
+                <div class="pt">frontend p99 latency</div>
+                <svg viewBox="0 0 200 64" width="100%" preserveAspectRatio="none">
+                  <g stroke="#eceff4" stroke-width=".8"><line x1="0" y1="16" x2="200" y2="16"/><line x1="0" y1="32" x2="200" y2="32"/><line x1="0" y1="48" x2="200" y2="48"/></g>
+                  <rect x="92" y="0" width="56" height="64" fill="#d64532" opacity=".08"/>
+                  <line x1="92" y1="0" x2="92" y2="64" stroke="#d64532" stroke-width=".8" stroke-dasharray="2 2"/>
+                  <polyline fill="none" stroke="#3a6fd8" stroke-width="1.5" points="0,56 10,55 20,57 30,55 40,56 50,54 60,56 70,55 80,56 90,55 94,14 104,10 114,12 124,8 134,11 144,10 150,54 160,55 170,56 180,55 190,56 200,55"/>
+                </svg>
+                <div class="pt" style="margin-top:4px">Trace · GET /product (3.42 s)</div>
+                <div class="wf">
+                  <div class="sp"><span>frontend GET /product</span><i style="left:46%;width:54%" class="fe"></i></div>
+                  <div class="sp"><span>↳ productcatalog GetProduct</span><i style="left:47.1%;width:1.8%" class="pc"></i></div>
+                  <div class="sp"><span>↳ currency Convert</span><i style="left:49.2%;width:1%" class="cu"></i></div>
+                  <div class="sp"><span>↳ productcatalog ListProducts</span><i style="left:50.3%;width:1.8%" class="pc"></i></div>
+                  <div class="sp"><span>↳ productcatalog GetProduct ×27</span><i style="left:52.5%;width:46.4%" class="pc st"></i></div>
+                </div>
+              </div>
+              <div class="pane">
+                <div class="pt">Root Cause 후보</div>
+                <div class="rk2 top"><b>1</b><div><div>frontend → productcatalog</div><small>network delay · 호출당 +114 ms</small></div><em>0.84</em></div>
+                <div class="rk2"><b>2</b><div><div>productcatalogservice</div><small>cpu · 변화 없음</small></div><em>0.41</em></div>
+                <div class="rk2"><b>3</b><div><div>recommendationservice</div><small>cpu</small></div><em>0.22</em></div>
+                <div class="pt" style="margin-top:5px">근거 지표</div>
+                <div class="ev">· frontend→productcatalog client span p50 0.1 → 114 ms<br>· productcatalog 서버 처리 시간·CPU 정상<br>· 다른 호출 간선 지연 변화 &lt; 2 ms</div>
+              </div>
+            </div>
+          </div>
+          <div class="cap">분석 페이지 — 이상 구간 · 원인 후보 · 트레이스 (수집 데이터 기반 예시 화면)</div>
+          <svg viewBox="0 0 450 132" width="88%" style="margin:8px auto 0;display:block">
+            <defs><marker id="b" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L8 4L0 8z" fill="#444"/></marker></defs>
+            <!-- user -->
+            <g transform="translate(8,40)" fill="none" stroke="#222" stroke-width="2">
+              <rect x="0" y="0" width="40" height="28" rx="2"/><path d="M14 28 v6 M26 28 v6 M10 36 h20"/>
+            </g>
+            <text x="28" y="98" font-size="10" text-anchor="middle">User</text>
+            <path d="M54 56 H76" stroke="#444" stroke-width="1.2" marker-end="url(#b)"/>
+            <rect x="80" y="8" width="364" height="112" rx="12" fill="none" stroke="#666"/>
+            <text x="94" y="24" font-size="9.5" font-weight="700">Lab Server (k3s)</text>
+            <g font-size="9.5" text-anchor="middle">
+              <circle cx="132" cy="62" r="20" fill="#13244f"/><text x="132" y="66" fill="#fff" font-size="9" font-weight="700">OB</text>
+              <text x="132" y="96">Online</text><text x="132" y="108">Boutique</text>
+              <circle cx="208" cy="62" r="20" fill="#e6522c"/><text x="208" y="66" fill="#fff" font-size="8" font-weight="700">Prom</text>
+              <text x="208" y="96">Prometheus</text><text x="208" y="108">Tempo · Loki</text>
+              <circle cx="284" cy="62" r="20" fill="#2f5fb3"/><text x="284" y="66" fill="#fff" font-size="8" font-weight="700">core</text>
+              <text x="284" y="96">sentrix-core</text>
+              <circle cx="358" cy="62" r="20" fill="#05998b"/><text x="358" y="66" fill="#fff" font-size="8" font-weight="700">API</text>
+              <text x="358" y="96">Model Server</text><text x="358" y="108">(FastAPI)</text>
+              <circle cx="420" cy="62" r="16" fill="#222"/><text x="420" y="66" fill="#fff" font-size="7" font-weight="700">Web</text>
+              <text x="420" y="96">Dashboard</text>
+            </g>
+            <g stroke="#444" stroke-width="1.2" marker-end="url(#b)"><path d="M154 62 H184"/><path d="M230 62 H260"/><path d="M306 62 H334"/><path d="M380 62 H400"/></g>
+          </svg>
+          <div class="cap">서비스 전체 아키텍처</div>
+        </section>
+      </div>
+    </div>
+
+    <div class="cols">
+      <section>
+        <h2>Experiments</h2>
+        <h4>Dataset</h4>
+        <ul>
+          <li>RCAEval RE2-OB: 장애 사례 90건 (5개 서비스 × 6개 유형 × 3회)</li>
+          <li>직접 수집: 장애 69건 + 대조 69건 (5개 장애 유형, 각 3회 반복)</li>
+        </ul>
+        <h4>Environment</h4>
+        <ul>
+          <li>Linux 서버 2대 (24 vCPU, 15 GB RAM), k3s, Online Boutique v0.9.0</li>
+          <li>실험 1회 25분 (장애 5분, 시작 시점 7~12분 무작위), 사용자 부하 초당 2.4건</li>
+        </ul>
+        <h4>Evaluation Metrics</h4>
+        <ul>
+          <li>원인 순위: AC@1, AC@3, MRR</li>
+          <li>이상 탐지: AUROC / 장애 유형 분류: Macro-F1</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Result</h2>
+        <table>
+          <thead>
+            <tr><th rowspan="2">Method</th><th colspan="3">RE2-OB</th><th colspan="3">직접 수집 데이터</th></tr>
+            <tr><th>AC@1</th><th>AC@3</th><th>MRR</th><th>AC@1</th><th>AC@3</th><th>MRR</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Random</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
+            <tr><td>Threshold</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
+            <tr><td>Random Forest</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
+            <tr class="ours"><td>SentriX (Ours)</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
+          </tbody>
+        </table>
+        <div class="cap">원인 순위 성능 비교</div>
+        <div class="note">※ 성능 수치는 학습 완료 후 기재</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+          <div>
+            <svg viewBox="0 0 210 140" width="100%">
+              <text x="105" y="10" font-size="9" text-anchor="middle" font-weight="700">장애 주입 시 응답 지연 (p99)</text>
+              <!-- log axis: 100->118, 1000->70, 10000->22 -->
+              <line x1="34" y1="118" x2="204" y2="118" stroke="#444"/><line x1="34" y1="18" x2="34" y2="118" stroke="#444"/>
+              <g stroke="#e3e6ec"><line x1="34" y1="70" x2="204" y2="70"/><line x1="34" y1="22" x2="204" y2="22"/></g>
+              <g font-size="7.5" fill="#555" text-anchor="end"><text x="31" y="120">100</text><text x="31" y="72">1k</text><text x="31" y="24">10k</text></g>
+              <text x="12" y="70" font-size="7.5" fill="#555" transform="rotate(-90 12 70)" text-anchor="middle">ms (log)</text>
+              <!-- delay 126 / 3590 -->
+              <rect x="46" y="113.2" width="14" height="4.8" fill="#9aa8c4"/><rect x="61" y="43.3" width="14" height="74.7" fill="#2f5fb3"/>
+              <!-- loss 129 / 521 -->
+              <rect x="100" y="112.7" width="14" height="5.3" fill="#9aa8c4"/><rect x="115" y="83.6" width="14" height="34.4" fill="#2f5fb3"/>
+              <!-- cpu 161 / 214 -->
+              <rect x="154" y="108.1" width="14" height="9.9" fill="#9aa8c4"/><rect x="169" y="102.2" width="14" height="15.8" fill="#2f5fb3"/>
+              <g font-size="8" text-anchor="middle"><text x="60" y="129">지연</text><text x="114" y="129">손실</text><text x="168" y="129">CPU</text></g>
+              <g font-size="7" text-anchor="middle" fill="#333"><text x="68" y="40">3,590</text><text x="122" y="80">521</text><text x="176" y="99">214</text></g>
+              <rect x="120" y="14" width="7" height="6" fill="#9aa8c4"/><text x="130" y="20" font-size="7">정상</text>
+              <rect x="152" y="14" width="7" height="6" fill="#2f5fb3"/><text x="162" y="20" font-size="7">장애</text>
+            </svg>
+          </div>
+          <div>
+            <svg viewBox="0 0 210 140" width="100%">
+              <text x="105" y="10" font-size="9" text-anchor="middle" font-weight="700">부하에 따른 응답 시간</text>
+              <!-- y 0..600 -> 118..18 ; x 1..8 -> 44..198 -->
+              <line x1="34" y1="118" x2="204" y2="118" stroke="#444"/><line x1="34" y1="18" x2="34" y2="118" stroke="#444"/>
+              <g stroke="#e3e6ec"><line x1="34" y1="68" x2="204" y2="68"/><line x1="34" y1="18" x2="204" y2="18"/></g>
+              <g font-size="7.5" fill="#555" text-anchor="end"><text x="31" y="120">0</text><text x="31" y="70">300</text><text x="31" y="20">600</text></g>
+              <polyline fill="none" stroke="#2f5fb3" stroke-width="1.8" points="44,97.3 66,92 88,97.2 110,96.5 154,63.7 198,27.2"/>
+              <polyline fill="none" stroke="#9aa8c4" stroke-width="1.8" points="44,112 66,111.8 88,112.3 110,112.2 154,95.8 198,73.8"/>
+              <g fill="#2f5fb3"><circle cx="44" cy="97.3" r="2"/><circle cx="66" cy="92" r="2"/><circle cx="88" cy="97.2" r="2"/><circle cx="110" cy="96.5" r="2"/><circle cx="154" cy="63.7" r="2"/><circle cx="198" cy="27.2" r="2"/></g>
+              <g font-size="7.5" fill="#555" text-anchor="middle"><text x="44" y="128">1</text><text x="66" y="128">2</text><text x="88" y="128">3</text><text x="110" y="128">4</text><text x="154" y="128">6</text><text x="198" y="128">8</text><text x="121" y="138">초당 요청 수</text></g>
+              <line x1="120" y1="17" x2="130" y2="17" stroke="#2f5fb3" stroke-width="1.8"/><text x="133" y="20" font-size="7">p99</text>
+              <line x1="152" y1="17" x2="162" y2="17" stroke="#9aa8c4" stroke-width="1.8"/><text x="165" y="20" font-size="7">p50</text>
+            </svg>
+          </div>
+        </div>
+        <div class="cap">장애 주입 검증 및 처리 용량 측정 결과</div>
+      </section>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SentriX Poster v3</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #142a5c; --blue: #1f4e9e; --sky: #eaf0fa; --ink: #1b1f2a; --muted: #5d6676;
+    --line: #cdd6e7; --red: #d9481e; --redbg: #fdeee8; --green: #1f8a57; --paper: #fff; --bg: #e9ebef;
+    --dk: #0f1729; --dk2: #172238; --dk3: #22304d; --dktext: #c9d4ea;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); font-family: "Noto Sans KR", system-ui, sans-serif; color: var(--ink); }
+  .poster { width: 1000px; margin: 24px auto; background: var(--paper); aspect-ratio: 841/1189;
+    display: flex; flex-direction: column; box-shadow: 0 6px 24px rgba(0,0,0,.18); }
+  @media (max-width: 1040px) { .poster { width: calc(100% - 32px); margin: 16px; aspect-ratio: auto; } }
+  header { background: var(--navy); color: #fff; display: grid; grid-template-columns: 92px 1fr 200px;
+    gap: 18px; align-items: center; padding: 18px 26px; }
+  .qr { width: 92px; height: 92px; background: #fff; border-radius: 8px; display: grid; place-items: center;
+    color: var(--navy); font-size: 11px; font-weight: 700; text-align: center; line-height: 1.3; }
+  h1 { margin: 0; font-size: 27px; font-weight: 900; letter-spacing: -.5px; }
+  h1 span { color: #9fc0ff; }
+  header p { margin: 5px 0 0; font-size: 14.5px; color: #d6e1f6; }
+  header .who { margin-top: 7px; font-size: 13px; color: #b9c8e6; }
+  .advisor { text-align: right; font-size: 14px; font-weight: 700; align-self: end; }
+
+  main { flex: 1; padding: 16px 24px 20px; display: flex; flex-direction: column; gap: 14px; }
+  .bar { background: var(--blue); color: #fff; font-weight: 700; font-size: 16px; padding: 5px 12px; margin-bottom: 8px; }
+  .cap { font-size: 12px; color: var(--muted); text-align: center; margin-top: 4px; }
+  .desc { font-size: 13px; line-height: 1.55; margin: 0 0 6px; }
+  .desc b { color: var(--navy); }
+  ul { margin: 0; padding-left: 18px; font-size: 13.5px; line-height: 1.65; }
+  li b { color: var(--navy); }
+  svg text { font-family: "Noto Sans KR", sans-serif; }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .col { display: flex; flex-direction: column; gap: 12px; }
+  .mid { flex: 1; }
+  .mid .col > section { display: flex; flex-direction: column; }
+  .mid .col > section.fill { flex: 1; }
+  .fig { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+  /* architecture flow */
+  .flow { display: flex; align-items: center; gap: 5px; margin-top: 8px; }
+  .node { flex: 1; border: 1.5px solid var(--line); border-radius: 8px; padding: 7px 4px; text-align: center; font-size: 11.5px; background: var(--sky); }
+  .node b { display: block; font-size: 12px; color: var(--navy); }
+  .arr { color: var(--blue); font-weight: 700; }
+
+  /* dashboard mockup */
+  .dash { width: 100%; background: var(--dk); border-radius: 8px; overflow: hidden; color: var(--dktext); font-size: 11px; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .dash .top { display: flex; align-items: center; gap: 8px; padding: 6px 9px; background: var(--dk2); border-bottom: 1px solid var(--dk3); }
+  .dash .logo { font-weight: 900; color: #fff; font-size: 12px; }
+  .dash .logo span { color: #6ea2ff; }
+  .dash .alert { margin-left: auto; background: #4a1a12; color: #ff9b7e; border: 1px solid #a8361b; border-radius: 4px; padding: 1px 7px; font-weight: 700; }
+  .dash .body { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 7px; }
+  .panel { background: var(--dk2); border: 1px solid var(--dk3); border-radius: 5px; padding: 6px 7px; }
+  .panel .pt { font-size: 10px; color: #8fa3c8; margin-bottom: 4px; font-weight: 700; }
+  .panel.wide { grid-column: 1 / 3; }
+  .rank { display: grid; grid-template-columns: 12px 1fr 34px; gap: 4px; align-items: center; margin: 4px 0; }
+  .rank .n { color: #8fa3c8; }
+  .rank .nm { color: #e6ecf8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rank .nm small { color: #8fa3c8; }
+  .rank .sc { text-align: right; font-family: "JetBrains Mono", monospace; color: #e6ecf8; }
+  .rank .bar2 { grid-column: 2 / 4; height: 3px; background: var(--dk3); border-radius: 2px; overflow: hidden; }
+  .rank .bar2 i { display: block; height: 100%; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  .kpi { background: var(--dk); border: 1px solid var(--dk3); border-radius: 4px; padding: 4px 6px; }
+  .kpi .l { font-size: 9px; color: #8fa3c8; }
+  .kpi .v { font-size: 12.5px; font-weight: 700; color: #fff; }
+  .kpi .v.bad { color: #ff8a66; }
+
+  /* bottom */
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .chip { border: 1.5px solid var(--line); border-radius: 999px; padding: 4px 10px; font-size: 12.5px; background: #fff; }
+  .chip b { color: var(--navy); }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 5px 4px; text-align: center; }
+  th { background: var(--sky); color: var(--navy); }
+  td:first-child, th:first-child { text-align: left; }
+  tr.ours td { background: var(--redbg); font-weight: 700; }
+  .ph { color: var(--red); font-weight: 700; }
+  .small { font-size: 10.5px; color: var(--red); text-align: right; margin-top: 2px; }
+  .ba { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 10px; }
+  .ba > div { background: var(--sky); border-radius: 8px; padding: 7px 6px; text-align: center; }
+  .ba .k { font-size: 12px; font-weight: 700; color: var(--navy); }
+  .ba .v { margin-top: 3px; font-size: 12px; }
+  .ba .v s { color: var(--muted); }
+  .ba .v b { color: var(--green); font-size: 15.5px; display: block; }
+  .ba .f { font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="poster">
+  <header>
+    <div class="qr">QR<br><span style="font-weight:400;color:#5d6676">GitHub</span></div>
+    <div>
+      <h1><span>SentriX</span> · 관측 데이터 기반 마이크로서비스 장애 원인 분석</h1>
+      <p>지표·로그·트레이스로 장애를 탐지하고 원인 서비스·연결의 후보 순위를 제시하는 RCA 시스템</p>
+      <div class="who">[이름1], [이름2], [이름3] · [학교] [학과]</div>
+    </div>
+    <div class="advisor">지도교수: [성함] 교수</div>
+  </header>
+
+  <main>
+    <section>
+      <div class="bar">Background</div>
+      <ul>
+        <li>마이크로서비스는 호출이 연쇄적으로 이어져, 한 서비스의 장애가 <b>여러 서비스의 지연·오류로 함께 나타남</b>.</li>
+        <li>모니터링 도구는 증상은 보여주지만 <b>원인 추적은 운영자의 몫</b> → 관측 데이터로 원인 후보를 자동으로 좁히는 시스템이 필요함.</li>
+      </ul>
+    </section>
+
+    <div class="cols mid">
+      <div class="col">
+        <section>
+          <div class="bar">Methodology</div>
+          <p class="desc">같은 조건에서 <b>장애 run과 대조 run을 한 쌍</b>으로 수집하고, 장애 시작 시점은 7~12분 사이에서 무작위로 정함.</p>
+          <svg viewBox="0 0 440 102" width="100%">
+            <g font-size="11" fill="#5d6676"><text x="0" y="23">장애 run</text><text x="0" y="61">대조 run</text></g>
+            <rect x="60" y="10" width="44" height="20" fill="#d6dbe5"/><rect x="104" y="10" width="88" height="20" fill="#bcd0f0"/>
+            <rect x="192" y="10" width="74" height="20" fill="#d9481e"/><rect x="266" y="10" width="134" height="20" fill="#bcd0f0"/>
+            <rect x="400" y="10" width="30" height="20" fill="#d6dbe5"/>
+            <text x="229" y="24" font-size="10.5" fill="#fff" text-anchor="middle" font-weight="700">장애 5분</text>
+            <rect x="60" y="48" width="44" height="20" fill="#d6dbe5"/><rect x="104" y="48" width="88" height="20" fill="#bcd0f0"/>
+            <rect x="192" y="48" width="74" height="20" fill="#fff" stroke="#d9481e" stroke-dasharray="3 2"/>
+            <rect x="266" y="48" width="134" height="20" fill="#bcd0f0"/><rect x="400" y="48" width="30" height="20" fill="#d6dbe5"/>
+            <text x="229" y="62" font-size="10.5" fill="#d9481e" text-anchor="middle">장애 없음</text>
+            <g font-size="9.5" fill="#5d6676" text-anchor="middle">
+              <text x="82" y="84">준비</text><text x="148" y="84">정상</text><text x="229" y="84">7~12분 시작</text><text x="333" y="84">회복</text><text x="415" y="84">마무리</text>
+              <text x="245" y="99">run 1회 = 25분</text>
+            </g>
+          </svg>
+          <p class="desc" style="margin-top:8px">주입한 장애가 실제 서비스 호출에 걸렸는지 <b>패킷·지연을 직접 측정해 확인</b>한 데이터만 사용함.</p>
+          <div class="cap">장애 · 대조 쌍 수집 방식</div>
+        </section>
+
+        <section class="fill">
+          <div class="bar">Model Architecture</div>
+          <div class="fig">
+            <svg viewBox="0 0 440 168" width="100%">
+              <defs><marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L8 4L0 8z" fill="#9aa8c4"/></marker>
+              <marker id="ahr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L8 4L0 8z" fill="#d9481e"/></marker></defs>
+              <g stroke="#9aa8c4" stroke-width="1.6" fill="none" marker-end="url(#ah)">
+                <path d="M62 84 L118 38"/><path d="M62 84 L118 130"/><path d="M62 84 L118 84"/>
+                <path d="M158 130 L210 130"/><path d="M158 38 L210 84"/>
+              </g>
+              <path d="M158 84 L208 84" stroke="#d9481e" stroke-width="3" marker-end="url(#ahr)"/>
+              <g font-size="9.5" text-anchor="middle">
+                <circle cx="44" cy="84" r="19" fill="#eaf0fa" stroke="#1f4e9e"/><text x="44" y="87">frontend</text>
+                <circle cx="138" cy="38" r="19" fill="#eaf0fa" stroke="#1f4e9e"/><text x="138" y="41">recomm.</text>
+                <circle cx="138" cy="84" r="19" fill="#eaf0fa" stroke="#1f4e9e"/><text x="138" y="87">checkout</text>
+                <circle cx="138" cy="130" r="19" fill="#eaf0fa" stroke="#1f4e9e"/><text x="138" y="133">currency</text>
+                <circle cx="230" cy="84" r="19" fill="#fdeee8" stroke="#d9481e" stroke-width="2"/><text x="230" y="87">product</text>
+                <circle cx="230" cy="130" r="19" fill="#eaf0fa" stroke="#1f4e9e"/><text x="230" y="133">payment</text>
+              </g>
+              <text x="138" y="164" font-size="9.5" fill="#5d6676" text-anchor="middle">서비스(node) · 호출 연결(edge) 그래프</text>
+              <g transform="translate(272,16)">
+                <rect x="0" y="0" width="164" height="40" rx="6" fill="#eaf0fa"/>
+                <text x="8" y="16" font-size="10.5" font-weight="700" fill="#142a5c">Feature (30초 구간)</text>
+                <text x="8" y="31" font-size="9.5">CPU·메모리·오류·지연 / 호출 수</text>
+                <text x="82" y="56" font-size="12" text-anchor="middle" fill="#1f4e9e">▼</text>
+                <rect x="0" y="64" width="164" height="78" rx="6" fill="#fdeee8"/>
+                <text x="8" y="81" font-size="10.5" font-weight="700">① 이상 탐지</text>
+                <text x="8" y="100" font-size="10.5" font-weight="700">② 원인 순위 (node / edge)</text>
+                <text x="8" y="119" font-size="10.5" font-weight="700">③ 장애 유형 (5종)</text>
+                <text x="8" y="135" font-size="9" fill="#5d6676">모든 노드·연결에 같은 점수 함수</text>
+              </g>
+            </svg>
+            <ul style="margin-top:8px">
+              <li>서비스 이름 대신 <b>지표 패턴</b>으로 점수를 매겨, 처음 보는 서비스에도 같은 모델을 적용</li>
+              <li>네트워크 장애는 서비스가 아닌 <b>호출 연결(edge)</b> 단위로 원인을 표시</li>
+            </ul>
+          </div>
+          <div class="cap">모델 전체 구조</div>
+        </section>
+      </div>
+
+      <div class="col">
+        <section class="fill">
+          <div class="bar">UI &amp; Service Architecture</div>
+          <div class="fig">
+            <div class="dash">
+              <div class="top">
+                <div class="logo"><span>Sentri</span>X</div>
+                <div style="color:#8fa3c8">online-boutique · k3s</div>
+                <div class="alert">● ANOMALY DETECTED</div>
+              </div>
+              <div class="body">
+                <div class="panel wide">
+                  <div class="kpis">
+                    <div class="kpi"><div class="l">응답 p99</div><div class="v bad">3.59 s</div></div>
+                    <div class="kpi"><div class="l">성공률</div><div class="v">100 %</div></div>
+                    <div class="kpi"><div class="l">초당 요청</div><div class="v">2.4</div></div>
+                    <div class="kpi"><div class="l">탐지 점수</div><div class="v bad">0.91</div></div>
+                  </div>
+                </div>
+                <div class="panel">
+                  <div class="pt">서비스 구성도</div>
+                  <svg viewBox="0 0 200 110" width="100%">
+                    <g stroke="#3a4c72" stroke-width="1.4"><line x1="30" y1="55" x2="95" y2="20"/><line x1="30" y1="55" x2="95" y2="90"/><line x1="95" y1="20" x2="165" y2="55"/><line x1="95" y1="90" x2="165" y2="90"/></g>
+                    <line x1="30" y1="55" x2="165" y2="55" stroke="#ff7a52" stroke-width="2.6"/>
+                    <g font-size="8" text-anchor="middle" fill="#e6ecf8">
+                      <circle cx="30" cy="55" r="13" fill="#22304d" stroke="#6ea2ff"/><text x="30" y="58">front</text>
+                      <circle cx="95" cy="20" r="11" fill="#22304d" stroke="#6ea2ff"/><text x="95" y="23">rec</text>
+                      <circle cx="95" cy="90" r="11" fill="#22304d" stroke="#6ea2ff"/><text x="95" y="93">chk</text>
+                      <circle cx="165" cy="55" r="13" fill="#4a1a12" stroke="#ff7a52" stroke-width="2"/><text x="165" y="58">prod</text>
+                      <circle cx="165" cy="90" r="11" fill="#22304d" stroke="#6ea2ff"/><text x="165" y="93">pay</text>
+                    </g>
+                  </svg>
+                </div>
+                <div class="panel">
+                  <div class="pt">원인 후보 순위</div>
+                  <div class="rank"><span class="n">1</span><span class="nm">front → product <small>delay</small></span><span class="sc">0.84</span><span class="bar2"><i style="width:84%;background:#ff7a52"></i></span></div>
+                  <div class="rank"><span class="n">2</span><span class="nm">productcatalog <small>cpu</small></span><span class="sc">0.41</span><span class="bar2"><i style="width:41%;background:#6ea2ff"></i></span></div>
+                  <div class="rank"><span class="n">3</span><span class="nm">recommendation <small>cpu</small></span><span class="sc">0.22</span><span class="bar2"><i style="width:22%;background:#6ea2ff"></i></span></div>
+                  <div class="rank"><span class="n">4</span><span class="nm">checkout <small>pod</small></span><span class="sc">0.09</span><span class="bar2"><i style="width:9%;background:#6ea2ff"></i></span></div>
+                </div>
+                <div class="panel wide">
+                  <div class="pt">응답 시간 · 근거 지표 (최근 15분)</div>
+                  <svg viewBox="0 0 400 70" width="100%" preserveAspectRatio="none">
+                    <rect x="190" y="0" width="100" height="70" fill="#d9481e" opacity=".18"/>
+                    <g stroke="#22304d" stroke-width=".7"><line x1="0" y1="17" x2="400" y2="17"/><line x1="0" y1="35" x2="400" y2="35"/><line x1="0" y1="53" x2="400" y2="53"/></g>
+                    <polyline fill="none" stroke="#6ea2ff" stroke-width="1.8" points="0,60 25,59 50,61 75,59 100,60 125,58 150,60 175,59 190,58 198,16 215,11 235,14 255,9 275,12 290,11 298,56 325,59 350,60 375,58 400,59"/>
+                    <polyline fill="none" stroke="#ffb35c" stroke-width="1.2" stroke-dasharray="3 2" points="0,64 190,64 198,40 290,40 298,64 400,64"/>
+                    <text x="240" y="67" font-size="8" fill="#ff9b7e" text-anchor="middle">장애 구간</text>
+                  </svg>
+                  <div style="font-size:10px;margin-top:2px"><span style="color:#6ea2ff">━</span> 사용자 응답 &nbsp; <span style="color:#ffb35c">┅</span> front→product 호출 지연 <b style="color:#ff9b7e">+114 ms</b></div>
+                </div>
+              </div>
+            </div>
+            <div class="cap">대시보드 화면 (예시)</div>
+            <div class="flow">
+              <div class="node"><b>Online Boutique</b>k3s · Chaos Mesh</div><span class="arr">→</span>
+              <div class="node"><b>관측</b>Prometheus · Tempo · Loki</div><span class="arr">→</span>
+              <div class="node"><b>sentrix-core</b>구간·특징</div><span class="arr">→</span>
+              <div class="node"><b>Model Server</b>FastAPI</div><span class="arr">→</span>
+              <div class="node"><b>Dashboard</b>Web</div>
+            </div>
+            <div class="cap">서비스 전체 아키텍처</div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="cols">
+      <section>
+        <div class="bar">Experiments</div>
+        <div class="chips">
+          <span class="chip"><b>공개 데이터</b> RCAEval RE2-OB 90건</span>
+          <span class="chip"><b>직접 수집</b> 장애 69 + 대조 69</span>
+          <span class="chip"><b>장애</b> CPU · Pod · 지연 · 손실 · 트래픽 급증</span>
+          <span class="chip"><b>환경</b> k3s · Online Boutique v0.9.0</span>
+          <span class="chip"><b>부하</b> 초당 2.4건 (처리 용량의 40 %)</span>
+          <span class="chip"><b>평가</b> 반복 기준 3-fold · AC@1 · AC@3 · MRR</span>
+        </div>
+        <svg viewBox="0 0 440 124" width="100%" style="margin-top:8px">
+          <text x="0" y="10" font-size="10.5" fill="#142a5c" font-weight="700">처리 용량 측정 — 응답 시간 (ms)</text>
+          <line x1="34" y1="100" x2="432" y2="100" stroke="#9aa6bd"/><line x1="34" y1="16" x2="34" y2="100" stroke="#9aa6bd"/>
+          <line x1="34" y1="30" x2="432" y2="30" stroke="#d9481e" stroke-dasharray="4 3"/>
+          <text x="40" y="27" font-size="9" fill="#d9481e">기준 500 ms</text>
+          <polyline fill="none" stroke="#1f4e9e" stroke-width="2.2" points="50,82.6 102.6,78.2 155.1,82.5 207.7,81.9 312.9,54.4 418,23.4"/>
+          <polyline fill="none" stroke="#9fb3d6" stroke-width="2.2" points="50,95 102.6,94.8 155.1,95.2 207.7,95.1 312.9,81.4 418,62.9"/>
+          <circle cx="312.9" cy="54.4" r="3.5" fill="#1f4e9e"/><circle cx="418" cy="23.4" r="3.5" fill="#d9481e"/>
+          <g font-size="9.5" fill="#5d6676" text-anchor="middle"><text x="50" y="112">1</text><text x="103" y="112">2</text><text x="155" y="112">3</text><text x="208" y="112">4</text><text x="313" y="112">6</text><text x="418" y="112">8</text><text x="234" y="122">초당 거래 수</text></g>
+          <text x="320" y="51" font-size="9.5" fill="#1f4e9e">p99</text><text x="320" y="78" font-size="9.5" fill="#7d94bf">p50</text>
+        </svg>
+      </section>
+      <section>
+        <div class="bar">Result</div>
+        <table>
+          <tr><th rowspan="2">Method</th><th colspan="3">RE2-OB</th><th colspan="3">직접 수집</th></tr>
+          <tr><th>AC@1</th><th>AC@3</th><th>MRR</th><th>AC@1</th><th>AC@3</th><th>MRR</th></tr>
+          <tr><td>Random</td><td class="ph">XX.X</td><td class="ph">XX.X</td><td class="ph">0.XX</td><td class="ph">XX.X</td><td class="ph">XX.X</td><td class="ph">0.XX</td></tr>
+          <tr><td>통계 임계값</td><td class="ph">XX.X</td><td class="ph">XX.X</td><td class="ph">0.XX</td><td class="ph">XX.X</td><td class="ph">XX.X</td><td class="ph">0.XX</td></tr>
+          <tr><td>Random Forest</td><td class="ph">XX.X</td><td class="ph">XX.X</td><td class="ph">0.XX</td><td class="ph">XX.X</td><td class="ph">XX.X</td><td class="ph">0.XX</td></tr>
+          <tr class="ours"><td>SentriX</td><td class="ph">XX.X</td><td class="ph">XX.X</td><td class="ph">0.XX</td><td class="ph">XX.X</td><td class="ph">XX.X</td><td class="ph">0.XX</td></tr>
+        </table>
+        <div class="cap">원인 순위 정확도 (%) · 이상 탐지 AUROC <span class="ph">0.XX</span> · 장애 유형 Macro-F1 <span class="ph">0.XX</span></div>
+        <div class="ba">
+          <div><div class="k">네트워크 지연</div><div class="v"><s>+0 ms</s><b>+100 ms</b></div><div class="f">Service 경로 필터 보완</div></div>
+          <div><div class="k">패킷 손실 2 %</div><div class="v"><s>실제 0 %</s><b>실제 2.04 %</b></div><div class="f">독립 손실로 변경</div></div>
+          <div><div class="k">서비스 재시작</div><div class="v"><s>22시간마다</s><b>실험 중 0회</b></div><div class="f">실험 전 초기화</div></div>
+        </div>
+        <div class="cap">장애 주입 검증 (보완 전 → 후)</div>
+        <div class="small">※ XX: 학습 완료 후 기입</div>
+      </section>
+    </div>
+  </main>
+</div>
+</body>
+</html>

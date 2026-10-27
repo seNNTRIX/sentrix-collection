@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SentriX Poster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #142a5c;
+    --blue: #1f4e9e;
+    --sky: #e8eef9;
+    --ink: #1b1f2a;
+    --muted: #5b6475;
+    --line: #c9d3e6;
+    --accent: #d9481e;
+    --ok: #1f7a4d;
+    --paper: #ffffff;
+    --bg: #e9ebef;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); font-family: "Noto Sans KR", system-ui, sans-serif; color: var(--ink); }
+  .poster {
+    width: 1000px; margin: 24px auto; background: var(--paper);
+    aspect-ratio: 841 / 1189; display: flex; flex-direction: column;
+    box-shadow: 0 6px 24px rgba(0,0,0,.18);
+  }
+  @media (max-width: 1040px) { .poster { width: calc(100% - 32px); margin: 16px; aspect-ratio: auto; } }
+  header {
+    background: var(--navy); color: #fff; display: grid;
+    grid-template-columns: 96px 1fr 210px; gap: 18px; align-items: center; padding: 18px 26px;
+  }
+  .qr { width: 96px; height: 96px; background: #fff; border-radius: 8px; display: grid; place-items: center; color: var(--navy); font-size: 11px; font-weight: 700; text-align: center; }
+  .qr small { display:block; font-weight: 400; color: var(--muted); }
+  .title h1 { margin: 0; font-size: 27px; font-weight: 900; letter-spacing: -0.5px; }
+  .title h1 span { color: #9fc0ff; }
+  .title p { margin: 6px 0 0; font-size: 15px; color: #d9e3f7; }
+  .title .who { margin-top: 8px; font-size: 13px; color: #c5d3ee; }
+  .advisor { text-align: right; font-size: 14px; font-weight: 700; align-self: end; }
+  main { flex: 1; padding: 18px 26px 22px; display: flex; flex-direction: column; justify-content: space-between; gap: 14px; }
+  .bar { background: var(--blue); color: #fff; font-weight: 700; font-size: 16px; padding: 5px 12px; margin: 0 0 8px; }
+  ul { margin: 0; padding-left: 18px; font-size: 13.6px; line-height: 1.65; }
+  li b { color: var(--navy); }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  .col { display: flex; flex-direction: column; gap: 12px; }
+  .cap { text-align: center; font-size: 12px; color: var(--muted); margin-top: 4px; }
+  /* pipeline */
+  .pipe { display: grid; gap: 6px; }
+  .pipe .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .box { border: 1.5px solid var(--blue); border-radius: 6px; padding: 8px 8px; font-size: 12.5px; background: var(--sky); text-align: center; line-height: 1.35; }
+  .box b { display: block; color: var(--navy); font-size: 13px; }
+  .box.out { background: #fff4ee; border-color: var(--accent); }
+  .arrow { text-align: center; color: var(--blue); font-size: 13px; line-height: 1; }
+  .note { font-size: 11px; color: var(--muted); text-align: center; }
+  /* architecture */
+  .arch { border: 1.5px solid var(--line); border-radius: 10px; padding: 10px; display: grid; gap: 6px; }
+  .arch .tier { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+  .chip { border-radius: 999px; padding: 5px 11px; font-size: 12.5px; font-weight: 500; border: 1.5px solid var(--blue); background: #fff; }
+  .chip.k8s { border-color: #326ce5; color: #326ce5; }
+  .chip.obs { border-color: #e6522c; color: #b83c1b; }
+  .chip.app { border-color: var(--navy); background: var(--navy); color: #fff; }
+  .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .shot { border: 1.5px solid var(--line); border-radius: 6px; height: 118px; background: linear-gradient(#f4f6fb, #fff); position: relative; overflow: hidden; }
+  .shot::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 12px; background: #dfe5f1; }
+  .shot span { position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; font-size: 10.5px; color: var(--muted); }
+  .shot .g { position: absolute; left: 10px; right: 10px; top: 24px; height: 66px; }
+  /* tables */
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 5px 5px; text-align: center; }
+  th { background: var(--sky); color: var(--navy); font-weight: 700; }
+  td:first-child, th:first-child { text-align: left; }
+  tr.ours td { font-weight: 700; background: #fff4ee; }
+  .ph { color: var(--accent); font-weight: 700; letter-spacing: .5px; }
+  .meta { font-size: 13px; line-height: 1.6; }
+  .meta h4 { margin: 6px 0 2px; font-size: 13px; border-left: 4px solid var(--navy); padding-left: 6px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .finds { font-size: 12.5px; line-height: 1.55; margin: 0; padding-left: 16px; }
+  .todo { font-size: 10.5px; color: var(--accent); text-align: right; margin-top: 2px; }
+  svg text { font-family: "Noto Sans KR", sans-serif; }
+</style>
+</head>
+<body>
+<div class="poster">
+  <header>
+    <div class="qr">QR<small>GitHub / 데모</small></div>
+    <div class="title">
+      <h1><span>SentriX</span> · 관측 데이터 기반 마이크로서비스 장애 원인 분석</h1>
+      <p>지표·로그·트레이스로 장애를 탐지하고, 원인 서비스와 서비스 간 연결의 후보 순위를 제시하는 RCA 시스템</p>
+      <div class="who">[이름1], [이름2], [이름3] · [학교] [학과]</div>
+    </div>
+    <div class="advisor">지도교수: [성함] 교수</div>
+  </header>
+
+  <main>
+    <section>
+      <div class="bar">Background</div>
+      <ul>
+        <li>마이크로서비스는 호출이 연쇄적으로 이어져 있어, 한 서비스의 장애가 여러 서비스의 <b>지연·오류로 함께 나타남</b>.</li>
+        <li>기존 모니터링은 어디가 느려졌는지는 보여주지만, <b>어디가 원인인지는 운영자가 직접 추적</b>해야 함.</li>
+        <li>본 프로젝트는 지표·로그·트레이스를 함께 분석해 <b>장애 여부, 원인 서비스·연결, 장애 유형</b>을 순위와 근거로 제시함.</li>
+      </ul>
+    </section>
+
+    <div class="cols">
+      <div class="col">
+        <section>
+          <div class="bar">Methodology</div>
+          <ul>
+            <li><b>장애 실험 환경:</b> k3s 위 Online Boutique(11개 서비스)에 Chaos Mesh로 CPU 과부하·Pod 장애·네트워크 지연·패킷 손실·트래픽 급증을 주입.</li>
+            <li><b>대조군 설계:</b> 장애 run마다 같은 조건에서 장애만 없는 대조 run을 한 쌍으로 수집해, 장애로 인한 변화만 비교.</li>
+            <li><b>원인 순위화:</b> 서비스 이름을 분류하지 않고, 모든 서비스와 연결에 같은 방식으로 점수를 매겨 Top-k 원인 후보를 출력.</li>
+          </ul>
+        </section>
+        <section>
+          <div class="bar">Model Architecture</div>
+          <div class="pipe">
+            <div class="row">
+              <div class="box"><b>Metrics</b>CPU·메모리·요청률·오류</div>
+              <div class="box"><b>Traces</b>서비스 간 호출 지연</div>
+              <div class="box"><b>Logs</b>오류·템플릿 빈도</div>
+            </div>
+            <div class="arrow">▼</div>
+            <div class="box"><b>Window &amp; Feature</b>30초 구간 · 10초 간격 · 서비스(node)/연결(edge)별 특징 + 결측 mask</div>
+            <div class="arrow">▼</div>
+            <div class="row">
+              <div class="box out"><b>① 이상 탐지</b>사용자 영향 여부</div>
+              <div class="box out"><b>② 원인 순위</b>node / edge Top-k</div>
+              <div class="box out"><b>③ 장애 유형</b>5종 분류</div>
+            </div>
+            <div class="note">서비스 이름·시각 등 정답을 암기할 수 있는 정보는 입력에서 제외</div>
+          </div>
+          <div class="cap">모델 전체 구조</div>
+        </section>
+      </div>
+
+      <div class="col">
+        <section>
+          <div class="bar">UI &amp; Service Architecture</div>
+          <div class="shots">
+            <div class="shot">
+              <svg class="g" viewBox="0 0 100 46" preserveAspectRatio="none">
+                <circle cx="20" cy="23" r="6" fill="#1f4e9e"/><circle cx="50" cy="10" r="5" fill="#1f4e9e"/>
+                <circle cx="50" cy="36" r="5" fill="#d9481e"/><circle cx="80" cy="23" r="5" fill="#1f4e9e"/>
+                <path d="M26 21 L45 11 M26 25 L45 35 M55 11 L75 21 M55 35 L75 25" stroke="#8aa0c8" stroke-width="1.5"/>
+              </svg><span>서비스 구성도</span></div>
+            <div class="shot">
+              <svg class="g" viewBox="0 0 100 46">
+                <rect x="6" y="6" width="80" height="7" rx="2" fill="#d9481e"/><rect x="6" y="19" width="52" height="7" rx="2" fill="#7f97c6"/>
+                <rect x="6" y="32" width="30" height="7" rx="2" fill="#b9c6e0"/>
+              </svg><span>원인 후보 순위</span></div>
+            <div class="shot">
+              <svg class="g" viewBox="0 0 100 46" preserveAspectRatio="none">
+                <polyline points="0,38 20,36 35,37 45,12 60,10 70,34 100,35" fill="none" stroke="#1f4e9e" stroke-width="2"/>
+                <rect x="43" y="0" width="22" height="46" fill="#d9481e" opacity=".12"/>
+              </svg><span>장애 전후 지표</span></div>
+          </div>
+          <div class="cap">대시보드 화면 <span class="ph">(캡처로 교체)</span></div>
+          <div class="arch" style="margin-top:8px">
+            <div class="tier"><span class="chip">사용자 트래픽 (k6)</span><span class="chip">장애 주입 (Chaos Mesh)</span></div>
+            <div class="arrow">▼</div>
+            <div class="tier"><span class="chip k8s">Online Boutique on k3s</span></div>
+            <div class="arrow">▼</div>
+            <div class="tier"><span class="chip obs">OTel Collector</span><span class="chip obs">Prometheus</span><span class="chip obs">Tempo</span><span class="chip obs">Loki</span></div>
+            <div class="arrow">▼</div>
+            <div class="tier"><span class="chip app">sentrix-core</span><span class="chip app">Model Server (FastAPI)</span><span class="chip app">Dashboard</span></div>
+          </div>
+          <div class="cap">서비스 전체 아키텍처</div>
+        </section>
+      </div>
+    </div>
+
+    <div class="cols">
+      <section>
+        <div class="bar">Experiments</div>
+        <div class="meta">
+          <h4>Dataset</h4>
+          <ul>
+            <li>RCAEval RE2-OB: 90개 장애 사례 (5개 서비스 × 6종 × 3회)</li>
+            <li>직접 수집: 장애 69건 + 대조 69건 (138 run)<br>CPU·Pod 장애 5개 서비스, 지연·손실 5개 연결, 트래픽 급증 3단계 × 각 3회</li>
+          </ul>
+          <h4>Setup</h4>
+          <ul>
+            <li>실습실 Linux PC 2대 (24코어 · RAM 15 GB), k3s, Online Boutique v0.9.0</li>
+            <li>run 25분: 정상 → 장애 5분 → 회복, 장애 시작 7~12분 무작위</li>
+            <li>사용자 트래픽 초당 2.4건 (측정 처리 용량의 40 %)</li>
+            <li>반복 번호 기준 3-fold (같은 장애의 구간이 학습·평가에 섞이지 않게)</li>
+          </ul>
+          <h4>Evaluation Metrics</h4>
+          <ul>
+            <li>이상 탐지: AUROC · AUPRC &nbsp;/&nbsp; 원인 순위: AC@1 · AC@3 · MRR &nbsp;/&nbsp; 장애 유형: Macro-F1</li>
+          </ul>
+        </div>
+        <div style="margin-top:8px">
+          <table>
+            <tr><th>장애 (시험 수집)</th><th>주입 확인</th><th>사용자 응답 p99</th></tr>
+            <tr><td>네트워크 지연 100 ms</td><td>호출당 +100 ms</td><td>126 ms → 3.6 s</td></tr>
+            <tr><td>패킷 손실 2 %</td><td>실제 손실 2.04 %</td><td>129 → 521 ms</td></tr>
+            <tr><td>CPU 과부하</td><td>호출 p50 4.5 → 28 ms</td><td>지연 증가</td></tr>
+            <tr><td>Pod 장애</td><td>Pod 비가용</td><td>결제 성공률 0 %</td></tr>
+          </table>
+          <div class="cap">장애 주입 검증</div>
+        </div>
+      </section>
+
+      <section>
+        <div class="bar">Result</div>
+        <table>
+          <tr><th rowspan="2">Method</th><th colspan="3">RE2-OB</th><th colspan="3">직접 수집 (linux-v1)</th></tr>
+          <tr><th>AC@1</th><th>AC@3</th><th>MRR</th><th>AC@1</th><th>AC@3</th><th>MRR</th></tr>
+          <tr><td>Random</td><td class="ph">XX.X</td><td class="ph">XX.X</td><td class="ph">0.XX</td><td class="ph">XX.X</td><td class="ph">XX.X</td><td class="ph">0.XX</td></tr>
+          <tr><td>통계 임계값</td><td class="ph">XX.X</td><td class="ph">XX.X</td><td class="ph">0.XX</td><td class="ph">XX.X</td><td class="ph">XX.X</td><td class="ph">0.XX</td></tr>
+          <tr><td>Random Forest</td><td class="ph">XX.X</td><td class="ph">XX.X</td><td class="ph">0.XX</td><td class="ph">XX.X</td><td class="ph">XX.X</td><td class="ph">0.XX</td></tr>
+          <tr class="ours"><td>SentriX (Ours)</td><td class="ph">XX.X</td><td class="ph">XX.X</td><td class="ph">0.XX</td><td class="ph">XX.X</td><td class="ph">XX.X</td><td class="ph">0.XX</td></tr>
+        </table>
+        <div class="cap">원인 순위 성능 비교 (%) · 이상 탐지 AUROC <span class="ph">0.XX</span> · 장애 유형 Macro-F1 <span class="ph">0.XX</span></div>
+        <div class="todo">※ 붉은 XX는 학습 완료 후 실제 결과로 기입</div>
+
+        <div class="grid2" style="margin-top:8px">
+          <div>
+            <svg viewBox="0 0 230 150" width="100%" role="img" aria-label="처리 용량 측정 그래프">
+              <line x1="34" y1="122" x2="222" y2="122" stroke="#9aa6bd"/>
+              <line x1="34" y1="10" x2="34" y2="122" stroke="#9aa6bd"/>
+              <!-- y: 0..600 ms -> 122..10 ; x: 1..8 -> 44..214 -->
+              <line x1="34" y1="28.7" x2="222" y2="28.7" stroke="#d9481e" stroke-dasharray="4 3"/>
+              <text x="220" y="25" font-size="8" fill="#d9481e" text-anchor="end">기준 500 ms</text>
+              <polyline fill="none" stroke="#1f4e9e" stroke-width="2"
+                points="44,98.8 68.3,92.9 92.6,98.7 116.9,97.9 165.4,61.1 214,20.3"/>
+              <polyline fill="none" stroke="#8aa0c8" stroke-width="2"
+                points="44,115.3 68.3,115.1 92.6,115.7 116.9,115.5 165.4,97.2 214,72.5"/>
+              <g fill="#1f4e9e"><circle cx="165.4" cy="61.1" r="3"/><circle cx="214" cy="20.3" r="3" fill="#d9481e"/></g>
+              <g font-size="8" fill="#5b6475" text-anchor="middle">
+                <text x="44" y="133">1</text><text x="68.3" y="133">2</text><text x="92.6" y="133">3</text>
+                <text x="116.9" y="133">4</text><text x="165.4" y="133">6</text><text x="214" y="133">8</text>
+                <text x="128" y="146">초당 거래 수</text>
+              </g>
+              <g font-size="8" fill="#5b6475" text-anchor="end">
+                <text x="30" y="125">0</text><text x="30" y="66">300</text><text x="30" y="13">600</text>
+              </g>
+              <text x="160" y="52" font-size="8" fill="#1f4e9e">p99</text>
+              <text x="160" y="92" font-size="8" fill="#8aa0c8">p50</text>
+            </svg>
+            <div class="cap">처리 용량 측정 (C = 6 tx/s)</div>
+          </div>
+          <div>
+            <ol class="finds">
+              <li>Service 주소(ClusterIP) 경유 통신에 네트워크 장애가 걸리지 않음 → 목적지 주소 필터 추가</li>
+              <li>커널 7.0에서 상관 손실 설정 시 실제 손실이 크게 줄어듦 → 독립 손실로 변경</li>
+              <li>일부 서비스 메모리 누수로 약 22시간마다 재시작 → 매 실험 전 초기화</li>
+            </ol>
+            <div class="cap">실험 환경 검증에서 해결한 문제</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</body>
+</html>
