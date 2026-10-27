@@ -1,0 +1,88 @@
+experiment: 20261027-re2ob-r6-models
+purpose: R6 - choose the ranking and detection model family and feature set again from scratch on RE2-OB
+written_before_results: true   # committed before any R6 result was computed
+motivation: >
+  The R5 freeze (e25855f) compared only LightGBM variants against statistical baselines. R6 compares model
+  families (linear, random forest, LightGBM, XGBoost, CatBoost) and feature sets under one protocol and
+  re-decides the method from scratch (user decision 2026-10-27). R6 is designed after R3/R4/R4b results were
+  seen, and the winner is picked among many candidates, so the winner's RE2-OB score is optimistic.
+  linux-v1 is the unbiased test. linux-v1 features, scores and rankings have not been looked at.
+data:
+  features: data/features/re2ob-v0 (30 s windows, unchanged since R2; sha256 in experiments/20261027-re2ob-features-v0)
+code: training/run_r6.py; evaluation/ unchanged from R3 (b2465ab); training/run_r4.py, run_r4b.py helpers reused
+environment: .venv-r6 = frozen R5 package set + xgboost + catboost (pip-freeze-r6.txt)
+
+feature_sets:   # same definitions as R4/R4b
+  rel: 18 features relative to the candidate's own baseline (training/run_r4b.py rel_cols)
+  core: 35 features (f_cm_ + f_ct_), includes level / count / flag features
+  all: 67 features (core + optional + log + neighbour)
+detection_feature_sets:   # detection.parquet columns = max and mean over candidates of a ranking feature
+  rel: aggregates of rel (36)
+  core: aggregates of core features present in detection.parquet (44)
+  all: all 58 aggregate columns
+
+models:   # every model gets exactly 4 hyperparameter settings, listed simplest first
+  logreg:
+    ranking: pointwise logistic regression on (window, candidate) rows; score = decision function
+    detection: logistic regression
+    preprocessing: NaN -> 0 (= no change from baseline for rel features), StandardScaler fit on the training split only
+    fixed: max_iter 5000, solver lbfgs
+    grid: {C: [0.01, 0.1, 1, 10]}
+  rf:
+    ranking: pointwise RandomForestClassifier; score = P(root cause)
+    detection: RandomForestClassifier
+    preprocessing: NaN -> 0
+    fixed: n_estimators 300, random_state 0, n_jobs 4
+    grid: {min_samples_leaf: [100, 20], max_features: [sqrt, 0.5]}
+  lgbm:
+    ranking: LGBMRanker lambdarank, query = one window of one case (as R4)
+    detection: LGBMClassifier binary
+    fixed: learning_rate 0.05, random_state 0, deterministic, force_row_wise, n_jobs 4; ranking min_child_samples 100, detection 20
+    grid: {num_leaves: [7, 15] (ranking) / [15, 31] (detection), n_estimators: [100, 300]}
+  xgb:
+    ranking: XGBRanker rank:ndcg, qid = one window of one case
+    detection: XGBClassifier binary:logistic
+    fixed: learning_rate 0.05, tree_method hist, random_state 0, n_jobs 4
+    grid: {max_depth: [3, 4] (ranking) / [4, 6] (detection), n_estimators: [100, 300]}
+  catboost:
+    ranking: CatBoostRanker YetiRank, group_id = one window of one case
+    detection: CatBoostClassifier Logloss
+    fixed: learning_rate 0.05, random_seed 0, thread_count 4
+    grid: {depth: [4, 6], iterations: [100, 300]}
+  native NaN handling: lgbm, xgb, catboost use NaN as missing
+
+ranking:
+  candidates: >
+    stat_combined (R3, no training) + for every model x feature set: the model alone ("pure") and
+    its rank average with stat_combined ("hybrid", same rule as R4b V4). 1 + 5 x 3 x 2 = 31 candidates.
+  primary: leave-one-root-cause-service-out (LOSO) Avg@5 over 90 cases; hyperparameters by inner LOSO over the
+    4 training services (mean Avg@5, ties -> earlier = simpler grid setting)
+  secondary: repetition 3-fold CV Avg@5; hyperparameters by inner repetition CV inside the training folds
+  case score: evaluation/aggregate.py (mean over windows starting 60-300 s after injection), unchanged
+  comparison: paired case bootstrap of the Avg@5 difference (2000, seed 0); "worse" when the 95% CI is below 0
+  decision_rule: |
+    1. best = candidate with the highest LOSO Avg@5 (point estimate).
+    2. eligible = candidates whose paired LOSO difference vs best is not "worse"
+       and whose repetition-CV paired difference vs stat_combined is not "worse".
+    3. pick the simplest eligible candidate by (model, feature set, pure/hybrid) in this order:
+       model: stat_combined < logreg < rf < lgbm < xgb < catboost
+       feature set: rel < core < all
+       pure < hybrid
+  report: LOSO and repetition CV tables, LOSO by held-out service and by fault, paired differences vs best and
+    vs stat_combined, chosen hyperparameters, training time per fit and prediction time per window
+
+detection:
+  candidates: stat_metric (R3, no training) + every model x detection feature set = 16 candidates
+  primary: repetition 3-fold CV window AUROC (out-of-fold); hyperparameters by inner repetition CV (mean AUROC,
+    ties -> simpler)
+  comparison: paired case bootstrap of the AUROC difference (1000, seed 0); "worse" when the 95% CI is below 0
+  decision_rule: |
+    1. best = candidate with the highest AUROC.
+    2. eligible = candidates whose paired AUROC difference vs best is not "worse".
+    3. pick the simplest eligible by (model, feature set) with the same orders as ranking (stat_metric first).
+  report: AUROC, AUPRC with case bootstrap CI, paired differences vs best, timing
+
+not_decided_here:
+  - edge (dependency) ranking for delay/loss stays the R5 statistical edge score (no edge labels in RE2-OB)
+  - window length, labels, case-score horizon, normalisation stay as R2/R3 (features/compute.py unchanged)
+  - how R6 results replace R5 in METHOD-FREEZE.md is written after R6, as a new version (v2), keeping v1 results

@@ -28,3 +28,4 @@ data/
 linux/out/
 rcaeval/out/
 linux/charts/
+.venv-r6/
