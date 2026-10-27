@@ -1,0 +1,141 @@
+incident_id: inc-linux-v1-pod-paymentservice-r03
+experiment_id: exp-linux-v1-pod-paymentservice-r03
+run_id: linux-v1-pod-paymentservice-r03
+control_run_id: linux-v1-control-pod-paymentservice-r03
+environment_id: 206-39
+baseline:
+  control_run_dir: /home/cloudman/Documents/sentrix-final-v1/scripts/../runs/linux-v1-control-pod-paymentservice-r03
+  target_rps: 2.4
+  n_transactions: 2882
+  success_rate_pct: 100.0
+  p50_ms: 35
+  p99_ms: 127
+fault:
+  injected: true
+  type: pod_failure
+  cause_family: availability
+  injection_layer: Kubernetes / process
+  scope_kind: service_instance
+  scope_description: null
+  root_cause_service: paymentservice
+  target_pod_uid: df0bc451-5561-4a62-a5cf-5212d2dd325b
+  chaos_mesh_object: podchaos/linux-v1-pod-paymentservice-r03-fault
+  started_at: '2026-10-27T16:04:43.905607+00:00'
+  ended_at: '2026-10-27T16:09:44.367884+00:00'
+  removal_confidence: confirmed
+  injector_status: succeeded
+workload:
+  profile: linux-v1-pod-paymentservice-r03
+  target_rps: 2.4
+  actual_rps: 2.403
+  dropped_iterations: 0
+impact:
+  confirmed: true
+  critical_failure: error_rate_increase
+  affected_endpoint: checkout
+  impact_started_at: '2026-10-27T16:04:44.231000+00:00'
+  evaluation_policy_version: v3
+recovery:
+  fault_removed_at: '2026-10-27T16:09:44.367884+00:00'
+  transaction_observation:
+    profile: linux-v1-pod-paymentservice-r03
+    first_passing_at: '2026-10-27T16:10:00.897Z'
+    stable_at: '2026-10-27T16:10:00.897Z'
+    observation_status: pass
+  evaluation_policy_version: v3
+status: recovered
+data_views:
+  raw: runs/linux-v1-pod-paymentservice-r03/raw-v2/
+  canonical: runs/linux-v1-pod-paymentservice-r03/canonical-v2-d42e7c0da1bc/
+  re2_compatible: runs/linux-v1-pod-paymentservice-r03/re2-v2-d42e7c0da1bc/
+data_generation: v2
+data_validation:
+  run:
+    complete: true
+    raw_export_complete: true
+    views:
+      raw: raw-v2
+      canonical: canonical-v2-d42e7c0da1bc
+      re2_compatible: re2-v2-d42e7c0da1bc
+  control:
+    complete: true
+    raw_export_complete: true
+    views:
+      raw: raw-v2
+      canonical: canonical-v2-377fd1088e82
+      re2_compatible: re2-v2-377fd1088e82
+validity:
+  injector_succeeded: true
+  removal_confirmed: true
+  telemetry_present_all_signals: true
+  actual_rate_meets_minimum: true
+  runtime_assessment:
+    valid: true
+    errors: []
+    actual_rps: 2.4026666666666667
+    elapsed_s: 1500.002
+    started_at: '2026-10-27T15:56:42.563Z'
+    ended_at: '2026-10-27T16:21:42.565Z'
+    fingerprint: bc86385b011beadd8122d458ba4b3fc64b60fc8ca89e7df2e237e8e0231a7cc4
+    profile:
+      profile_name: linux-v1-pod-paymentservice-r03
+      run_role: fault
+      campaign_id: linux-v1
+      pair_id: linux-v1-pod-paymentservice-r03
+      repetition: 3
+      cv_group: repetition-3
+      schedule_index: 16
+      onset_offset_seconds: 480
+      pair_order: control_then_fault
+      workload_seed: 1775508970
+      calibration_status: frozen
+      target_rps: 2.4
+      time_unit: 1s
+      duration: 25m
+      warmup_seconds: 180
+      baseline_seconds: 300
+      fault_seconds: 300
+      recovery_seconds: 600
+      cooldown_seconds: 120
+      traffic_phase_rps:
+        warmup: 2.4
+        baseline: 2.4
+        fault: 2.4
+        recovery: 2.4
+        cooldown: 2.4
+      pre_allocated_vus: 15
+      max_vus: 80
+      stage_timeout: 5s
+      trace_workers: 2
+      fault:
+        type: pod_failure
+        target_kind: service_node
+        template: deploy/chaos-mesh/faults/pod-failure.yaml
+        params: {}
+        root_cause_service: paymentservice
+        scope_kind: service_instance
+    expected_transactions: 3600.0
+    phase_plan:
+    - - warmup
+      - 180
+      - 2.4
+    - - baseline
+      - 300
+      - 2.4
+    - - fault
+      - 300
+      - 2.4
+    - - recovery
+      - 600
+      - 2.4
+    - - cooldown
+      - 120
+      - 2.4
+  control_match:
+    valid: true
+    errors: []
+  dropped_iterations_under_threshold: true
+  raw_export_complete: true
+  data_views_complete: true
+  control_data_views_complete: true
+  is_valid_run: true
