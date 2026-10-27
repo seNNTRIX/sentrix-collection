@@ -1,8 +1,12 @@
 """Constants shared by every data source. See docs/RE2OB-DECISIONS.md."""
 
+import os
+
 FEATURE_VERSION = "v0"
 
-WINDOW_SECONDS = 30
+# Default 30 s (feature-schema.yaml). SENTRIX_WINDOW_SECONDS overrides it for the
+# R4 window-length comparison only; the build summary records the value used.
+WINDOW_SECONDS = int(os.environ.get("SENTRIX_WINDOW_SECONDS", "30"))
 STRIDE_SECONDS = 10
 RESAMPLE_SECONDS = 5
 
