@@ -358,6 +358,14 @@ Linux v1 전체 수집 전에 exporter와 quality gate에 추가해야 한다.
 않는다. `feature-schema.yaml`의 required feature와 quality gate가 모두 통과해야 해당 case를
 `cases.parquet`에서 학습 가능 상태로 표시한다.
 
+**pair 재시도.** 수집이 실패한 pair는 `runs/_campaign/<id>/decisions.yaml` `retry_pairs`로
+새 run ID(`<id>-a2`, `-a3` ...)를 받아 다시 수집되고, 실패한 시도는 지우지 않는다.
+`cases.parquet`에는 pair마다 시도 하나만 채택한다(`scripts/pair_attempts.py`
+`adopted_attempt`: valid한 시도 하나, 둘 이상이면 빌드 거부). 채택되지 않은 시도는
+실패 원인과 함께 제외 사유를 남긴다. export가 허용한 metric 누락점
+(`export-manifest.json` `tolerated_missing_points_unix`)은 `metric-mask.parquet`에서
+missing으로 표시한다.
+
 ## 8. 수집 신호와 필수 필드
 
 ### Metrics

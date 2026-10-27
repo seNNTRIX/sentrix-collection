@@ -69,6 +69,19 @@ DEFAULT_URLS = {
     "loki": os.environ.get("SENTRIX_LOKI_URL", "http://localhost:3100"),
 }
 ENVIRONMENT_KINDS = ("deployment", "statefulset", "service", "configmap")
+# Metric query-grid gaps (collection rule of 2026-10-27, SETUP-REVIEW 7.20).
+# A chunk with missing grid points is queried again GAP_REQUERIES times,
+# GAP_REQUERY_DELAY_SECONDS apart. A gap that is still there is tolerated only
+# when, per metric group and service, no two missing points are adjacent (one
+# 5 s point at most) and at most GAP_MAX_FRACTION of the run's grid is missing.
+# Tolerated points are listed in the export manifest
+# (metrics.<group>.tolerated_missing_points_unix) so the model view masks them
+# as missing; anything larger keeps the export incomplete. One failed scrape of
+# the OTel gateway writes Prometheus staleness markers, which removes exactly
+# one instant from raw (non-rate) spanmetrics series (206-40, 2026-10-26).
+GAP_REQUERIES = 3
+GAP_REQUERY_DELAY_SECONDS = 60
+GAP_MAX_FRACTION = 0.005
 
 
 def digest(value):
@@ -146,6 +159,15 @@ class BudgetExpired(RuntimeError):
     pass
 
 
+class MissingGridPoints(ValueError):
+    """A metric response that is valid except for missing query-grid points."""
+
+    def __init__(self, message, missing, data):
+        super().__init__(message)
+        self.missing = missing  # {required service or "*": sorted unix seconds}
+        self.data = data
+
+
 class Store:
     def __init__(self, raw, context, budget_seconds=900, retries=3, timeout=30):
         self.raw = Path(raw)
@@ -171,6 +193,9 @@ class Store:
         if remaining <= 0:
             raise BudgetExpired("Export time budget exhausted; successful checkpoints are preserved. Resume with identical arguments.")
         return remaining
+
+    def wait(self, seconds):
+        time.sleep(min(seconds, self.remaining()))
 
     def request(self, url, params, validate):
         key = {"url": url, "params": params}
@@ -213,7 +238,7 @@ class Store:
                 last_error = exc
                 if attempt + 1 < self.retries:
                     time.sleep(min(2 ** attempt, self.remaining()))
-        raise RuntimeError(f"Request failed after {self.retries} attempts: {last_error}")
+        raise RuntimeError(f"Request failed after {self.retries} attempts: {last_error}") from last_error
 
 
 def api_success(data, kind):
@@ -333,6 +358,7 @@ def validate_metrics(data, expected_times, required_services, require_each_serie
     if not series:
         raise ValueError("Empty metric result")
     coverage = {s: set() for s in required_services} if required_services else {"*": set()}
+    holes = {}
     for item in series:
         labels = item.get("metric", {})
         times = set()
@@ -340,17 +366,36 @@ def validate_metrics(data, expected_times, required_services, require_each_serie
             if not math.isfinite(float(val)):
                 raise ValueError("Non-finite metric sample")
             times.add(round(float(ts), 6))
+        owners = [svc for svc in required_services
+                  if labels.get("service_name") == svc or labels.get("pod", "").startswith(svc + "-")]
         if require_each_series and expected_times - times:
-            raise ValueError("Missing points in an aggregated metric series")
+            for owner in owners or ["*"]:
+                holes.setdefault(owner, set()).update(expected_times - times)
         if not required_services:
             coverage["*"].update(times)
-        for svc in required_services:
-            pod = labels.get("pod", "")
-            if labels.get("service_name") == svc or pod.startswith(svc + "-"):
-                coverage[svc].update(times)
-    missing = {s: len(expected_times - ts) for s, ts in coverage.items() if expected_times - ts}
+        for svc in owners:
+            coverage[svc].update(times)
+    missing = {s: expected_times - ts for s, ts in coverage.items() if expected_times - ts}
+    for owner, times in holes.items():
+        missing.setdefault(owner, set()).update(times)
+    if holes:
+        raise MissingGridPoints("Missing points in an aggregated metric series",
+                                {s: sorted(t) for s, t in missing.items()}, data)
     if missing:
-        raise ValueError(f"Missing metric query-grid points by required service: {missing}")
+        counts = {s: len(t) for s, t in missing.items()}
+        raise MissingGridPoints(f"Missing metric query-grid points by required service: {counts}",
+                                {s: sorted(t) for s, t in missing.items()}, data)
+
+
+def gaps_tolerated(missing, grid_points, step):
+    """missing: {service: [unix seconds]} over the whole run window."""
+    for times in missing.values():
+        times = sorted(times)
+        if len(times) > GAP_MAX_FRACTION * grid_points:
+            return False
+        if any(b - a <= step + 1e-6 for a, b in zip(times, times[1:])):
+            return False
+    return True
 
 
 def export_metrics(store, url, start_ns, end_ns, services, traced_services, step=5):
@@ -359,31 +404,58 @@ def export_metrics(store, url, start_ns, end_ns, services, traced_services, step
     # Record/query that actual grid rather than expecting microsecond samples.
     start_ns = (start_ns // 1_000_000) * 1_000_000
     end_ns = (end_ns // 1_000_000) * 1_000_000
+    grid_points = len(range(start_ns, end_ns + 1, step * 10**9))
     for name, expr in PROM_EXPRESSIONS.items():
-        cur, pages, failed = start_ns, [], []
+        cur, pages, failed, gaps = start_ns, [], [], []
         required = () if name in COVERAGE_ANY_GROUPS else (traced_services if name.startswith("spanmetrics") else services)
         while cur <= end_ns:
             hi = min(cur + 59 * step * 10**9, end_ns)
             expected = {round(t / 10**9, 6) for t in range(cur, hi + 1, step * 10**9)}
-            try:
-                page = store.request(url + "/api/v1/query_range", {"query": expr, "start": str(cur / 10**9), "end": str(hi / 10**9), "step": f"{step}s"}, lambda d: validate_metrics(d, expected, required, name in ("spanmetrics_duration_bucket_rate", "spanmetrics_error_increase_30s")))
-                pages.append(page)
-            except BudgetExpired:
-                raise
-            except Exception as exc:
-                failed.append({"start_ns": cur, "end_ns": hi, "error": str(exc)})
+            params = {"query": expr, "start": str(cur / 10**9), "end": str(hi / 10**9), "step": f"{step}s"}
+            for requery in range(GAP_REQUERIES + 1):
+                if requery:
+                    store.wait(GAP_REQUERY_DELAY_SECONDS)
+                try:
+                    pages.append(store.request(url + "/api/v1/query_range", params, lambda d: validate_metrics(d, expected, required, name in ("spanmetrics_duration_bucket_rate", "spanmetrics_error_increase_30s"))))
+                    break
+                except BudgetExpired:
+                    raise
+                except Exception as exc:
+                    gap = exc.__cause__ if isinstance(exc.__cause__, MissingGridPoints) else None
+                    if gap is None or requery == GAP_REQUERIES:
+                        failed.append({"start_ns": cur, "end_ns": hi, "error": str(exc), "requeries": requery})
+                        if gap is not None:
+                            gaps.append(gap)
+                        break
             cur += 60 * step * 10**9
+        tolerated = {}
+        if failed and len(gaps) == len(failed):
+            for gap in gaps:
+                for svc, times in gap.missing.items():
+                    tolerated.setdefault(svc, []).extend(times)
+            if gaps_tolerated(tolerated, grid_points, step):
+                pages.extend(gap.data for gap in gaps)
+                tolerated_chunks, failed = failed, []
+            else:
+                tolerated = {}
         merged = {}
         for page in pages:
             for s in page["data"]["result"]:
                 key = json.dumps(s["metric"], sort_keys=True)
                 target = merged.setdefault(key, {"metric": s["metric"], "values": []})
                 target["values"].extend(s["values"])
+        for target in merged.values():
+            target["values"].sort(key=lambda v: float(v[0]))  # tolerated chunks are appended last
         # Partial responses stay in immutable checkpoints. Never replace a prior
         # materialized metric with an incomplete/empty version.
         if not failed:
             save_json(store.raw / "metrics" / (name + ".json"), {"status": "success", "data": {"resultType": "matrix", "result": list(merged.values())}}, preserve=True)
         results[name] = {"status": "error" if failed else "ok", "series": len(merged), "failed_chunks": failed, "required_services": required}
+        if tolerated:
+            results[name].update(tolerated_missing_points_unix={s: sorted(t) for s, t in sorted(tolerated.items())},
+                                 tolerated_chunks=tolerated_chunks, grid_points=grid_points,
+                                 gap_rule={"requeries": GAP_REQUERIES, "requery_delay_seconds": GAP_REQUERY_DELAY_SECONDS,
+                                           "max_consecutive_points": 1, "max_fraction": GAP_MAX_FRACTION})
     return results
 
 

@@ -114,6 +114,11 @@ missingness:
     - forward_filled
     - insufficient_sample_count
   imputation_fit_scope: training folds only
+  # Export-tolerated metric gaps (2026-10-27): raw-v2/export-manifest.json
+  # metrics.<group>.tolerated_missing_points_unix (copied to
+  # canonicalize-summary.json metrics.tolerated_missing_points_unix) are
+  # marked `missing` in metric-mask, never forward_filled.
+  export_tolerated_gaps: missing
 
 forbidden_features:
   - service_name

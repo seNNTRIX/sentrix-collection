@@ -16,6 +16,7 @@ import yaml
 
 from test_data_views import module
 import host_state
+import pair_attempts
 
 attended = module("run-attended")
 manifest = module("generate-run-manifest")
@@ -240,6 +241,85 @@ class CampaignBlockTests(unittest.TestCase):
             self.decisions([entry])
             with self.assertRaises(SystemExit):
                 campaign.main(["--schedule", str(self.schedule), "--dry-run"])
+
+    def retry(self, **over):
+        entry = {"pair_id": "p1-pod_failure", "attempt": 2, "failure_cause": "one metric grid point missing",
+                 "failed_audit": "audits/pair-f1", "decided_on": "2026-10-27", **over}
+        state = self.root / "runs/_campaign/t"
+        state.mkdir(parents=True, exist_ok=True)
+        (state / "decisions.yaml").write_text(yaml.safe_dump({"retry_pairs": [entry]}))
+
+    def test_retry_pair_runs_under_new_attempt_ids_and_keeps_old_audit(self):
+        audit = self.failed_audit("f1")
+        status = (audit / "status.json").read_text()
+        self.retry()
+        rc, out = self.main("--dry-run")
+        self.assertEqual(rc, 0)
+        self.assertIn("retry p1-pod_failure as attempt 2", out)
+        first = json.loads(next(line for line in out.splitlines() if line.startswith("{")))
+        self.assertEqual((first["pair_id"], first["attempt"]), ("p1-pod_failure", 2))
+        argv = first["argv"]
+        self.assertEqual((argv[argv.index("--fault-id") + 1], argv[argv.index("--control-id") + 1]), ("f1-a2", "c1-a2"))
+        self.assertEqual([argv[i + 1] for i, a in enumerate(argv) if a == "--supersedes"], ["f1", "c1"])
+        self.assertEqual((audit / "status.json").read_text(), status)
+        self.assertFalse((self.root / "audits/pair-f1-a2").exists())
+
+    def test_completed_retry_attempt_is_skipped_and_failed_one_stops(self):
+        self.failed_audit("f1")
+        self.retry()
+        a2 = self.root / "audits/pair-f1-a2"
+        a2.mkdir(parents=True)
+        (a2 / "status.json").write_text(json.dumps({"complete": True, "phase": "finished"}))
+        rc, out = self.main("--dry-run")
+        ids = [json.loads(line)["pair_id"] for line in out.splitlines() if line.startswith("{")]
+        self.assertEqual(ids, [p["pair_id"] for p in self.pairs[1:]])
+        (a2 / "status.json").write_text(json.dumps({"complete": False, "phase": "failed"}))
+        rc, out = self.main("--dry-run")
+        self.assertEqual(rc, 2)
+
+    def test_retry_entry_is_validated(self):
+        self.failed_audit("f1")
+        long_id = "x" * 55
+        bad = [{"failure_cause": ""}, {"attempt": 1}, {"failed_audit": "audits/pair-missing"},
+               {"pair_id": "not-in-schedule"}, {"attempt": 3}]  # attempt 3 needs audits/pair-f1-a2
+        for over in bad:
+            with self.subTest(over=over):
+                self.retry(**over)
+                with self.assertRaises(SystemExit):
+                    campaign.main(["--schedule", str(self.schedule), "--dry-run"])
+        complete = self.root / "audits/pair-f2"
+        complete.mkdir(parents=True)
+        (complete / "status.json").write_text(json.dumps({"complete": True}))
+        self.retry(pair_id="p2-packet_loss", failed_audit="audits/pair-f2")
+        with self.assertRaisesRegex(SystemExit, "nothing to retry"):
+            campaign.main(["--schedule", str(self.schedule), "--dry-run"])
+        pairs = [{**pair(1, "pod_failure"), "fault_run_id": long_id}]
+        self.failed_audit(long_id)
+        with self.assertRaisesRegex(ValueError, "exceeds 63"):
+            pair_attempts.apply_retries(pairs, {"retry_pairs": [{
+                "pair_id": "p1-pod_failure", "attempt": 2, "failure_cause": "x",
+                "failed_audit": "audits/pair-" + long_id, "decided_on": "d"}]}, self.root, campaign.pair_status)
+
+    def test_dataset_adopts_only_one_valid_attempt(self):
+        attempts = [(1, "f1", "c1"), (2, "f1-a2", "c1-a2")]
+        self.assertEqual(pair_attempts.adopted_attempt(attempts, lambda a: a[0] == 2), (2, "f1-a2", "c1-a2"))
+        self.assertIsNone(pair_attempts.adopted_attempt(attempts, lambda a: False))
+        with self.assertRaisesRegex(ValueError, "2 valid attempts"):
+            pair_attempts.adopted_attempt(attempts, lambda a: True)
+
+    def test_matched_pair_records_attempt_in_status(self):
+        pair_mod = module("run-matched-pair")
+        profile = self.root / "p.json"
+        profile.write_text(json.dumps({"pair_order": "control_then_fault"}))
+        (self.root / "runs").mkdir()
+        with patch.object(pair_mod, "ROOT", self.root), \
+             patch.object(pair_mod.subprocess, "run", return_value=SimpleNamespace(returncode=0)):
+            rc = pair_mod.main(["--control-id", "c1-a2", "--fault-id", "f1-a2", "--control-profile", str(profile),
+                                "--fault-profile", str(profile), "--pair-id", "p1", "--attempt", "2",
+                                "--supersedes", "f1", "--supersedes", "c1"])
+        self.assertEqual(rc, 0)
+        status = json.loads((self.root / "audits/pair-f1-a2/status.json").read_text())
+        self.assertEqual((status["pair_id"], status["attempt"], status["supersedes"]), ("p1", 2, ["f1", "c1"]))
 
     def test_log_closed_on_stop_file_exit(self):
         state = self.root / "runs/_campaign/t"

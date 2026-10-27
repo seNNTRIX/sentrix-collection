@@ -21,7 +21,7 @@
 | 수집 준비 | **S5. 시험 pair 4개 + 2차 3개** | 완료 | 10/19~22 |
 | 수집 준비 | S6. 강도 동결·정식 스케줄 | 완료 (seed 20261023, 태그 linux-v1-frozen-20261023) | 10/23 |
 | 수집 | S7. 첫 정식 pair | 완료 (206-40: cpu-productcatalogservice-r01 valid) | 10/23 |
-| 수집 | S8. Tier 1 (cpu·delay·loss 45 pair) | 남음 | 10/21~11/2 |
+| 수집 | S8. Tier 1 (cpu·delay·loss 45 pair) | 진행 중 (206-40 9/35 pair, 10/27 기준; #20 -a2 재시도) | 10/21~11/2 |
 | 수집 | S9. Tier 2 (pod 15 pair) | 남음 | 11/3~11/5 |
 | 수집 | S10. Tier 3 (surge 9 pair) + 재시도 | 남음 | 11/6~11/13 |
 | 연구 | R1. RE2-OB 확보·구조 확인 | 남음 (병행) | 10/20~ |

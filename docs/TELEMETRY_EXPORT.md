@@ -47,6 +47,13 @@ listed app services; spanmetrics require the traced services. A service can span
 multiple Pod series during a rollout. This is query-grid coverage, not validation
 of every label combination or every original Prometheus scrape. PromQL lookback
 and `rate()` can mask missing source samples. No new CPU aggregation is done here.
+Missing grid points (2026-10-27 rule): the chunk is queried again 3 times, 60 s
+apart. A gap that remains is tolerated only when, per metric group and service,
+no two missing points are adjacent and at most 0.5 % of the run's grid is
+missing; the group stays `ok` and lists the points under
+`metrics.<group>.tolerated_missing_points_unix` (copied to
+`canonicalize-summary.json`) so the model view masks them as missing. Anything
+larger keeps the export incomplete.
 Prometheus query timestamps are aligned down to milliseconds; original responses
 and query parameters are retained.
 

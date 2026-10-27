@@ -47,6 +47,7 @@ Evidence
 | 10/19 | **처리 용량 C = 6 tx/s**, 평소 부하 0.4C = **2.4 tx/s**, surge 3.6 / 4.8 / 6.0 tx/s | capacity sweep 실측(8 tx/s에서 p99 545 ms로 FAIL) |
 | 10/19 | 시험 pair를 2개가 아니라 **4개(cpu, delay, loss, pod)** 로 진행, Tempo limit 4Gi로 상향 예정 | loss 측정값 ±3 %p 흔들림, pod 효과 약 30초 지연, 8 tx/s에서 Tempo 78 % |
 | 10/26 | **pair 시작 전 누수 서비스 초기화**: 매 pair 전(settle 전) currencyservice·paymentservice Pod를 `kubectl delete pod`로 지우고 Ready 대기(`campaigns/linux-v1/pre-pair-reset.yaml`). rollout restart 금지 | 두 서비스가 약 22 MiB/h 누수로 512Mi에서 약 22.5시간마다 재시작(exit 137). run 도중 재시작은 control 무효·무관한 이상을 만듦. 이미 수집한 8 pair(206-40 #1~#15)는 초기화 없이 수집됐고 run 도중 재시작은 없었음(SETUP-REVIEW 7.19) |
+| 10/27 | **export 측정점 누락 허용 기준**(두 PC 공통): 빠진 chunk는 60초×3 재조회, 그래도 빠지면 group·서비스별로 연속 1점·run grid 0.5 % 이하일 때만 complete로 두고 빠진 시각을 export-manifest에 기록(model mask에서 missing). **pair 재시도**: decisions.yaml `retry_pairs`로 새 run ID `-a2`, 실패 시도는 그대로, 데이터셋은 pair당 valid 시도 하나만 채택 | 206-40 #20 control run이 OTel gateway scrape 한 번 실패(staleness)로 한 점(5초) 누락돼 incomplete. 기존 9 pair는 새 기준에서도 통과(SETUP-REVIEW 7.20) |
 
 ## 3. 데이터 전략
 

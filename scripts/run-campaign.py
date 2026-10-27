@@ -11,6 +11,10 @@
   skipped; its run folders and status.json stay untouched. Each entry needs
   pair_id, failure_cause, manual_rerun_log (an existing path under the repo)
   and resolved_on.
+* decisions.yaml retry_pairs (scripts/pair_attempts.py): a pair whose
+  collection failed is collected again under new run IDs with an attempt
+  suffix (-a2, ...). The failed attempt's run folders and audit are left as
+  they are; the dataset adopts only the one valid attempt of each pair.
 * Between pairs: no unrecovered Chaos object, all pods Ready, then a settle
   period of normal observation (default 300 s).
 * Pre-pair reset (campaigns/<id>/pre-pair-reset.yaml, scripts/pod_reset.py):
@@ -54,6 +58,7 @@ import yaml
 
 from campaign_shard import load_shard
 from host_state import environment_id, ntp_synchronized
+import pair_attempts
 import pod_reset
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -217,11 +222,15 @@ def main(argv=None):
         resolved = resolved_pairs(decisions)
     except ValueError as e:
         raise SystemExit(f"{decisions_path}: {e}")
+    try:
+        retried, _ = pair_attempts.apply_retries(schedule["pairs"], decisions, ROOT, pair_status)
+    except ValueError as e:
+        raise SystemExit(f"{decisions_path}: {e}")
     known_types = {p["fault_type"] for p in schedule["pairs"]}
     unknown = sorted(set(args.fault_types or []) - known_types)
     if unknown:
         raise SystemExit(f"unknown --fault-type {unknown}; schedule has {sorted(known_types)}")
-    pairs = select_pairs(schedule["pairs"], args.only, args.fault_types, shard_ids)
+    pairs = select_pairs(retried, args.only, args.fault_types, shard_ids)
     deadline = next_deadline(args.stop_before, datetime.now().astimezone()) if args.stop_before else None
     with (state_dir / "queue.log").open("a", encoding="utf-8") as log:
         def note(msg):
@@ -247,6 +256,9 @@ def run_queue(args, pairs, excluded, state_dir, deadline, note, resolved=frozens
         if status:
             note(f"STOP: {p['pair_id']} has an incomplete audit (phase={status.get('phase')}); decide manually")
             return 2
+        if p.get("attempt"):
+            note(f"retry {p['pair_id']} as attempt {p['attempt']} ({p['fault_run_id']}, {p['control_run_id']}; "
+                 f"earlier run IDs {', '.join(p['superseded_run_ids'])} kept as they are)")
         if args.max_pairs is not None and executed >= args.max_pairs:
             note("max-pairs reached"); return 0
         if (state_dir / "STOP").exists():
@@ -255,9 +267,13 @@ def run_queue(args, pairs, excluded, state_dir, deadline, note, resolved=frozens
                "--control-id", p["control_run_id"], "--fault-id", p["fault_run_id"],
                "--control-profile", p["control_profile"], "--fault-profile", p["fault_profile"],
                "--pair-order", p["pair_order"], "--k6-bin", args.k6_bin]
+        if p.get("attempt"):
+            cmd += ["--pair-id", p["pair_id"], "--attempt", str(p["attempt"]),
+                    *[x for rid in p["superseded_run_ids"] for x in ("--supersedes", rid)]]
         reset_cfg = getattr(args, "reset_cfg", None)
         if args.dry_run:
-            print(json.dumps({"schedule_index": p["schedule_index"], "pair_id": p["pair_id"], "argv": cmd,
+            print(json.dumps({"schedule_index": p["schedule_index"], "pair_id": p["pair_id"],
+                              "attempt": p.get("attempt", 1), "argv": cmd,
                               "pre_pair_reset": reset_cfg["services"] if reset_cfg else None}))
             executed += 1
             continue

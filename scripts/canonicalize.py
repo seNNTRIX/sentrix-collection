@@ -185,6 +185,20 @@ def canonicalize_logs(raw_dir, alias_map, path="logs.ndjson", source="logs"):
     return pd.DataFrame(rows)
 
 
+def tolerated_metric_gaps(raw_dir):
+    """{metric_group: {service: [unix seconds]}} the export accepted as missing.
+
+    These grid points have no row in metrics.parquet; the model view must mask
+    them as missing (feature-schema.yaml missingness), never forward-fill them."""
+    path = os.path.join(raw_dir, "export-manifest.json")
+    if not os.path.exists(path):
+        return {}
+    with open(path, "r", encoding="utf-8") as f:
+        metrics = json.load(f).get("metrics") or {}
+    return {group: result["tolerated_missing_points_unix"] for group, result in sorted(metrics.items())
+            if isinstance(result, dict) and result.get("tolerated_missing_points_unix")}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run-id", required=True)
@@ -229,6 +243,10 @@ def main():
             "unresolved_identity_rows": unresolved,
             "unresolved_identity_pct": round(unresolved / len(df) * 100, 2) if len(df) else None,
         }
+
+    gaps = tolerated_metric_gaps(raw_dir)
+    if gaps:
+        summary["metrics"]["tolerated_missing_points_unix"] = gaps
 
     with open(os.path.join(canonical_dir, "canonicalize-summary.json"), "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)

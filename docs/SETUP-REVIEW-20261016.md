@@ -529,3 +529,31 @@ queue는 `campaigns/calib2-linux-v1/schedule.json --allow-draft --stop-before 21
   - `run-attended.py`의 environment-before/after에 `pod_memory`(metrics-server working set, Pod별)를 추가했다. fingerprint에는 들어가지 않고, API 오류는 기록만 하고 run을 멈추지 않는다.
 - 테스트 `tests/test_pod_reset.py`: Pod 삭제 전후 fingerprint 동일(rollout restart면 달라짐), 새 Pod가 Ready가 되기 전에는 다음 단계로 안 감, 시간 초과 시 settle·pair 없이 멈춤, settle 전에 초기화가 끝나고 로그에 남음, audit 복사.
 - 의미: #19부터의 pair는 "pair 시작 전 누수 서비스 초기화" 조건으로 수집된다. #1~#15(8 pair)는 초기화 없이, 두 서비스 메모리가 약 200~480 Mi인 상태로 수집됐다. 재시작은 끼지 않았으므로 제외하지 않고, 분석 때 이 차이를 공변량·한계로 다룬다.
+
+### 7.20 PC 꺼짐 복구, export 측정점 누락 허용 기준, pair 재시도 (2026-10-27)
+
+**10/26 #20 정지.** #19 `loss-recommendation-product-r01`은 valid·impacted(checkout latency)·recovered로 끝났다(초기화 조건 첫 pair). #20 `pod-productcatalogservice-r01`(control_then_fault)은 첫 run인 control에서 멈췄다(fault run은 시작 안 함). control run은 재시작 0, fingerprint 동일, k6 실패 0, quality PASS였지만 raw export가 incomplete였다.
+- 빠진 것: metric group `spanmetrics_duration_bucket`(rate가 아닌 원 series)에서 query grid 한 점 `2026-10-26T11:00:12.585Z`가 traced 서비스 7개 모두에서 없었다. 두 번의 export(11:23, 11:43 UTC) × 3회 조회, 6개 응답 모두 같은 점이 없었다(`raw-v2/_export/rejected/`). 10/26 보고의 "지금 재조회하면 있다"는 `_rate` 식으로 조회한 것이라 같은 query가 아니었다. 정정한다.
+- 원인: export된 `telemetry_scrape_up`에서 OTel gateway 대상(kubernetes-pods `10.42.0.64:8889`, spanmetrics를 내보내는 곳)이 정확히 11:00:12.585에 `up=0`이었다. scrape 한 번이 실패하면 Prometheus가 staleness marker를 쓰고, 원 series는 그 한 시점에 값이 없다. `rate(...[30s])` 식은 30초 범위를 보므로 영향이 없었다. 같은 시각 다른 대상(kubernetes-service-endpoints `10.42.0.107:31766`)도 11:00:17에 한 번 `up=0`이었다. scrape 실패 이유(시간 초과 등)는 Prometheus 보존 기간 12시간이 지나 자체 지표가 없어 확인하지 못했다.
+- query 정렬: 두 export와 6번 조회 모두 start `1793012262.585`, end `1793012557.585`, step `5s`로 같았다.
+
+**10/27 PC 꺼짐과 복구.**
+- `last -x`(10/22 이후): 10/27 09:59:00 KST shutdown → 10:02:10 boot → 10:03:47 shutdown → 12:25:13 boot. 모두 정상 종료 기록이고 crash 기록은 없다. 첫 종료 직전(09:57:53) GNOME 화면에서 마우스 커서 활동이 있었고 종료는 GNOME 세션 종료를 거쳤다. 시스템 timer에 종료 작업은 없다.
+- 이전 기록에서 같은 시간대(화요일 약 10:00 KST)에 종료가 반복된다: 9/1 10:00, 9/8 09:59, 9/29 10:04, 10/27 09:59. 모두 화요일 오전 10시 전후라 **수업·실습실 관리에 따른 정기 종료 가능성**이 있다(자동 종료 설정은 이 PC 안에서는 찾지 못함). 화요일 오전에는 pair가 끝나도록 `--stop-before`를 고려한다.
+- 복구 점검: NTP 동기화 yes, 노드 Ready, sch_netem 로드됨, 디스크 128 GiB 사용(15 %). Chaos 객체는 16개 남아 있지만 모두 `AllRecovered=True`(실행 기록)로 주입 중인 것은 없다.
+- coredns가 CrashLoopBackOff였다(`dial tcp 10.43.0.1:443: connect: no route to host`). 다른 Pod에서는 API에 닿았고, coredns Pod IP의 ARP가 `INCOMPLETE`라 이 Pod의 네트워크 sandbox만 부팅 중에 깨진 상태였다. coredns Pod 하나를 지워 다시 만들고(kube-system, fingerprint 밖), DNS를 못 찾아 같이 죽던 loki-gateway Pod도 다시 만들었다. 이후 전 Pod Ready, 큐의 pair 전 게이트 통과. 이 게이트는 `sentrix` namespace만 보므로 kube-system 이상은 잡지 못한다.
+
+**수집 기준 변경(두 PC 공통): export 측정점 누락 허용.** `scripts/telemetry_export.py`
+- 측정점이 빠진 chunk는 바로 실패하지 않고 60초 간격으로 3번 더 조회한다(`GAP_REQUERIES`, `GAP_REQUERY_DELAY_SECONDS`). 늦게 들어온 점이면 여기서 채워진다.
+- 그래도 빠지면 metric group·서비스마다 판단한다. 빠진 점이 서로 붙어 있지 않고(연속 1개, 5초) run 전체 grid의 0.5 % 이하면(약 316점 run에서 1점) 그 group을 `ok`로 두고 빠진 시각을 `export-manifest.json`의 `metrics.<group>.tolerated_missing_points_unix`에 남긴다(`tolerated_chunks`, `grid_points`, `gap_rule`도 같이). 그보다 크거나 다른 종류의 실패가 섞이면 지금처럼 incomplete다.
+- 모델 쪽 mask: canonicalize가 이 목록을 `canonicalize-summary.json` `metrics.tolerated_missing_points_unix`로 옮기고, `feature-schema.yaml` missingness에 `export_tolerated_gaps: missing`(forward-fill 금지)을 추가했다.
+- 이유: scrape 한 번 실패(staleness marker)로 한 시점이 빠지는 일은 run 데이터 전체를 버릴 만한 결함이 아니고, 한 점은 mask로 정확히 표시할 수 있다. 연속 누락이나 큰 누락은 실제 수집 장애일 수 있으므로 계속 막는다.
+- 이미 수집한 9 pair(18 run, surge-l3-r01 포함)는 엄격 기준으로 complete였고 새 기준에서도 모두 통과함을 확인했다(실패 chunk 없음). #20 시도 1의 누락(1/316점, 단독)은 새 기준이라면 허용됐을 것이지만, 시도 1은 엄격 기준 판정대로 실패로 둔다.
+- 테스트(`tests/test_telemetry_export.py`): 단독 누락 → 60초×3 재조회 후 허용·목록 기록·raw 파일 시각 정렬, 재조회에서 채워진 누락은 목록 없음, 연속 2점·0.5 % 초과는 incomplete, 다른 실패는 재조회·허용 없음, canonical summary로 전달.
+
+**pair 재시도(decisions.yaml `retry_pairs`).** `scripts/pair_attempts.py`, `run-campaign.py`, `run-matched-pair.py`
+- 실패한 시도는 그대로 둔다(run 폴더·status.json 수정 없음). 같은 pair를 새 run ID `<id>-a2`로 다시 수집한다. 항목: pair_id, attempt(2 이상), failure_cause, failed_audit(이전 시도의 audit, 미완료여야 함), decided_on.
+- 확인: 스케줄에 있는 pair인지, 이전 시도 audit가 있고 미완료인지, chaos 이름 `<fault run id>-fault`가 63자 이하인지(가장 긴 경우 -a2/-a3에서 50자, #20은 47자)를 큐 시작 전에 검사한다. run-attended는 주입 직전에야 검사하므로(control_then_fault에서는 control 뒤) 미리 막는다.
+- 새 시도의 status.json에 `pair_id`, `attempt`, `supersedes`(이전 run ID)를 남긴다. queue.log에 `retry <pair> as attempt 2 (...)`를 남긴다.
+- 데이터셋: 한 pair는 시도 하나만 쓴다. `pair_attempts.adopted_attempt`가 valid한 시도 하나를 고르고, valid 시도가 둘이면 거부한다(LINUX-PRODUCTION-DATASET-DESIGN `cases.parquet`).
+- #20: `retry_pairs`에 attempt 2를 추가했고 dry-run에서 `linux-v1-pod-productcatalogservice-r01-a2` / `linux-v1-control-pod-productcatalogservice-r01-a2`로 잡힘을 확인했다.

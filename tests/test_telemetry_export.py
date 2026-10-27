@@ -324,6 +324,69 @@ class ExportTests(unittest.TestCase):
                     for stream in json.loads(line)["data"]["result"] for entry in stream["values"]]
         self.assertEqual(exported, [(str(t), s) for t, s in entries])
 
+    def export_with_gaps(self, missing, heal_after=None):
+        """25 min + margin window (316 grid points); `missing` grid times are
+        absent from every response, or only from the first `heal_after` ones."""
+        calls, waits = [], []
+        def backend(path, q):
+            calls.append(q["start"])
+            start, end = int(float(q["start"])), int(float(q["end"]))
+            gone = missing if heal_after is None or len(calls) <= heal_after else ()
+            return matrix([t for t in range(start, end + 1, 5) if t not in gone])
+        with patch.dict(ex.PROM_EXPRESSIONS, {"spanmetrics_duration_bucket": "bucket"}, clear=True), \
+             patch.object(self.store, "wait", side_effect=waits.append), self.fake_backend(backend):
+            r = ex.export_metrics(self.store, "http://fake", 0, 1575 * 10**9, ["x"], ["checkoutservice"])
+        return r["spanmetrics_duration_bucket"], calls, waits
+
+    def test_single_missing_point_is_requeried_then_tolerated_and_listed(self):
+        r, calls, waits = self.export_with_gaps({300})
+        self.assertEqual(waits, [60, 60, 60])
+        self.assertEqual(calls.count("300.0"), 4)  # first query + 3 re-queries
+        self.assertEqual(r["status"], "ok")
+        self.assertFalse(r["failed_chunks"])
+        self.assertEqual(r["tolerated_missing_points_unix"], {"checkoutservice": [300.0]})
+        self.assertEqual(r["grid_points"], 316)
+        values = json.loads((self.raw / "metrics/spanmetrics_duration_bucket.json").read_text())["data"]["result"][0]["values"]
+        times = [t for t, _ in values]
+        self.assertEqual(len(times), 315)
+        self.assertNotIn(300, times)
+        self.assertEqual(times, sorted(times))
+
+    def test_gap_that_fills_in_on_requery_is_not_listed(self):
+        r, calls, waits = self.export_with_gaps({300}, heal_after=2)  # chunk 0, then one failed attempt at 300
+        self.assertEqual(waits, [60])
+        self.assertEqual(r["status"], "ok")
+        self.assertNotIn("tolerated_missing_points_unix", r)
+
+    def test_adjacent_or_too_many_missing_points_stay_incomplete(self):
+        for missing in ({300, 305}, {300, 900}):  # two in a row; 2/316 > 0.5 %
+            with self.subTest(missing=missing):
+                self.setUp()
+                r, _, _ = self.export_with_gaps(missing)
+                self.assertEqual(r["status"], "error")
+                self.assertTrue(r["failed_chunks"])
+                self.assertNotIn("tolerated_missing_points_unix", r)
+                self.assertFalse((self.raw / "metrics/spanmetrics_duration_bucket.json").exists())
+
+    def test_non_gap_failure_is_not_requeried_or_tolerated(self):
+        waits = []
+        with patch.dict(ex.PROM_EXPRESSIONS, {"spanmetrics_duration_bucket": "bucket"}, clear=True), \
+             patch.object(self.store, "wait", side_effect=waits.append), \
+             self.fake_backend(lambda p, q: {"status": "error"}):
+            r = ex.export_metrics(self.store, "http://fake", 0, 10 * 10**9, ["x"], ["checkoutservice"])
+        self.assertEqual(waits, [])
+        self.assertEqual(r["spanmetrics_duration_bucket"]["status"], "error")
+
+    def test_tolerated_gaps_reach_canonical_summary(self):
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+        import canonicalize
+        ex.save_json(self.raw / "export-manifest.json", {"metrics": {
+            "spanmetrics_duration_bucket": {"status": "ok", "tolerated_missing_points_unix": {"frontend": [300.0]}},
+            "spanmetrics_calls_rate": {"status": "ok"}}})
+        self.assertEqual(canonicalize.tolerated_metric_gaps(str(self.raw)),
+                         {"spanmetrics_duration_bucket": {"frontend": [300.0]}})
+        self.assertEqual(canonicalize.tolerated_metric_gaps(str(self.raw / "absent")), {})
+
     def test_cli_watchdog_terminates_worker(self):
         proc = SimpleNamespace(wait=unittest.mock.Mock(side_effect=[ex.subprocess.TimeoutExpired("worker", 16), 1]), kill=unittest.mock.Mock())
         argv = ["export-telemetry.py", "--run-id", "test", "--start", "2020-01-01T00:00:00Z", "--end", "2020-01-01T00:01:00Z", "--budget-seconds", "1"]
