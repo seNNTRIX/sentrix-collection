@@ -1,0 +1,17 @@
+experiment: 20261027-re2ob-features-v0
+purpose: build RE2-OB training tables with feature v0 (R2); no model trained
+data:
+  source: Zenodo record 14590730 RE2-OB.zip
+  md5: b9e23f8842c404b396ffd2becff15de4
+  cases: 90  # multi-source-data sample folder excluded
+code:
+  commit: 272e514
+  command: python -m features.build_re2ob --workers 4
+feature_version: v0
+window_seconds: 30
+stride_seconds: 10
+resample_seconds: 5
+labels: docs/RE2OB-DECISIONS.md section 3 (baseline stats -720..-420 s, normal -420..0 s, transition 0..60 s, fault_active from 60 s)
+split: repetition-based 3-fold (fold k test = repetition k)
+seed: none (deterministic build)
+outputs: data/features/re2ob-v0/ (git-ignored); hashes in output-sha256.txt

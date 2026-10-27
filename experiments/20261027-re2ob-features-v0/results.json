@@ -1,0 +1,52 @@
+{
+  "feature_version": "v0",
+  "code_commit": "8f0e0cecbde0d49c3c4379566eb441521fd9e8d8",
+  "features_dir_dirty": true,
+  "input_root": "data/RE2/RE2-OB",
+  "input_checksums": "b9e23f8842c404b396ffd2becff15de4  RE2-OB.zip (md5, matches Zenodo record 14590730)\n0605a36cdcad8a6ae0107f2357c9c91ecee2c4ab5d72579bffea0372d9747513  RE2-OB.zip (sha256)",
+  "params": {
+    "window_s": 30,
+    "stride_s": 10,
+    "resample_s": 5,
+    "min_spans": {
+      "p50": 5,
+      "p90": 20,
+      "p99": 100
+    },
+    "with_logs": true,
+    "limit": null
+  },
+  "cases": 90,
+  "folds": {
+    "1": 30,
+    "2": 30,
+    "3": 30
+  },
+  "ranking": {
+    "rows": 61336,
+    "feature_columns": 67,
+    "positives": 5576
+  },
+  "detection": {
+    "rows": 9176,
+    "positives": 5576,
+    "feature_columns": 58
+  },
+  "elapsed_s": 2704.3,
+  "missing_ratio_over_0.3": {
+    "f_ct_in_rate_lr": 0.3636,
+    "f_ct_in_err": 0.3712,
+    "f_ct_in_err_d": 0.3712,
+    "f_ct_in_p50_lr": 0.373,
+    "f_ct_in_p90_lr": 0.4371,
+    "f_opt_in_p99_lr": 0.6432,
+    "f_ct_out_p90_lr": 0.7376,
+    "f_ct_out_err": 0.7333,
+    "f_ct_in_edge_p90_lr": 0.7236,
+    "f_nbr_cm_cpu_cores_dmean": 0.3643,
+    "f_nbr_cm_mem_limit_ratio_dmean": 0.3642,
+    "f_nbr_ct_in_p90_lr": 0.4379,
+    "f_nbr_ct_in_err_d": 0.372
+  },
+  "note": "built from the working tree before commit 272e514; features/ was identical to that commit (features_dir_dirty=true only because it was uncommitted)"
+}
