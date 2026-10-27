@@ -1,0 +1,4 @@
+# Research-only packages (RE2-OB / linux-v1 modelling). Collection code needs only requirements.txt.
+-r requirements.txt
+scikit-learn==1.5.2
+lightgbm==4.5.0
