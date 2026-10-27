@@ -1,0 +1,143 @@
+incident_id: inc-linux-v1-cpu-paymentservice-r01
+experiment_id: exp-linux-v1-cpu-paymentservice-r01
+run_id: linux-v1-cpu-paymentservice-r01
+control_run_id: linux-v1-control-cpu-paymentservice-r01
+environment_id: 206-39
+baseline:
+  control_run_dir: /home/cloudman/Documents/sentrix-final-v1/scripts/../runs/linux-v1-control-cpu-paymentservice-r01
+  target_rps: 2.4
+  n_transactions: 2882
+  success_rate_pct: 100.0
+  p50_ms: 34
+  p99_ms: 120
+fault:
+  injected: true
+  type: cpu_saturation
+  cause_family: resource
+  injection_layer: Platform / compute
+  scope_kind: service_instance
+  scope_description: null
+  root_cause_service: paymentservice
+  target_pod_uid: 10a0818b-d5bf-4f95-a916-17517652c24a
+  chaos_mesh_object: stresschaos/linux-v1-cpu-paymentservice-r01-fault
+  started_at: '2026-10-27T10:54:43.433851+00:00'
+  ended_at: '2026-10-27T10:59:42.414651+00:00'
+  removal_confidence: confirmed
+  injector_status: succeeded
+workload:
+  profile: linux-v1-cpu-paymentservice-r01
+  target_rps: 2.4
+  actual_rps: 2.403
+  dropped_iterations: 0
+impact:
+  confirmed: false
+  critical_failure: null
+  affected_endpoint: checkout
+  impact_started_at: null
+  evaluation_policy_version: v3
+recovery:
+  fault_removed_at: '2026-10-27T10:59:42.414651+00:00'
+  transaction_observation:
+    profile: linux-v1-cpu-paymentservice-r01
+    first_passing_at: '2026-10-27T10:59:42.514Z'
+    stable_at: '2026-10-27T10:59:42.514Z'
+    observation_status: pass
+  evaluation_policy_version: v3
+status: fault_active_no_impact
+data_views:
+  raw: runs/linux-v1-cpu-paymentservice-r01/raw-v2/
+  canonical: runs/linux-v1-cpu-paymentservice-r01/canonical-v2-7702a4e7f367/
+  re2_compatible: runs/linux-v1-cpu-paymentservice-r01/re2-v2-7702a4e7f367/
+data_generation: v2
+data_validation:
+  run:
+    complete: true
+    raw_export_complete: true
+    views:
+      raw: raw-v2
+      canonical: canonical-v2-7702a4e7f367
+      re2_compatible: re2-v2-7702a4e7f367
+  control:
+    complete: true
+    raw_export_complete: true
+    views:
+      raw: raw-v2
+      canonical: canonical-v2-add4dc7bbe2d
+      re2_compatible: re2-v2-add4dc7bbe2d
+validity:
+  injector_succeeded: true
+  removal_confirmed: true
+  telemetry_present_all_signals: true
+  actual_rate_meets_minimum: true
+  runtime_assessment:
+    valid: true
+    errors: []
+    actual_rps: 2.4026666666666667
+    elapsed_s: 1499.583
+    started_at: '2026-10-27T10:46:39.180Z'
+    ended_at: '2026-10-27T11:11:38.763Z'
+    fingerprint: bc86385b011beadd8122d458ba4b3fc64b60fc8ca89e7df2e237e8e0231a7cc4
+    profile:
+      profile_name: linux-v1-cpu-paymentservice-r01
+      run_role: fault
+      campaign_id: linux-v1
+      pair_id: linux-v1-cpu-paymentservice-r01
+      repetition: 1
+      cv_group: repetition-1
+      schedule_index: 9
+      onset_offset_seconds: 480
+      pair_order: fault_then_control
+      workload_seed: 1978025083
+      calibration_status: frozen
+      target_rps: 2.4
+      time_unit: 1s
+      duration: 25m
+      warmup_seconds: 180
+      baseline_seconds: 300
+      fault_seconds: 300
+      recovery_seconds: 600
+      cooldown_seconds: 120
+      traffic_phase_rps:
+        warmup: 2.4
+        baseline: 2.4
+        fault: 2.4
+        recovery: 2.4
+        cooldown: 2.4
+      pre_allocated_vus: 15
+      max_vus: 80
+      stage_timeout: 5s
+      trace_workers: 2
+      fault:
+        type: cpu_saturation
+        target_kind: service_node
+        template: deploy/chaos-mesh/faults/cpu-saturation.yaml
+        params:
+          WORKERS: 4
+          LOAD: 100
+        root_cause_service: paymentservice
+        scope_kind: service_instance
+    expected_transactions: 3600.0
+    phase_plan:
+    - - warmup
+      - 180
+      - 2.4
+    - - baseline
+      - 300
+      - 2.4
+    - - fault
+      - 300
+      - 2.4
+    - - recovery
+      - 600
+      - 2.4
+    - - cooldown
+      - 120
+      - 2.4
+  control_match:
+    valid: true
+    errors: []
+  dropped_iterations_under_threshold: true
+  raw_export_complete: true
+  data_views_complete: true
+  control_data_views_complete: true
+  is_valid_run: true
