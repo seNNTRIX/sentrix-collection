@@ -1,0 +1,20 @@
+experiment: 20261027-re2ob-r4
+purpose: R4 learned models and comparison experiments on RE2-OB
+written_before_results: true   # this file was committed-ready before any R4 model result was seen
+data:
+  features: data/features/re2ob-v0 (30 s windows) and data/features/re2ob-v0-w60 (60 s, same code with SENTRIX_WINDOW_SECONDS=60)
+code: training/lgbm.py, training/run_r4.py; evaluation/ unchanged from R3 (b2465ab)
+models:
+  ranking: LightGBM LGBMRanker lambdarank, shared weights over (window, candidate) rows, query = one window of one case
+  detection: LightGBM LGBMClassifier binary on detection.parquet aggregates
+  joint_baseline: LightGBM multiclass over service x fault classes; input = one column per candidate x core feature (identity by position); fixed params num_leaves 15, n_estimators 200, min_child_samples 20
+common_params: learning_rate 0.05, random_state 0, deterministic true, force_row_wise true, n_jobs 4
+grids:
+  ranking: num_leaves [7, 15, 31] x n_estimators [100, 300] x min_child_samples [20, 100]
+  detection: num_leaves [15, 31] x n_estimators [100, 300] x min_child_samples [20, 100]
+selection: inner CV inside the two training repetitions (train on one, validate on the other); max mean Avg@5 (ranking) or AUROC (detection); ties -> smaller model; test fold never used
+bundles: metric (f_cm_), core (f_cm_+f_ct_), core+opt, core+log, core+nbr, all
+decision_rule: an addition beats core only if the paired case-bootstrap 95% CI of the Avg@5 difference excludes 0; otherwise no difference and the simpler set is preferred
+sensitivity: core without f_ct_mask; core scored over the 7 traced candidates; core with 60 s windows
+generalization: leave-one-service-out over the 5 root-cause services, params = most frequent outer-fold choice for core
+reporting: out-of-fold case metrics (AC@1, AC@3, Avg@5, MRR) with case bootstrap CI, fold mean/std, by fault, common faults (cpu, delay, loss) and common services subset
