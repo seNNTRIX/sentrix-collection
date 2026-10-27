@@ -56,3 +56,13 @@
 
 - RE2-OB: 반복 번호 기준 3-fold. fold k의 평가 = 반복 k인 case 30개, 학습 = 나머지 60개.
 - 같은 case의 window는 항상 같은 fold.
+
+## 6. 처음 보는 원인 서비스 (R4 이후 추가)
+
+- R4의 서비스 하나 빼기(LOSO)에서 LightGBM core가 currency·productcatalog에서 통계 기준선보다 낮았다. linux-v1의 paymentservice는 RE2-OB에서 원인으로 나온 적이 없으므로 같은 상황이다.
+- 그래서 R5 고정 전에 R4b를 한다. 사전 등록: `experiments/20261027-re2ob-r4b/config.yaml`.
+  - 주 기준은 LOSO Avg@5다. 반복 회차 CV는 천장이라 보조 조건으로만 쓴다.
+  - 비교 대상은 4개다: core, 변화량 feature만(rel), rel+단조 제약, rel과 통계 기준선의 순위 평균.
+  - 통계 기준선을 넘는 후보가 없으면 linux-v1의 주 방법은 stat_combined다.
+- R4b는 R4 결과를 본 뒤 설계했다. 그래서 고른 변형의 LOSO 점수는 낙관적이고, 공정한 시험은 linux-v1이 맡는다.
+- linux-v1에서는 어느 경우든 stat_combined를 같이 보고하고, paymentservice가 원인인 case를 따로 보고한다.
