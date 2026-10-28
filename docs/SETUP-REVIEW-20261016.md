@@ -588,6 +588,21 @@ queue는 `campaigns/calib2-linux-v1/schedule.json --allow-draft --stop-before 21
 - `tracker-miner-fs-3`가 약 12초마다 다시 떠 경고를 남기고 있다(`/proc/self/mountinfo` 오류). 큰 영향의 근거는 없다.
 - 커널 OOM·hung task와 k3s 로그는 시스템 journal 권한이 없어 보지 못했다. 확인 명령(sudo): `sudo journalctl -k --since "2026-10-27 23:40" --until "2026-10-27 23:46"`, `sudo journalctl -u k3s --since "2026-10-27 23:40" --until "2026-10-27 23:46"`.
 
+**시스템 journal 확인 결과(10/28, 사용자가 sudo로 실행).**
+- 커널 OOM killer 기록은 없다. journald의 "Under memory pressure, flushing caches"만 3줄 있다.
+- systemd-oomd가 23:43:41 KST에 `…/user@1001.service/app.slice/app-org.gnome.Terminal.slice/vte-spawn-dcd85ce1-….scope`를 kill했다(Current Memory Usage 7.1G). 사유: `memory pressure for user@1001.service being 60.18% > 50.00% for > 20s with reclaim activity`. 다른 후보는 firefox scope 1.2G, gnome-shell 357M, tracker-miner-fs-3 302M였다.
+- 그러므로 원인은 user@1001.service 전체의 메모리 압박이고, 가장 큰 터미널 scope(큐 + Claude 세션)가 kill 대상으로 골라졌다. 커널 OOM에 이르지는 않았다. cgroup의 memory.current에는 파일 page cache도 들어간다. 지금(Claude 세션만 있는 상태)도 터미널 slice가 4.7G로 잡혀 프로세스 RSS 합(약 0.4G)보다 훨씬 크다. 큐가 run마다 쓰는 2 GB대 raw 파일의 page cache가 같은 scope에 쌓여 reclaim 압박을 키웠을 가능성이 크다(이 몫은 기록이 없어 단정하지 않음).
+- oomd 감시 범위(`oomctl`, 10/28): Memory Pressure Monitored CGroups는 `/user.slice/user-1001.slice/user@1001.service`(한도 50 %) 하나뿐이고, Swap Monitored CGroups는 없다. `systemctl show user@1001.service`: `ManagedOOMMemoryPressure=kill`, `ManagedOOMMemoryPressureLimit=2147483648`(= 50 %). `systemctl show system.slice`: `ManagedOOMMemoryPressure=auto`, `ManagedOOMSwap=auto`, Limit 0(감시 안 함). k3s는 `/system.slice/k3s.service`이고 감시 대상이 아니다.
+
+**재개 계획 변경(10/28).**
+- `systemd-run --user`도 user@1001.service 아래라 oomd 대상이므로 쓰지 않는다. 큐와 메모리 기록기를 `sudo systemd-run --uid=cloudman`으로 system.slice unit에 띄운다. 명령, 확인, 상태, 로그, 중지 방법은 linux/README.md 7.7에 있다. 같은 환경변수로 `env -i` 아래에서 kubectl·k6·host_state(206-40)·run-campaign dry-run이 도는 것을 확인했다. unit을 실제로 띄워 cgroup을 확인하는 것은 큐 시작 때 한다(sudo 필요).
+- 메모리 기록기: `linux/campaign/memory-recorder.sh`를 새로 만들었다(수집 코드 밖). 10초마다 PSI, MemAvailable, SwapFree, 큐 unit·user@1001.service·kubepods의 memory.current, RSS 상위 5개 프로세스를 `runs/_campaign/linux-v1/memory-<날짜>.tsv`에 덧붙인다.
+- 메모리 줄이기(제안, 실행 안 함): 수집 중 Firefox 종료, tracker 정지(`systemctl --user mask`/`stop`, 되돌리기는 README 7.7). 6번의 "약 12초마다 재시작"은 `tracker-miner-fs-3` 자신이 재시작하는 것이 아니다. 본체는 10/27 12:29부터 같은 PID(13060, NRestarts=1)다. 경고는 자식 `tracker-extract-3`가 새로 뜰 때마다 남는다. 수집 중 시간당 약 256번(10/27 22~23시), 쉬는 동안 0번(10/28 09~10시)이다. 저장소에는 `.git`이 있어 색인 제외 대상이라, 무엇을 추출하는지는 확인하지 못했다.
+- Claude 세션은 수집 중 필요할 때만 켜고 보고 뒤 종료한다(README 7.7).
+- #32: `decisions.yaml` `retry_pairs`에 attempt 2를 등록했다. dry-run에서 `linux-v1-cpu-currencyservice-r02-a2`·`linux-v1-control-cpu-currencyservice-r02-a2`로 잡힌다(schedule_index 32, chaos 이름 41자). 시도 1의 run 폴더와 audit는 그대로 둔다. dry-run 두 번이 queue.log에 계획 줄을 덧붙였다(102→109줄 뒤 추가). 큐는 시작하지 않았다.
+- pair 전 게이트: `run-campaign.py` `gate()`가 `sentrix`와 함께 `kube-system` Pod Ready도 본다. 10/27 coredns sandbox 깨짐은 sentrix 게이트로는 잡히지 않았다. run 수집 내용이나 판정 기준은 바뀌지 않고, 시작 전 점검만 늘었다. 테스트 `test_gate_checks_kube_system_pods`를 추가했다. 지금 클러스터에서 gate() = [].
+- 완료 6 pair의 incident 6개를 commit했다(15/35).
+
 **재개하려면(제안만, 실행 안 함).**
 1. 완료된 6 pair(#20-a2, #23, #24, #25, #28, #29)의 incident 6개를 commit·push한다. 15/35가 된다.
 2. #32 `cpu-currencyservice-r02` 시도 1은 그대로 둔다. `decisions.yaml` `retry_pairs`에 attempt 2를 추가한다. failure_cause는 "postprocessing observation gap 15.1s under memory pressure; systemd-oomd". chaos 이름 `linux-v1-cpu-currencyservice-r02-a2-fault`는 41자다.

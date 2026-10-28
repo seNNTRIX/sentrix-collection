@@ -200,6 +200,18 @@ class CampaignBlockTests(unittest.TestCase):
              patch.object(campaign, "ntp_synchronized", return_value="yes"):
             self.assertEqual(campaign.gate(), [])
 
+    def test_gate_checks_kube_system_pods(self):
+        def fake(*args):
+            if args[:2] == ("get", "pods") and args[-1] == "kube-system":
+                return {"items": [
+                    {"metadata": {"name": "coredns-x"}, "status": {"phase": "Running",
+                     "containerStatuses": [{"ready": False}]}},
+                    {"metadata": {"name": "helm-install-traefik-x"}, "status": {"phase": "Succeeded"}}]}
+            return {"items": []}
+        with patch.object(campaign, "kubectl_json", side_effect=fake), \
+             patch.object(campaign, "ntp_synchronized", return_value="yes"):
+            self.assertEqual(campaign.gate(), ["pod not ready kube-system/coredns-x"])
+
     def failed_audit(self, fault_run_id):
         audit = self.root / "audits" / ("pair-" + fault_run_id)
         audit.mkdir(parents=True)

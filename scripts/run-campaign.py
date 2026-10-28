@@ -97,7 +97,9 @@ def gate():
         conds = item.get("status", {}).get("conditions", [])
         if not any(c.get("type") == "AllRecovered" and c.get("status") == "True" for c in conds):
             problems.append("unrecovered chaos object " + item["metadata"]["name"])
-    for ns in ("sentrix",):
+    # kube-system too: after a reboot coredns can stay broken (no route to host)
+    # while every sentrix pod looks Ready (2026-10-27, SETUP-REVIEW 7.20).
+    for ns in ("sentrix", "kube-system"):
         pods = kubectl_json("get", "pods", "-n", ns)
         for p in pods["items"]:
             if p["status"].get("phase") == "Succeeded":

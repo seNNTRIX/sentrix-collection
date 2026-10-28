@@ -183,6 +183,41 @@ set -a; . linux/config/endpoints.env; set +a
 - pair 사이마다 NTP 동기화 + Chaos 잔류 없음 + 모든 Pod Ready 확인 → 5분 정상 관찰 → 다시 확인.
 - 전원 차단 등으로 fault가 남았으면: `bash linux/campaign/emergency-cleanup.sh`
 
+### 7.7 시스템 unit으로 큐 실행 (206-40, 2026-10-28부터)
+
+10/27 #32에서 systemd-oomd가 GNOME 터미널 scope를 통째로 kill해 tmux 큐가 같이 죽었다(SETUP-REVIEW 7.21). oomd는 `user@1001.service`(한도 50 %, 20초)만 감시한다. `systemd-run --user`나 tmux로 띄운 큐는 여전히 그 아래라 대상이 된다. 그래서 큐와 메모리 기록기를 **system.slice의 unit**으로, 사용자 권한(cloudman)으로 실행한다. 수집 코드와 판정 기준은 그대로다. `start.sh`(tmux)는 다른 PC용으로 남긴다.
+
+```bash
+D=20261028                                   # unit 이름에 쓰는 날짜. 같은 이름 재사용 전에는 reset-failed
+R=/home/cloudman/Documents/sentrix-final-v1-main
+sudo systemd-run --unit=sentrix-memrec-$D --uid=cloudman --gid=cloudman --working-directory=$R \
+  -p StandardOutput=append:$R/runs/_campaign/linux-v1/memrec-$D.err -p StandardError=append:$R/runs/_campaign/linux-v1/memrec-$D.err \
+  $R/linux/campaign/memory-recorder.sh $R/runs/_campaign/linux-v1/memory-$D.tsv sentrix-campaign-$D 10
+sudo systemd-run --unit=sentrix-campaign-$D --uid=cloudman --gid=cloudman --working-directory=$R \
+  --setenv=HOME=/home/cloudman --setenv=USER=cloudman --setenv=LOGNAME=cloudman --setenv=LANG=C.UTF-8 \
+  --setenv=PATH=/home/cloudman/.local/bin:/usr/local/bin:/usr/bin:/bin \
+  --setenv=KUBECONFIG=/home/cloudman/.kube/config \
+  --setenv=SENTRIX_FRONTEND_URL=http://127.0.0.1:30080 --setenv=SENTRIX_PROMETHEUS_URL=http://127.0.0.1:30090 \
+  --setenv=SENTRIX_TEMPO_URL=http://127.0.0.1:30320 --setenv=SENTRIX_LOKI_URL=http://127.0.0.1:30310 \
+  --setenv=SENTRIX_CLUSTER_PROVIDER=k3s-single-node --setenv=SENTRIX_ENVIRONMENT_ID=206-40 \
+  -p StandardOutput=append:$R/runs/campaign-console.log -p StandardError=append:$R/runs/campaign-console.log \
+  $R/.venv/bin/python -B scripts/run-campaign.py --shard campaigns/linux-v1/shards/206-40.json
+```
+
+- 환경변수는 `linux/config/endpoints.env`, `start.sh`(SENTRIX_ENVIRONMENT_ID, `~/.local/bin`의 kubectl·k6)와 같다. endpoints.env를 바꾸면 여기도 바꾼다.
+- 확인: `systemctl show sentrix-campaign-$D -p ControlGroup -p ManagedOOMMemoryPressure`의 ControlGroup이 `/system.slice/sentrix-campaign-$D.service`인지 본다. `oomctl`의 "Memory Pressure Monitored CGroups"에 `user@1001.service`만 있고 이 unit은 없는지도 본다.
+- 상태·로그: `systemctl status sentrix-campaign-$D`, `journalctl -u sentrix-campaign-$D`(시작·종료 기록), `tail -f runs/campaign-console.log`, `tail -f runs/_campaign/linux-v1/queue.log`, `tail runs/_campaign/linux-v1/memory-$D.tsv`.
+- 정상 중지(진행 중인 pair 끝낸 뒤): `linux/campaign/stop.sh`. 기록기는 큐가 끝난 뒤 `sudo systemctl stop sentrix-memrec-$D`.
+- 즉시 중지(비상): `sudo systemctl stop sentrix-campaign-$D`. unit의 프로세스 전체(k6 포함)가 종료되므로 pair가 중간에 끊긴다. 바로 `bash linux/campaign/emergency-cleanup.sh`로 Chaos를 정리한다(7.5).
+- 큐가 실패로 끝나면 unit이 failed로 남는다. 상태를 기록한 뒤 `sudo systemctl reset-failed sentrix-campaign-$D`.
+- oomd 대상은 아니지만, 커널 OOM과 메모리 압박에 따른 지연(15초 gap 규칙)은 그대로다. 수집 중에는 아래로 메모리를 줄인다.
+
+**수집 중 메모리 줄이기(sudo 불필요).**
+- Firefox를 닫는다.
+- tracker(GNOME 파일 색인): `tracker-miner-fs-3`(user service, 10/27부터 PID 그대로)가 `tracker-extract-3` 자식을 계속 새로 띄운다. 띄울 때마다 journal에 `/proc/self/mountinfo` 경고가 남는다. 수집 중에는 시간당 약 250번, 쉬는 동안에는 0번이다. 저장소에는 `.git`이 있어 색인 제외 대상이므로 무엇을 추출하는지는 확인하지 못했다. 멈추기: `systemctl --user mask tracker-miner-fs-3.service && systemctl --user stop tracker-miner-fs-3.service`. 되돌리기: `systemctl --user unmask tracker-miner-fs-3.service && systemctl --user start tracker-miner-fs-3.service`. 다음 로그인 때 GNOME이 다시 띄우지 못하게 하는 것이 mask이고, 되돌리면 색인이 다시 시작된다.
+
+**Claude 세션.** 이 PC에서 Claude 세션은 수집 중 필요할 때(점검·보고·commit)만 켜고, 보고가 끝나면 종료한다. 세션도 같은 터미널 scope의 메모리(파일 page cache 포함)로 잡힌다. 큐는 위 unit으로 돌므로 세션을 닫아도 큐에는 영향이 없다. 진행 확인은 세션 없이 위 상태·로그 명령으로 한다.
+
 ## 8. 병렬 수집 (PC 2대: 206-40 + 206-39)
 
 교수님 지시로 정식 69 pair를 PC 2대(206-40, 206-39)에 나눠 돌린다(35/34 pair). **스케줄은 하나(seed 하나)**다. 각 pair(fault run + control run)는 PC 한 대에서만 돈다. 새 PC 세팅 순서는 [`NEW-PC.md`](NEW-PC.md)를 따른다.
