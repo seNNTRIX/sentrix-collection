@@ -557,3 +557,40 @@ queue는 `campaigns/calib2-linux-v1/schedule.json --allow-draft --stop-before 21
 - 새 시도의 status.json에 `pair_id`, `attempt`, `supersedes`(이전 run ID)를 남긴다. queue.log에 `retry <pair> as attempt 2 (...)`를 남긴다.
 - 데이터셋: 한 pair는 시도 하나만 쓴다. `pair_attempts.adopted_attempt`가 valid한 시도 하나를 고르고, valid 시도가 둘이면 거부한다(LINUX-PRODUCTION-DATASET-DESIGN `cases.parquet`).
 - #20: `retry_pairs`에 attempt 2를 추가했고 dry-run에서 `linux-v1-pod-productcatalogservice-r01-a2` / `linux-v1-control-pod-productcatalogservice-r01-a2`로 잡힘을 확인했다.
+
+### 7.21 큐 정지 진단 — #32 처리 중 메모리 압박, systemd-oomd가 터미널 종료 (2026-10-28, 진단만)
+
+마지막 push(10/27 12:49 KST, 9/35) 뒤에도 큐는 돌았다. pair 6개가 끝났지만 commit하지 않은 상태였고, #32에서 멈췄다. 이번 단계에서는 아무것도 고치거나 다시 실행하지 않았다.
+
+| 항목 | 확인 결과 | 정상 |
+|---|---|---|
+| 전원·부팅 | 10/27 12:25 KST boot 이후 shutdown·reboot 없음. boot_id `24c19153…` 하나(10/27 run 시작·끝에 기록된 것과 같음). uptime 1일 1시간. NTPSynchronized=yes | 정상 |
+| 큐 프로세스 | tmux 서버 없음. run-campaign·run-matched-pair·run-attended·k6 프로세스 없음. `last`에 tmux pts/2(12:49)가 `gone - no logout` | 멈춤 |
+| queue.log | 10/27 12:49 KST 뒤 시작 기록 없음(마지막 시작 03:49:27Z). 그 뒤 #20-a2, #23, #24, #25, #28, #29는 rc=0. 마지막 줄 `2026-10-27T14:43:39.97Z STOP: pair failed; inspect audits/pair-linux-v1-cpu-currencyservice-r02`(#32, rc=1) | 정지 |
+| #20 재시도 | `linux-v1-pod-productcatalogservice-r01-a2`·`linux-v1-control-…-r01-a2` 둘 다 run 0, audit complete, attempt 2, assessment valid | 정상 |
+| 새 run 폴더(10/27 12:00 KST 뒤) | 13개. 완료 pair 6개(12 run)의 audit는 모두 complete=True. #32 fault run `linux-v1-cpu-currencyservice-r02`는 `runtime.json` phase=failed. control run은 시작하지 않음 | #32만 실패 |
+| commit | `git log -1` = 3090016(9/35). 완료 6 pair의 incident 6개가 untracked. origin과 차이 없음 | commit 안 됨 |
+| 클러스터 | 노드 Ready, 전 Pod Running·Ready, kube-system 3개(coredns 재시작 0) 정상. 12:25 KST 뒤 재시작: productcatalog(04:53Z)와 checkout(07:25Z)은 pod fault 때문. chaos-controller-manager(14:43:42Z)와 kube-state-metrics(14:43:44Z)는 Error로 재시작 | 대체로 정상(정지 시각 재시작 2개) |
+| Chaos 객체 | 23개 모두 `AllRecovered=True`. `linux-v1-cpu-currencyservice-r02-fault`(14:07:20Z)도 회복됨 | 정상 |
+| 디스크 | `/`(runs/, /var/lib/rancher 같은 LV) 913G 중 162G 사용(19 %), runs/ 132G | 정상 |
+| 메모리 | 15 GiB 중 5.9 GiB 사용, available 9.5 GiB, swap 4 GiB 중 448 MiB 사용. 지금 PSI는 0. 노드 6.0 GiB(38 %). currency·payment 약 340 MiB(초기화 뒤 14시간) | 지금은 정상 |
+
+**멈춘 원인(근거 있음).**
+1. #32 fault run은 workload와 주입(cpu stress, 회복됨)을 끝내고 후처리 `process-telemetry`의 canonicalize 단계에 있었다. export는 14:41:21Z에 끝났고 `canonical-v2-a733ab1c23de`는 14:41:23Z에 만들어졌지만 비어 있다.
+2. 14:43:23.8Z 뒤 run-attended 감시 loop가 15.108초 동안 돌지 못했다. `runtime.json`에 `observation_gap_seconds: 15.108`이 있다. 감시 loop는 2초마다 돌아야 하고 15초 기준(판정 기준, 변경 안 함)을 넘었다. 그래서 `Supervisor observation gap >15s during postprocessing (possible suspend)`로 실패했고, 큐는 14:43:39.97Z에 STOP했다. boot_id가 같으므로 suspend는 아니다.
+3. 사용자 journal: 14:43:41Z(23:43:41 KST)에 `vte-spawn-….scope: systemd-oomd killed 8 process(es)`, `Failed with result 'oom-kill'`, `8.1G memory peak, 324.6M memory swap peak`. oomd 설정은 user@.service `ManagedOOMMemoryPressure=kill`, 한도 50 %, 20초다. 메모리 압박이 20초 넘게 이어져 터미널 탭 scope를 통째로 죽였다. 이 scope 안에 tmux 서버(큐), Claude Code 세션, 감시 명령이 있었다. 그래서 tmux가 사라졌고 이전 Claude 세션도 끝나 보고가 없었다.
+4. 같은 시각(14:43:42~44Z) chaos-controller-manager와 kube-state-metrics가 Error로 재시작했다. 시스템 전체가 잠깐 멈춘 것(메모리 압박)과 맞는다.
+
+**확실하지 않은 것: 무엇이 메모리를 썼나(후보).**
+- canonicalize: `canonicalize_logs`가 `logs.ndjson`(이 run 333 MB, 약 26만 줄)의 모든 줄을 Python dict 목록으로 만든 뒤 DataFrame으로 바꾼다. 실패 시각이 바로 이 단계라 가장 유력하다. 하지만 로그 크기는 이전 성공 run들(318~459 MB)과 비슷하다. 그래서 이것만으로는 설명되지 않는다.
+- 같은 scope에 있던 Claude Code 세션(Node). 오래 켜 있어 메모리가 컸을 수 있다. 8.1G peak 중 프로세스별 몫은 남지 않았다.
+- 클러스터 쪽 사용량(지금 6.0 GiB, currency·payment 누수로 pair 사이에 늘어남)이 전체 여유를 줄였다.
+- `tracker-miner-fs-3`가 약 12초마다 다시 떠 경고를 남기고 있다(`/proc/self/mountinfo` 오류). 큰 영향의 근거는 없다.
+- 커널 OOM·hung task와 k3s 로그는 시스템 journal 권한이 없어 보지 못했다. 확인 명령(sudo): `sudo journalctl -k --since "2026-10-27 23:40" --until "2026-10-27 23:46"`, `sudo journalctl -u k3s --since "2026-10-27 23:40" --until "2026-10-27 23:46"`.
+
+**재개하려면(제안만, 실행 안 함).**
+1. 완료된 6 pair(#20-a2, #23, #24, #25, #28, #29)의 incident 6개를 commit·push한다. 15/35가 된다.
+2. #32 `cpu-currencyservice-r02` 시도 1은 그대로 둔다. `decisions.yaml` `retry_pairs`에 attempt 2를 추가한다. failure_cause는 "postprocessing observation gap 15.1s under memory pressure; systemd-oomd". chaos 이름 `linux-v1-cpu-currencyservice-r02-a2-fault`는 41자다.
+3. 큐를 터미널 탭·Claude Code와 다른 cgroup에서 띄운다. 예: `systemd-run --user --unit=sentrix-campaign --property=ManagedOOMPreference=avoid tmux new -d -s sentrix-campaign …`. oomd가 Claude Code를 죽여도 큐가 같이 죽지 않게 하려는 것이다.
+4. 메모리 여유를 늘린다. 후보: canonicalize 로그를 줄 단위·조각 단위로 처리하는 코드 수정(출력 동일성 테스트 필요), swap 확대(sudo, 예: 4G→16G), tracker 정지(`systemctl --user mask tracker-miner-fs-3.service`). 판정 기준(15초 gap)은 바꾸지 않는다.
+5. 원인을 굳히려면 후처리 동안 메모리 기록(예: `/proc/pressure/memory`와 프로세스별 RSS를 10초마다)을 남긴다.
