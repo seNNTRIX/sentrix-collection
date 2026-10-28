@@ -1,0 +1,84 @@
+# Metrics-only local demo. Raw traces/logs are not persisted.
+mode: deployment
+fullnameOverride: otel-gateway-opentelemetry-collector
+image:
+  repository: otel/opentelemetry-collector-contrib
+  tag: 0.160.0
+command:
+  name: otelcol-contrib
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8889"
+  prometheus.io/path: /metrics
+ports:
+  jaeger-compact:
+    enabled: false
+  jaeger-thrift:
+    enabled: false
+  jaeger-grpc:
+    enabled: false
+  zipkin:
+    enabled: false
+  prom-exporter:
+    enabled: true
+    containerPort: 8889
+    servicePort: 8889
+    protocol: TCP
+alternateConfig:
+  extensions:
+    health_check:
+      endpoint: ${env:MY_POD_IP}:13133
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: ${env:MY_POD_IP}:4317
+        http:
+          endpoint: ${env:MY_POD_IP}:4318
+  processors:
+    # This gateway serves only the sentrix namespace. Boutique v0.9 Node.js
+    # services ignore OTEL_RESOURCE_ATTRIBUTES; keep their existing names.
+    resource:
+      attributes:
+        - key: service.namespace
+          action: insert
+          value: sentrix
+    memory_limiter:
+      check_interval: 5s
+      limit_mib: 230
+      spike_limit_mib: 50
+    batch: {}
+  connectors:
+    span_metrics:
+      namespace: traces.span.metrics
+      add_resource_attributes: true
+      histogram:
+        unit: ms
+        explicit:
+          buckets: [10ms, 25ms, 50ms, 100ms, 250ms, 500ms, 1s, 2.5s, 5s, 10s]
+      dimensions:
+        - name: service.namespace
+      metrics_flush_interval: 15s
+  exporters:
+    prometheus:
+      endpoint: ${env:MY_POD_IP}:8889
+      resource_to_telemetry_conversion:
+        enabled: true
+  service:
+    extensions: [health_check]
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [memory_limiter, resource, batch]
+        exporters: [span_metrics]
+      metrics:
+        receivers: [span_metrics]
+        processors: [memory_limiter, batch]
+        exporters: [prometheus]
+resources:
+  requests:
+    cpu: 100m
+    memory: 150Mi
+  limits:
+    cpu: 500m
+    memory: 300Mi

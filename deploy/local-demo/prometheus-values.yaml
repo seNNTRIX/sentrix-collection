@@ -1,0 +1,10 @@
+# Applied after deploy/prometheus/values-minimal.yaml.
+server:
+  retention: 1h
+  resources:
+    requests:
+      cpu: 150m
+      memory: 256Mi
+    limits:
+      cpu: 750m
+      memory: 512Mi
