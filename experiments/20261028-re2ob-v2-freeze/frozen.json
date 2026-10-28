@@ -1,0 +1,238 @@
+{
+  "ranking": {
+    "method": "Random Forest on rel18, pointwise (window, candidate) rows, NaN -> 0, score = P(root cause)",
+    "features": [
+      "f_cm_cpu_cores_dmean",
+      "f_cm_cpu_cores_dmax",
+      "f_cm_cpu_limit_ratio_dmean",
+      "f_cm_cpu_limit_ratio_dmax",
+      "f_cm_mem_limit_ratio_dmean",
+      "f_cm_mem_limit_ratio_dmax",
+      "f_cm_net_rx_pkts_dmean",
+      "f_cm_net_rx_pkts_dmax",
+      "f_cm_net_tx_pkts_dmean",
+      "f_cm_net_tx_pkts_dmax",
+      "f_cm_net_drop_pkts_dmean",
+      "f_cm_net_drop_pkts_dmax",
+      "f_ct_in_rate_lr",
+      "f_ct_in_err_d",
+      "f_ct_in_p50_lr",
+      "f_ct_in_p90_lr",
+      "f_ct_out_p90_lr",
+      "f_ct_in_edge_p90_lr"
+    ],
+    "params": {
+      "n_estimators": 300,
+      "random_state": 0,
+      "min_samples_leaf": 100,
+      "max_features": 0.5
+    },
+    "inner_loso_avg5": 0.9622222222222223,
+    "grid": [
+      {
+        "min_samples_leaf": 100,
+        "max_features": "sqrt"
+      },
+      {
+        "min_samples_leaf": 100,
+        "max_features": 0.5
+      },
+      {
+        "min_samples_leaf": 20,
+        "max_features": "sqrt"
+      },
+      {
+        "min_samples_leaf": 20,
+        "max_features": 0.5
+      }
+    ],
+    "selection": "inner LOSO over all 5 root-cause services, max mean Avg@5, ties -> earlier setting",
+    "model_file": "models/ranker_rf.joblib",
+    "model_sha256": "4032f30162b6280fd81c9204906bab211a913b9c3533f094fdd1e8a574b4e4b5",
+    "re2ob_oof": {
+      "loso": {
+        "AC@1": 0.8555555555555555,
+        "AC@3": 0.9777777777777777,
+        "AC@5": 1.0,
+        "Avg@5": 0.9577777777777777,
+        "MRR": 0.9185185185185184,
+        "n_cases": 90,
+        "AC@1_ci95": [
+          0.7777777777777778,
+          0.9222222222222223
+        ],
+        "AC@3_ci95": [
+          0.9444444444444444,
+          1.0
+        ],
+        "Avg@5_ci95": [
+          0.9311111111111112,
+          0.9777777777777777
+        ],
+        "Avg@5_fold_mean": 0.9577777777777778,
+        "Avg@5_fold_std": 0.015713484026367772,
+        "by_fault": {
+          "cpu": 1.0,
+          "delay": 0.893,
+          "disk": 1.0,
+          "loss": 0.853,
+          "mem": 1.0,
+          "socket": 1.0
+        },
+        "common_faults_Avg@5": 0.9155555555555555,
+        "common_faults_services_Avg@5": 0.8944444444444445
+      },
+      "rep": {
+        "AC@1": 0.9888888888888889,
+        "AC@3": 1.0,
+        "AC@5": 1.0,
+        "Avg@5": 0.9977777777777778,
+        "MRR": 0.9944444444444445,
+        "n_cases": 90,
+        "AC@1_ci95": [
+          0.9666666666666667,
+          1.0
+        ],
+        "AC@3_ci95": [
+          1.0,
+          1.0
+        ],
+        "Avg@5_ci95": [
+          0.9933333333333334,
+          1.0
+        ],
+        "Avg@5_fold_mean": 0.9977777777777778,
+        "Avg@5_fold_std": 0.0031426968052735123,
+        "by_fault": {
+          "cpu": 1.0,
+          "delay": 1.0,
+          "disk": 1.0,
+          "loss": 1.0,
+          "mem": 1.0,
+          "socket": 0.987
+        },
+        "common_faults_Avg@5": 1.0,
+        "common_faults_services_Avg@5": 1.0
+      }
+    }
+  },
+  "detection": {
+    "method": "LightGBM binary on all 58 detection aggregates",
+    "features": [
+      "f_cm_cpu_cores_dmean__max",
+      "f_cm_cpu_cores_dmean__mean",
+      "f_cm_cpu_cores_dmax__max",
+      "f_cm_cpu_cores_dmax__mean",
+      "f_cm_cpu_limit_ratio_dmean__max",
+      "f_cm_cpu_limit_ratio_dmean__mean",
+      "f_cm_cpu_limit_ratio_dmax__max",
+      "f_cm_cpu_limit_ratio_dmax__mean",
+      "f_cm_mem_limit_ratio_dmean__max",
+      "f_cm_mem_limit_ratio_dmean__mean",
+      "f_cm_mem_limit_ratio_dmax__max",
+      "f_cm_mem_limit_ratio_dmax__mean",
+      "f_cm_net_rx_pkts_dmean__max",
+      "f_cm_net_rx_pkts_dmean__mean",
+      "f_cm_net_rx_pkts_dmax__max",
+      "f_cm_net_rx_pkts_dmax__mean",
+      "f_cm_net_tx_pkts_dmean__max",
+      "f_cm_net_tx_pkts_dmean__mean",
+      "f_cm_net_tx_pkts_dmax__max",
+      "f_cm_net_tx_pkts_dmax__mean",
+      "f_cm_net_drop_pkts_dmean__max",
+      "f_cm_net_drop_pkts_dmean__mean",
+      "f_cm_net_drop_pkts_dmax__max",
+      "f_cm_net_drop_pkts_dmax__mean",
+      "f_cm_cpu_limit_ratio_mean__max",
+      "f_cm_cpu_limit_ratio_mean__mean",
+      "f_cm_mem_limit_ratio_mean__max",
+      "f_cm_mem_limit_ratio_mean__mean",
+      "f_ct_in_rate_lr__max",
+      "f_ct_in_rate_lr__mean",
+      "f_ct_in_err__max",
+      "f_ct_in_err__mean",
+      "f_ct_in_err_d__max",
+      "f_ct_in_err_d__mean",
+      "f_ct_in_p50_lr__max",
+      "f_ct_in_p50_lr__mean",
+      "f_ct_in_p90_lr__max",
+      "f_ct_in_p90_lr__mean",
+      "f_ct_out_p90_lr__max",
+      "f_ct_out_p90_lr__mean",
+      "f_ct_out_err__max",
+      "f_ct_out_err__mean",
+      "f_ct_in_edge_p90_lr__max",
+      "f_ct_in_edge_p90_lr__mean",
+      "f_log_rate_lr__max",
+      "f_log_rate_lr__mean",
+      "f_log_err_rate__max",
+      "f_log_err_rate__mean",
+      "f_log_err_rate_d__max",
+      "f_log_err_rate_d__mean",
+      "f_nbr_cm_cpu_cores_dmean__max",
+      "f_nbr_cm_cpu_cores_dmean__mean",
+      "f_nbr_cm_mem_limit_ratio_dmean__max",
+      "f_nbr_cm_mem_limit_ratio_dmean__mean",
+      "f_nbr_ct_in_p90_lr__max",
+      "f_nbr_ct_in_p90_lr__mean",
+      "f_nbr_ct_in_err_d__max",
+      "f_nbr_ct_in_err_d__mean"
+    ],
+    "params": {
+      "learning_rate": 0.05,
+      "random_state": 0,
+      "deterministic": true,
+      "force_row_wise": true,
+      "n_jobs": 4,
+      "verbose": -1,
+      "min_child_samples": 20,
+      "num_leaves": 15,
+      "n_estimators": 300
+    },
+    "inner_rep_cv_auroc": 0.9960397499702127,
+    "grid": [
+      {
+        "num_leaves": 15,
+        "n_estimators": 100
+      },
+      {
+        "num_leaves": 15,
+        "n_estimators": 300
+      },
+      {
+        "num_leaves": 31,
+        "n_estimators": 100
+      },
+      {
+        "num_leaves": 31,
+        "n_estimators": 300
+      }
+    ],
+    "selection": "inner repetition CV over all 3 repetitions, max mean AUROC, ties -> earlier setting",
+    "model_file": "models/detector_lgbm.txt",
+    "model_sha256": "296b41ad1b9ac0257683b678a87f5530284d6efd565ba180d0cb912ec4a4c5c0",
+    "re2ob_oof": {
+      "AUROC": 0.9958471823688825,
+      "AUPRC": 0.9976737308536238,
+      "positive_rate": 0.6076721883173496,
+      "n_windows": 9176,
+      "AUROC_ci95": [
+        0.9883864947509039,
+        0.9996186391782981
+      ]
+    }
+  },
+  "data": {
+    "features": "data/features/re2ob-v0",
+    "ranking_sha256": "c7dfdc761f3f1911a12fd3f529005118efaeba5fc9d1b6e7697f6c5f9a44e5c9",
+    "detection_sha256": "c9b9ca4374e1566bcabe555e744aae4eb8f379663a8f25b9d2bec06e02014ffe",
+    "n_cases": 90
+  },
+  "versions": {
+    "scikit-learn": "1.5.2",
+    "lightgbm": "4.5.0",
+    "pandas": "2.2.3",
+    "numpy": "2.5.4",
+    "joblib": "1.6.0"
+  }
+}
