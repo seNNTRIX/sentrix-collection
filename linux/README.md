@@ -211,6 +211,7 @@ sudo systemd-run --unit=sentrix-campaign-$D --uid=cloudman --gid=cloudman --work
 - 즉시 중지(비상): `sudo systemctl stop sentrix-campaign-$D`. unit의 프로세스 전체(k6 포함)가 종료되므로 pair가 중간에 끊긴다. 바로 `bash linux/campaign/emergency-cleanup.sh`로 Chaos를 정리한다(7.5).
 - 큐가 실패로 끝나면 unit이 failed로 남는다. 상태를 기록한 뒤 `sudo systemctl reset-failed sentrix-campaign-$D`.
 - oomd 대상은 아니지만, 커널 OOM과 메모리 압박에 따른 지연(15초 gap 규칙)은 그대로다. 수집 중에는 아래로 메모리를 줄인다.
+- **수집 중 로그아웃 금지.** 로그아웃하면 GDM 로그인 화면의 절전 설정(사용자 세션의 `sleep-inactive-ac-type 'nothing'`과 별개)이 적용될 수 있다. 206-39는 #38 control run 중 호스트가 46시간 절전해 pair가 실패했다(`docs/pc/206-39.md` 진단, SETUP-REVIEW 7.22). 자리를 뜰 때는 화면 잠금만 한다.
 
 **수집 중 메모리 줄이기(sudo 불필요).**
 - Firefox를 닫는다.

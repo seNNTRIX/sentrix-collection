@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "campaign_id": "linux-v1",
+  "seed": 20261023,
+  "draft": false,
+  "schedule": "campaigns/linux-v1/schedule.json",
+  "schedule_sha256": "d7fd8332135312282dda63d97fc03afbb3ffad93f077c1cd77705189c8d1787f",
+  "shard": "206-40",
+  "shards": [
+    "206-40",
+    "206-39"
+  ],
+  "method": "handoff 2026-10-30: pairs of shard 206-39 not started there (206-39 stopped after a 46 h host suspend during #38; user decision: 206-40 collects the rest, environment_id 206-40). Schedule order kept. #38 linux-v1-pod-currencyservice-r02 is not listed: its retry (attempt 2) is pending (SETUP-REVIEW 7.22).",
+  "summary": {
+    "pairs": 15,
+    "fault_type": {
+      "cpu_saturation": 4,
+      "network_delay": 2,
+      "packet_loss": 4,
+      "pod_failure": 3,
+      "traffic_surge": 2
+    },
+    "repetition": {
+      "1": 4,
+      "2": 7,
+      "3": 4
+    },
+    "pair_order": {
+      "control_then_fault": 8,
+      "fault_then_control": 7
+    },
+    "targets": 11
+  },
+  "pairs": [
+    {
+      "schedule_index": 40,
+      "pair_id": "linux-v1-loss-front-recommendation-r02",
+      "fault_type": "packet_loss",
+      "target_id": "front-recommendation",
+      "repetition": 2,
+      "fault_run_id": "linux-v1-loss-front-recommendation-r02",
+      "control_run_id": "linux-v1-control-loss-front-recommendation-r02"
+    },
+    {
+      "schedule_index": 42,
+      "pair_id": "linux-v1-surge-l3-r02",
+      "fault_type": "traffic_surge",
+      "target_id": "l3",
+      "repetition": 2,
+      "fault_run_id": "linux-v1-surge-l3-r02",
+      "control_run_id": "linux-v1-control-surge-l3-r02"
+    },
+    {
+      "schedule_index": 43,
+      "pair_id": "linux-v1-delay-front-currency-r01",
+      "fault_type": "network_delay",
+      "target_id": "front-currency",
+      "repetition": 1,
+      "fault_run_id": "linux-v1-delay-front-currency-r01",
+      "control_run_id": "linux-v1-control-delay-front-currency-r01"
+    },
+    {
+      "schedule_index": 45,
+      "pair_id": "linux-v1-loss-recommendation-product-r03",
+      "fault_type": "packet_loss",
+      "target_id": "recommendation-product",
+      "repetition": 3,
+      "fault_run_id": "linux-v1-loss-recommendation-product-r03",
+      "control_run_id": "linux-v1-control-loss-recommendation-product-r03"
+    },
+    {
+      "schedule_index": 47,
+      "pair_id": "linux-v1-cpu-paymentservice-r02",
+      "fault_type": "cpu_saturation",
+      "target_id": "paymentservice",
+      "repetition": 2,
+      "fault_run_id": "linux-v1-cpu-paymentservice-r02",
+      "control_run_id": "linux-v1-control-cpu-paymentservice-r02"
+    },
+    {
+      "schedule_index": 49,
+      "pair_id": "linux-v1-cpu-currencyservice-r01",
+      "fault_type": "cpu_saturation",
+      "target_id": "currencyservice",
+      "repetition": 1,
+      "fault_run_id": "linux-v1-cpu-currencyservice-r01",
+      "control_run_id": "linux-v1-control-cpu-currencyservice-r01"
+    },
+    {
+      "schedule_index": 51,
+      "pair_id": "linux-v1-cpu-checkoutservice-r03",
+      "fault_type": "cpu_saturation",
+      "target_id": "checkoutservice",
+      "repetition": 3,
+      "fault_run_id": "linux-v1-cpu-checkoutservice-r03",
+      "control_run_id": "linux-v1-control-cpu-checkoutservice-r03"
+    },
+    {
+      "schedule_index": 53,
+      "pair_id": "linux-v1-pod-productcatalogservice-r02",
+      "fault_type": "pod_failure",
+      "target_id": "productcatalogservice",
+      "repetition": 2,
+      "fault_run_id": "linux-v1-pod-productcatalogservice-r02",
+      "control_run_id": "linux-v1-control-pod-productcatalogservice-r02"
+    },
+    {
+      "schedule_index": 58,
+      "pair_id": "linux-v1-loss-front-recommendation-r03",
+      "fault_type": "packet_loss",
+      "target_id": "front-recommendation",
+      "repetition": 3,
+      "fault_run_id": "linux-v1-loss-front-recommendation-r03",
+      "control_run_id": "linux-v1-control-loss-front-recommendation-r03"
+    },
+    {
+      "schedule_index": 60,
+      "pair_id": "linux-v1-pod-paymentservice-r01",
+      "fault_type": "pod_failure",
+      "target_id": "paymentservice",
+      "repetition": 1,
+      "fault_run_id": "linux-v1-pod-paymentservice-r01",
+      "control_run_id": "linux-v1-control-pod-paymentservice-r01"
+    },
+    {
+      "schedule_index": 61,
+      "pair_id": "linux-v1-loss-recommendation-product-r02",
+      "fault_type": "packet_loss",
+      "target_id": "recommendation-product",
+      "repetition": 2,
+      "fault_run_id": "linux-v1-loss-recommendation-product-r02",
+      "control_run_id": "linux-v1-control-loss-recommendation-product-r02"
+    },
+    {
+      "schedule_index": 62,
+      "pair_id": "linux-v1-surge-l1-r02",
+      "fault_type": "traffic_surge",
+      "target_id": "l1",
+      "repetition": 2,
+      "fault_run_id": "linux-v1-surge-l1-r02",
+      "control_run_id": "linux-v1-control-surge-l1-r02"
+    },
+    {
+      "schedule_index": 63,
+      "pair_id": "linux-v1-cpu-checkoutservice-r01",
+      "fault_type": "cpu_saturation",
+      "target_id": "checkoutservice",
+      "repetition": 1,
+      "fault_run_id": "linux-v1-cpu-checkoutservice-r01",
+      "control_run_id": "linux-v1-control-cpu-checkoutservice-r01"
+    },
+    {
+      "schedule_index": 66,
+      "pair_id": "linux-v1-pod-productcatalogservice-r03",
+      "fault_type": "pod_failure",
+      "target_id": "productcatalogservice",
+      "repetition": 3,
+      "fault_run_id": "linux-v1-pod-productcatalogservice-r03",
+      "control_run_id": "linux-v1-control-pod-productcatalogservice-r03"
+    },
+    {
+      "schedule_index": 67,
+      "pair_id": "linux-v1-delay-recommendation-product-r02",
+      "fault_type": "network_delay",
+      "target_id": "recommendation-product",
+      "repetition": 2,
+      "fault_run_id": "linux-v1-delay-recommendation-product-r02",
+      "control_run_id": "linux-v1-control-delay-recommendation-product-r02"
+    }
+  ],
+  "handoff": {
+    "from_shard": "campaigns/linux-v1/shards/206-39.json",
+    "source": "origin/collect-206-39 211f7c6 docs/pc/206-39.md",
+    "decided_on": "2026-10-30",
+    "collected_by": "206-40"
+  }
+}

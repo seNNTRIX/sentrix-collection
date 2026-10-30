@@ -609,3 +609,69 @@ queue는 `campaigns/calib2-linux-v1/schedule.json --allow-draft --stop-before 21
 3. 큐를 터미널 탭·Claude Code와 다른 cgroup에서 띄운다. 예: `systemd-run --user --unit=sentrix-campaign --property=ManagedOOMPreference=avoid tmux new -d -s sentrix-campaign …`. oomd가 Claude Code를 죽여도 큐가 같이 죽지 않게 하려는 것이다.
 4. 메모리 여유를 늘린다. 후보: canonicalize 로그를 줄 단위·조각 단위로 처리하는 코드 수정(출력 동일성 테스트 필요), swap 확대(sudo, 예: 4G→16G), tracker 정지(`systemctl --user mask tracker-miner-fs-3.service`). 판정 기준(15초 gap)은 바꾸지 않는다.
 5. 원인을 굳히려면 후처리 동안 메모리 기록(예: `/proc/pressure/memory`와 프로세스별 RSS를 10초마다)을 남긴다.
+
+### 7.22 206-39 남은 pair를 206-40으로 이관 (2026-10-30, 준비만)
+
+**206-40 블록 10/28~29 결과.** 14:05 KST – 10/29 19:46 KST, `queue finished`. 20 pair 모두 complete, 두 run raw export 완료, is_valid_run true(17 impacted·recovered, 3 valid 무영향: loss-checkout-payment-r01·r03, surge-l1-r01). shard 206-40은 **35/35**(34 complete + surge-l3-r01 `resolved_pairs`). incident 20개 commit `b9315ab`. 메모리 기록기: MemAvailable 최저 5,372 MiB, PSI some10 최고 55.17, oomd kill 없음. 기록기 unit `sentrix-memrec-20261028`은 큐 종료 뒤에도 돌고 있었다(중지 명령은 사용자에게, README 7.7).
+
+**이관 결정(2026-10-30, 사용자).**
+- 사유: 206-39가 10/28 17:41 KST #38 `linux-v1-pod-currencyservice-r02` control run 중 호스트 절전으로 46시간 18분 멈췄고, 복귀 직후 control run이 `Workload console inactive >60s`로 실패해 큐가 STOP했다(`origin/collect-206-39` `docs/pc/206-39.md` 진단, `bcc09aa`·`211f7c6`). 206-39는 18/34에서 블록을 닫고 더 수집하지 않는다.
+- 대상: 206-39 shard에서 시작하지 않은 15 pair(아래 표)와 #38(시도 2, 보류).
+- 수집 PC: **206-40**. 이 pair들의 run 기록 `environment_id`는 206-40이 된다(`SENTRIX_ENVIRONMENT_ID=206-40`). 원래 shard 206-39.json은 그대로 둔다.
+
+**shard `campaigns/linux-v1/shards/206-40-b.json`.** `campaign_shard.shard_doc()`로 만들고 `method`·`handoff` 필드에 이관 사유를 적었다. schedule.json sha256 고정(같은 seed 20261023), `shard: 206-40`, 원래 스케줄 순서. 15 pair: cpu 4, delay 2, loss 4, pod 3, surge 2 / control_then_fault 8, fault_then_control 7.
+
+| # | pair_id | 순서 |
+|---|---|---|
+| 40 | linux-v1-loss-front-recommendation-r02 | control_then_fault |
+| 42 | linux-v1-surge-l3-r02 | control_then_fault |
+| 43 | linux-v1-delay-front-currency-r01 | fault_then_control |
+| 45 | linux-v1-loss-recommendation-product-r03 | control_then_fault |
+| 47 | linux-v1-cpu-paymentservice-r02 | control_then_fault |
+| 49 | linux-v1-cpu-currencyservice-r01 | control_then_fault |
+| 51 | linux-v1-cpu-checkoutservice-r03 | fault_then_control |
+| 53 | linux-v1-pod-productcatalogservice-r02 | fault_then_control |
+| 58 | linux-v1-loss-front-recommendation-r03 | fault_then_control |
+| 60 | linux-v1-pod-paymentservice-r01 | control_then_fault |
+| 61 | linux-v1-loss-recommendation-product-r02 | fault_then_control |
+| 62 | linux-v1-surge-l1-r02 | control_then_fault |
+| 63 | linux-v1-cpu-checkoutservice-r01 | control_then_fault |
+| 66 | linux-v1-pod-productcatalogservice-r03 | fault_then_control |
+| 67 | linux-v1-delay-recommendation-product-r02 | fault_then_control |
+
+**대조.**
+
+| 구분 | pair 수 | 확인 |
+|---|---|---|
+| 206-40 shard 완료 | 35 | 34 complete audit + incident, surge-l3-r01 resolved_pairs |
+| 206-39 완료(valid) | 18 | 206-39.md 최종 상태표. 206-40-b와 겹침 0 |
+| 206-39 실패 #38 | 1 | 시도 2 보류(아래). 206-40-b에 넣지 않음 |
+| 이관(206-40-b) | 15 | 모두 206-39.json에 있고 206-39 상태 "시작 안 함", 206-40.json과 겹침 0, 206-39 목록의 schedule 번호와 schedule.json 일치 |
+| 합계 | **69** | = schedule.json 69 pair (206-40.json 35 + 206-39.json 34, 두 shard 겹침 0) |
+
+- 15 pair의 run ID 30개는 이 PC의 `runs/`, `audits/`, `incidents/`에 없다. 206-39에도 시작하지 않아 없다(206-39.md).
+- dry-run(`--shard 206-40-b.json --dry-run`, SENTRIX_ENVIRONMENT_ID=206-40): pairs selected=15, 모두 attempt 1, run ID는 표의 pair_id와 `linux-v1-control-…`, chaos 이름 최장 47자(`linux-v1-delay-recommendation-product-r02-fault`, 한도 63), pre-pair reset 켜짐. dry-run이 queue.log에 2줄(block, queue finished)을 덧붙였다(257→259줄).
+
+**#38 시도 2: 보류(막힘, 제안만).**
+- `retry_pairs`의 검사(`scripts/pair_attempts.py` `apply_retries`)는 `failed_audit` 폴더가 **이 PC에 있고**, 이름이 `audits/pair-<이전 시도 fault run ID>`이고, 그 `status.json`이 complete false여야 통과한다. 시도 1의 audit와 run은 206-39 디스크에만 있다(audits는 git에 없음). 등록하면 `failed_audit audits/pair-linux-v1-pod-currencyservice-r02 not found`로 **큐 전체가 시작되지 않는다**(decisions.yaml에 쓰지 않고 같은 함수로 확인).
+- 반대로 retry 등록 없이 #38을 shard에 넣으면, 이 PC에는 시도 1 audit가 없어 시도 1 run ID(`linux-v1-pod-currencyservice-r02`)로 다시 수집한다. 206-39의 run ID 재사용이 되므로 넣지 않았다. decisions.yaml은 바꾸지 않았다.
+- 제안 A(코드 변경 없음, 권장): 206-39의 `audits/pair-linux-v1-pod-currencyservice-r02/` 폴더(status.json과 로그, run 데이터 아님)를 내용 그대로 이 PC 같은 경로로 복사하고, 두 PC 문서에 `status.json` sha256과 "206-39에서 복사"를 적는다. 그 뒤 `retry_pairs`에 attempt 2(`failed_audit: audits/pair-linux-v1-pod-currencyservice-r02`, failure_cause: 206-39 호스트 절전 46h로 control run 실패, decided_on 2026-10-30)를 넣고 `206-40-c.json`(#38 하나)을 만든다. run ID `linux-v1-pod-currencyservice-r02-a2`·`linux-v1-control-pod-currencyservice-r02-a2`, chaos 이름 41자. 판정 기준과 검사 코드는 그대로다.
+- 제안 B: `failed_audit`이 다른 PC에 있음을 적는 필드(예: `failed_audit_environment: 206-39` + status.json sha256)를 검사 코드에 추가. 코드·테스트 변경이 필요해 A보다 크다.
+- 순서: 큐 시작 전에 A를 끝내면 c(#38) → b(#40~) 순으로 돌려 스케줄 순서를 지킬 수 있다. b를 먼저 시작하면 #38은 b가 끝난 뒤 따로 돈다.
+
+**절전 대책.** 이번에는 GDM 설정·systemd-inhibit을 하지 않는다(이 PC는 로그인 상태, 사용자 판단). README 7.7에 "수집 중 로그아웃 금지, 자리를 뜰 때는 화면 잠금만"을 추가했다.
+
+**코드·태그.** 코드 변경 없음(테스트 152개 OK). 206-39는 더 수집하지 않고, 이관 pair는 206-40이 school-pc의 지금 코드로 돌린다. 태그 `linux-v1-frozen-20261027` 이후 school-pc의 코드 차이는 pair 전 게이트에 kube-system Pod Ready 추가(7.21)뿐이라 수집 내용·판정 기준은 같다. 그래서 새 태그는 만들지 않았다.
+
+**시작 전 게이트(10/30 16:25 KST).**
+
+| 항목 | 결과 |
+|---|---|
+| NTP | synchronized yes, NTP active |
+| 노드 | 206-40 Ready (uptime 3일 4시간) |
+| Pod | 23개 모두 Ready(kube-system coredns·local-path-provisioner·metrics-server 포함). `run-campaign.py` `gate()` = [] |
+| Chaos | 39개 모두 desiredPhase Stop·AllInjected False·AllRecovered True(활성 주입 없음) |
+| 디스크 | `/` 913G 중 269G 사용, 598G 여유(32 %). `low_disk()` = [] |
+| 메모리 (free -m) | total 15706, used 6608, buff/cache 9665, available 9098. swap 452/4095 사용 |
+
+**예상 소요.** 15 pair × 약 90분 = 약 22.5시간(10/28~29 블록 실측 20 pair 29시간 41분, pair당 89분). 큐 시작 시각 + 22.5시간(예: 17:00 KST 시작이면 10/31 약 15:30 KST).
