@@ -675,3 +675,20 @@ queue는 `campaigns/calib2-linux-v1/schedule.json --allow-draft --stop-before 21
 | 메모리 (free -m) | total 15706, used 6608, buff/cache 9665, available 9098. swap 452/4095 사용 |
 
 **예상 소요.** 15 pair × 약 90분 = 약 22.5시간(10/28~29 블록 실측 20 pair 29시간 41분, pair당 89분). 큐 시작 시각 + 22.5시간(예: 17:00 KST 시작이면 10/31 약 15:30 KST).
+
+**206-40-b 결과(10/30 16:28 – 10/31 14:20 KST).** 15/15 complete, 두 run assessment valid, is_valid_run true(11 impacted·recovered, 4 valid 무영향). pair별 표는 `docs/pc/206-40.md`. commit `ec7059b`. 큐는 이 절의 dry-run 직후 사용자가 b부터 시작해, #38은 b 뒤에 따로 돈다(스케줄 순서에서 벗어남, 이 pair 하나).
+
+**#38 시도 2 등록(11/03, 제안 A 실행).**
+- 206-39 `audits/pair-linux-v1-pod-currencyservice-r02/`(4개 파일: status.json, pre-pair-reset.json, run 로그 2개. run 데이터 아님)를 사용자가 tar로 옮겨 왔고(`~/audit-38.tgz`), 같은 경로에 내용 그대로 풀었다(같은 이름 폴더 없음 확인 후, mtime 유지). **206-39에서 복사, status.json sha256 `175599244953cdd09b5745edb1d932c6e8369cd90e817aa3be220e4aa9cfbc30`**(206-39에서 잰 값과 같음). 나머지: pre-pair-reset.json `1f1ec4dd…1573`, run 로그 fault `8376e800…c2a7`, control `a672de7d…88bf`, tgz `27b33397…fe2b`.
+- status.json: complete false, phase failed, failed_step `run:linux-v1-control-pod-currencyservice-r02`, steps fault 0 / control 1.
+- `decisions.yaml` `retry_pairs`에 attempt 2를 넣었다(failed_audit `audits/pair-linux-v1-pod-currencyservice-r02`, failure_cause "206-39 호스트 절전 46h로 control run 실패" + 경위, decided_on 2026-10-30, 참고 필드 `failed_audit_copied_from`에 위 sha256). 검사 코드는 그대로이고, 복사한 audit로 통과한다.
+- shard `campaigns/linux-v1/shards/206-40-c.json`: #38 하나(pod_failure, repetition 2, fault_then_control). dry-run: pairs selected=1, attempt 2, run ID `linux-v1-pod-currencyservice-r02-a2` / `linux-v1-control-pod-currencyservice-r02-a2`, supersedes 시도 1 두 ID, chaos 이름 `linux-v1-pod-currencyservice-r02-a2-fault` 41자. -a2 ID는 두 PC 어디에도 없다. dry-run이 queue.log에 3줄을 덧붙였다.
+- 테스트 OK. 코드 변경 없음, 새 태그 없음.
+
+**시작 전 게이트(11/03 13:38 KST).** NTP synchronized yes. 노드 206-40 Ready(uptime 1주). Pod 23개 모두 Ready(kube-system 3개 포함), `gate()` = []. Chaos 52개 모두 Stop·AllRecovered(활성 0). `/` 353G 사용, 514G 여유(41 %), `low_disk()` = []. free -m: available 9,718 MiB, swap 634/4095 사용. 메모리 기록기 `sentrix-memrec-20261028`이 아직 돌고 있다(10/28부터, 중지는 사용자 sudo).
+
+**#38이 끝나면 할 일(다음 세션, 정리만).**
+1. #38-a2 결과 확인(status complete, 두 run valid, incident), `docs/pc/206-40.md`에 기록, commit.
+2. 69 pair 최종 표: schedule 번호, pair_id, 수집 PC(206-40 / 206-39), 채택 시도(1 또는 2. `pair_attempts.adopted_attempt()` 규칙: pair당 valid 시도 하나), is_valid_run, impact(confirmed·critical_failure), status. 출처: 206-40은 `incidents/`·`audits/`, 206-39는 `origin/collect-206-39`의 `incidents/`·`docs/pc/206-39.md`. 기대 구성: 206-40 shard 35(재시도 #20·#32 attempt 2, surge-l3-r01 resolved_pairs) + 206-39 18 + 206-40-b 15 + #38 attempt 2 = 69. 시도 1 실패분(#20, #32, #38)은 제외 사유와 함께 별도 열.
+3. `runs/` 용량: 206-40은 11/03 기준 323G(`du -sh runs`), 206-39는 10/30 기준 99 GiB(206-39.md). 두 PC에서 `du -sh runs` 다시 측정.
+4. 206-39 run 데이터 모으기(제안): 206-40 디스크 여유 514G라 들어간다. 206-39 저장소의 `runs/`, `audits/`, `incidents/`를 206-40의 **별도 폴더**(예: `/home/cloudman/Documents/sentrix-206-39/`)로 옮긴다. `runs/_campaign`(queue.log, decisions.yaml)이 겹치므로 206-40 `runs/`에 바로 섞지 않는다. 방법: 같은 네트워크면 206-39에서 `rsync -a --checksum`(ssh), 아니면 외장 디스크. 전후로 양쪽에서 `find runs audits -type f -print0 | xargs -0 sha256sum` 목록을 만들어 비교한다. 206-39 원본은 지우지 않는다. 데이터셋 생성 단계에서 두 폴더를 run ID로 합치고, run ID 겹침(있으면 안 됨)을 먼저 검사한다. #38 시도 1 audit는 206-40에 복사본이 있으므로 같은 sha256인지만 본다.

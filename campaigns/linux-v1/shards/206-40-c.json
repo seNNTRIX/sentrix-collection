@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "campaign_id": "linux-v1",
+  "seed": 20261023,
+  "draft": false,
+  "schedule": "campaigns/linux-v1/schedule.json",
+  "schedule_sha256": "d7fd8332135312282dda63d97fc03afbb3ffad93f077c1cd77705189c8d1787f",
+  "shard": "206-40",
+  "shards": [
+    "206-40",
+    "206-39"
+  ],
+  "method": "handoff 2026-10-30: #38 of shard 206-39 (attempt 1 failed there: control run broken by a 46 h host suspend). Attempt 2 is collected on 206-40 via decisions.yaml retry_pairs (run IDs -a2); the attempt-1 audit was copied unchanged from 206-39 (SETUP-REVIEW 7.22). Run after 206-40-b, so out of schedule order.",
+  "summary": {
+    "pairs": 1,
+    "fault_type": {
+      "pod_failure": 1
+    },
+    "repetition": {
+      "2": 1
+    },
+    "pair_order": {
+      "fault_then_control": 1
+    },
+    "targets": 1
+  },
+  "pairs": [
+    {
+      "schedule_index": 38,
+      "pair_id": "linux-v1-pod-currencyservice-r02",
+      "fault_type": "pod_failure",
+      "target_id": "currencyservice",
+      "repetition": 2,
+      "fault_run_id": "linux-v1-pod-currencyservice-r02",
+      "control_run_id": "linux-v1-control-pod-currencyservice-r02"
+    }
+  ],
+  "handoff": {
+    "from_shard": "campaigns/linux-v1/shards/206-39.json",
+    "source": "origin/collect-206-39 211f7c6 docs/pc/206-39.md",
+    "decided_on": "2026-10-30",
+    "collected_by": "206-40",
+    "attempt": 2
+  }
+}
