@@ -1,6 +1,6 @@
 # SentriX 마일스톤 — 완료와 남은 일
 
-기준일: 2026-10-19 · 기준 문서: [`sentrix-project-context.md`](../sentrix-project-context.md)
+기준일: 2026-11-03 (수집 완료 반영) · 기준 문서: [`sentrix-project-context.md`](../sentrix-project-context.md)
 근거 기록: `docs/SETUP-REVIEW-20261016.md` 7절(학교 PC 실측), git 브랜치 `school-pc` 커밋.
 남은 일정의 날짜는 **추정**이다. 학교 PC 가동 여건(재부팅, 사용 가능 시간)에 따라 달라진다.
 
@@ -21,9 +21,9 @@
 | 수집 준비 | **S5. 시험 pair 4개 + 2차 3개** | 완료 | 10/19~22 |
 | 수집 준비 | S6. 강도 동결·정식 스케줄 | 완료 (seed 20261023, 태그 linux-v1-frozen-20261023) | 10/23 |
 | 수집 | S7. 첫 정식 pair | 완료 (206-40: cpu-productcatalogservice-r01 valid) | 10/23 |
-| 수집 | S8. Tier 1 (cpu·delay·loss 45 pair) | 진행 중 (206-40 35/35 pair 완료, 10/29 기준; 206-39 18/34, 남은 pair 206-40으로 이관 10/30) | 10/21~11/2 |
-| 수집 | S9. Tier 2 (pod 15 pair) | 남음 | 11/3~11/5 |
-| 수집 | S10. Tier 3 (surge 9 pair) + 재시도 | 남음 | 11/6~11/13 |
+| 수집 | S8. Tier 1 (cpu·delay·loss 45 pair) | 완료 (45/45 valid) | 10/23~10/31 |
+| 수집 | S9. Tier 2 (pod 15 pair) | 완료 (15/15 valid, #38 시도 2 11/03) | 10/23~11/3 |
+| 수집 | S10. Tier 3 (surge 9 pair) + 재시도 | 완료 (9/9 valid; 재시도 3건 #20·#32·#38 모두 valid). **linux-v1 69/69**, `docs/LINUX-V1-COLLECTION-FINAL.md` | 10/23~11/3 |
 | 연구 | R1. RE2-OB 확보·구조 확인 | 남음 (병행) | 10/20~ |
 | 연구 | R2. RE2-OB feature·baseline | 남음 (병행) | 10/21~11/7 |
 | 연구 | R3. 평가 지표 정의·평가기 | 남음 (병행) | 10/21~10/31 |
@@ -184,7 +184,12 @@
 
 - `--max-pairs 1`로 Tier 1 첫 pair만 실행, 끝까지 확인. 블록 운영 절차(시작 점검, 정지, 재부팅 복구)를 실제로 한 번 수행.
 
-### S8~S10. 정식 수집 (10/21~11/13)
+### S8~S10. 정식 수집 (10/21~11/13) — 완료 (11/03)
+
+**결과(11/03, SETUP-REVIEW 7.23).** tier 순서 대신 스케줄 순서로 두 PC(206-40, 206-39)에 shard를 나눠 수집했다. 69 pair 모두 valid pair 하나씩(제외 0): 206-40 51(기본 35 + 206-39에서 이관 15 + #38 시도 2), 206-39 18. impact 있음 54, 없음 15. 실패 시도 3건(#20 export 누락, #32 메모리 압박, #38 206-39 호스트 절전)은 모두 시도 2로 대체. pair별 표: `docs/LINUX-V1-COLLECTION-FINAL.md`. 206-39 run 데이터(약 99 GiB)를 206-40으로 모으는 일은 B1 전에 한다(7.23 계획).
+
+아래는 처음 계획이다.
+
 
 | tier | 내용 | 블록 (8 h 기준 5 pair) | 예상 기간 |
 |---|---|---|---|
@@ -215,7 +220,7 @@
 
 ### B1. linux-v1 데이터셋 빌드 (11/3~11/14)
 
-Tier 1이 끝나면 시작해서 이후 tier를 추가 반영한다.
+수집이 끝났으므로(11/03) 69 pair 전체로 시작한다. 먼저 206-39 데이터를 206-40 `/home/cloudman/sentrix-data/206-39/`로 옮기고 sha256 대조(SETUP-REVIEW 7.23). 생성기는 두 root를 읽고 run ID 겹침·environment_id 불일치·pair당 채택 시도 하나를 먼저 검사한다.
 - `cases.parquet`: pair당 1행, 판정(data_valid, injection_valid, impact_confirmed, recovery_status)과 제외 사유.
 - `topology.json`: trace에서 관측된 노드와 edge(주입 정보로 만들지 않음).
 - window 라벨: 경계·warmup·전환·회복 중 제외, 효과 관측 시각 기준(pod는 Ready=false).
