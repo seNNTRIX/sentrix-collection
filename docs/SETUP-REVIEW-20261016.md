@@ -712,3 +712,64 @@ queue는 `campaigns/calib2-linux-v1/schedule.json --allow-draft --stop-before 21
 **태그(제안만).** 수집 기록이 끝난 지금 commit에 annotated 태그 `linux-v1-collected-20261103`을 다는 것을 권한다. 데이터셋 빌드(B1)가 참조할 incidents·decisions.yaml·shard·최종 표 상태를 고정하고, 메시지에 206-39 기록의 기준 `origin/collect-206-39` 211f7c6을 적는다. 코드·판정 기준은 `linux-v1-frozen-20261027` 이후 kube-system 게이트만 추가돼 수집 조건 태그는 새로 필요 없다.
 
 **정리.** 코드·판정 기준 변경 없음, run 폴더 삭제 없음. 메모리 기록기 unit `sentrix-memrec-20261103`이 큐 종료 뒤에도 돌고 있다(이전 20261028·20261030은 inactive). 중지는 사용자가 `sudo systemctl stop sentrix-memrec-20261103`.
+
+### 7.24 206-39 데이터가 이 저장소 루트에 잘못 풀림 — 오염 조사 (2026-11-16, 조사만)
+
+**경위.** 206-39 데이터를 netcat + tar로 받을 때 첫 시도의 받는 쪽 명령 `nc -l 50505 | tar -xpf -`가 이 저장소 루트에서 실행됐다. 스트림은 206-39의 `files-206-39.txt` 76개 경로(run 38, audit 19, incident 18, `runs/_campaign/linux-v1/`) + `sha256-206-39.txt`(+ 시험용 `files-206-39.txt`). 그 뒤 `/home/cloudman/sentrix-data/206-39/`에 다시 받았다(파일 수·용량 일치, 전체 sha256 검증은 사용자가 진행 중). 이 조사에서는 아무것도 지우거나 고치지 않았다.
+
+**풀린 시각.** ctime 기준 2026-11-10 13시대 ~ 15:32:13 KST. 그 창에서 바뀐 경로는 모두 전송 목록 안이다(목록 밖 경로 0, `.git` 제외). `tar -p`라 mtime은 206-39 값이다(예: queue.log 10-30 16:00). 두 목록 파일은 `/home/cloudman/sentrix-data/206-39/`의 것과 바이트 단위로 같다(294,582줄 / 76줄).
+
+**1. 분류 (sha256 목록 294,582 경로 기준).**
+
+| 분류 | 경로 | 개수 | 지금 내용 | 206-40 원래 내용 |
+|---|---|---|---|---|
+| (a) 206-39 전용이 새로 생김 | `runs/linux-v1-*`(206-39 18 pair × 2 + #38 시도 1 두 개) | 38 폴더, 294,450 파일, 101,215,180,871 B | 폴더별 파일 수·바이트 수가 목록·sentrix-data와 같음. 전체 sha256은 중단(아래) | 없었음 |
+| (a) | `audits/pair-linux-v1-*` 206-39 18개 | 18 폴더 | sha256 일치 | 없었음 |
+| (a) | `incidents/inc-linux-v1-*` 18개(untracked) | 18 | sha256 일치 | 없었음 |
+| (a) | 루트 `files-206-39.txt`, `sha256-206-39.txt` | 2 | sentrix-data 것과 같음 | 없었음 |
+| (b) 같은 경로, 같은 내용 | `audits/pair-linux-v1-pod-currencyservice-r02/`(#38 시도 1, 4개 파일) | 4 | 206-39 버전. status.json `175599…bc30` = 7.22에 복사해 둔 것 | 7.22에서 206-39에서 복사한 같은 파일(`~/audit-38.tgz`도 남아 있음) → **손실 없음** |
+| (b) 같은 경로, 같은 내용 | `runs/_campaign/linux-v1/pre-pair-reset/<206-39 pair>.json` 18개 | 18 | 206-39 버전 | 206-40에는 이 pair들을 돌린 적이 없어 없었음 → 손실 없음 |
+| (b) **덮어써짐** | `runs/_campaign/linux-v1/pre-pair-reset/linux-v1-pod-currencyservice-r02.json` | 1 | 206-39 시도 1 버전 `1f1ec4dd…`(10-28 16:45) | 206-40 #38-a2의 pair 전 초기화 기록(11-03). run-campaign은 파일명을 pair_id로 써서 attempt를 붙이지 않는다 → **손실** |
+| (b) **덮어써짐** | `runs/_campaign/linux-v1/queue.log` | 1 | 206-39 queue.log 135줄 `d205108f…` | 206-40 queue.log(추정 약 379줄, 10/23~11/03) → **손실** |
+| (c) | `runs/_campaign/linux-v1/`, `…/pre-pair-reset/` 폴더 mtime이 206-39 값(10-27 13:38, 10-28 16:45)으로 바뀜 | 2 | 메타데이터만 | – |
+| (c) | 206-39 파일의 권한(예: audit 0600)·mtime이 그대로 들어옴 | – | 정상(-p) | – |
+
+검증 범위: (a)의 audit·incident, (b)·`_campaign` 20개, 목록 파일 = run 밖 132개 파일 sha256 전부 OK. run 38 폴더는 파일 수·`du -sb`가 목록·sentrix-data와 같고, sha256은 3,522개까지 OK 뒤 **중단**했다(같은 HDD에서 사용자의 sentrix-data 검증 PID 18814와 겹쳐 둘 다 느려짐). (a)는 지울 대상이라 sentrix-data 쪽 검증이 기준이다.
+
+**2. 206-40 고유 데이터 — 그대로.**
+
+| 항목 | 기대(LINUX-V1-COLLECTION-FINAL.md, docs/pc/206-40.md) | 지금 | 판정 |
+|---|---|---|---|
+| linux-v1 run 폴더 | 104 = 51 pair × 2 + 실패 시도 2(#20 control, #32 fault) | 104 모두 있음, 누락 0. 206-39 ID와 겹침 0. 이 창의 ctime 변경 0. runtime.json phase finished 103 / failed 1(#32 시도 1) | 정상 |
+| 104 폴더 용량 | 7.23: apparent 295.5 GB | 818,656 + 15,736 파일, 295.5 GB(289,997,739,440 + 5,518,520,683 B). 최신 mtime #38-a2(11-03) | 정상 |
+| audits `pair-linux-v1-*` | 206-40 53(51 + #20·#32 시도 1) | 72 = 53 + 206-39 19. complete 68, failed 4(#15 resolved, #20·#32·#38 시도 1). 206-40 audit의 이 창 ctime 변경 0 | 정상 |
+| incidents | tracked `inc-linux-v1-*` 51 | 51, `git diff HEAD` 변경 0 | 정상 |
+| `_campaign/linux-v1` 나머지 | decisions.yaml, memory-2026102{8,30}·1103.tsv, memrec-*.err, analysis/, 206-40 pre-pair-reset 42개 | mtime 11-03 이전 그대로, 목록에 없음 | 정상 |
+| `runs/campaign-console.log` | 목록에 없음 | 397줄, 11-03 15:08 그대로 | 정상 |
+
+**3. 손실 파일의 복구 원천.**
+
+| 파일 | 원천 | 복구 정도 |
+|---|---|---|
+| `pre-pair-reset/linux-v1-pod-currencyservice-r02.json` | `audits/pair-linux-v1-pod-currencyservice-r02-a2/pre-pair-reset.json`(11-03 13:47, 1347 B, `2d0e6f11…`, pair_id 포함). run-matched-pair가 run-campaign 파일을 `json.loads` → `save_json(indent=2)`로 그대로 복사한다. 내용이 ASCII라 원본과 바이트까지 같을 것으로 본다(키 순서·숫자 표현 유지). 보조: status.json `pre_pair_reset`, console의 `pre-pair reset:` 줄 | 완전(내용). mtime은 audit 쪽 값 |
+| `queue.log` | `runs/campaign-console.log`(start.sh `tee -a`, 10/30부터 systemd unit `StandardOutput=append`). `note()`는 같은 줄을 stdout과 queue.log에 쓴다 | 부분(아래) |
+
+queue.log 재구성 방법(실행 안 함): console에서 `2026-10-23T06:18:17` 이후 타임스탬프 줄 중 `calib*` pair 줄을 뺀다(10/19~10/22는 calib 캠페인, `_campaign/calib*`의 queue.log 몫). 결과 357줄. SETUP-REVIEW에 적힌 줄 수와 맞춰 보면 빠지는 부분은 **dry-run 줄 약 22줄**이다: console 96줄 대 7.21의 102줄(6), #32 dry-run 2회 102→109(7), b dry-run 전 253 대 257(4), b dry-run 257→259(2), c dry-run 3줄(7.23) — dry-run은 start.sh를 거치지 않아 console에 없다. 수동 NOTE 줄이 있었다면 그것도 빠진다(linux-v1 쪽 기록은 못 찾음). 재구성본은 별도 파일명(예: `queue.log.206-40-reconstructed`)으로 두고 빠진 구간을 머리에 적는 편이 맞다. 206-39 queue.log는 `/home/cloudman/sentrix-data/206-39/`에 같은 것이 있다.
+
+**4. 코드 영향 범위.**
+
+| 코드 | `runs/_campaign/linux-v1/` 사용 | 영향 |
+|---|---|---|
+| `scripts/run-campaign.py` | decisions.yaml 읽기, queue.log append, pre-pair-reset 쓰기, STOP 확인 | 큐를 다시 돌릴 일 없음. queue.log는 기록만 |
+| `scripts/pair_attempts.py` | retry_pairs `failed_audit` 폴더가 있어야 하고 시도 1 audit가 incomplete여야 함 | **`audits/pair-linux-v1-pod-currencyservice-r02`는 지우면 안 된다**(지우면 run-campaign이 decisions.yaml 오류로 거부) |
+| `linux/campaign/stop.sh` | STOP 파일만 | 없음 |
+| evaluate-pair, generate-incident-record, telemetry export, evaluation_v2 | 읽지 않음(추적 파일 전체 grep) | 없음 |
+| 데이터셋 생성기(B1) | 아직 없음. 7.23 설계는 root 두 개를 읽고 **같은 run ID가 두 root에 있으면 중단** | 지금 상태로는 38 run ID가 겹쳐 중단된다 → (a)를 지워야 설계대로 동작 |
+| pair_status(audits 읽기) | 206-39 audit 18개가 있으면 이 PC에서 그 pair들을 complete로 본다 | 큐를 안 돌리므로 실질 영향 없음 |
+
+**5. 정리 계획(제안, 미실행).**
+1. 조건: `/home/cloudman/sentrix-data/206-39`에서 `sha256sum -c sha256-206-39.txt` 실패 0 확인(진행 중인 PID 18814). 그 전에는 이 저장소에서 아무것도 지우지 않는다.
+2. (b) 복구 먼저: ① `cp -p audits/pair-linux-v1-pod-currencyservice-r02-a2/pre-pair-reset.json runs/_campaign/linux-v1/pre-pair-reset/linux-v1-pod-currencyservice-r02.json` ② queue.log: 지금 파일(206-39 버전, sentrix-data에 같은 것 있음)을 지우고 위 방법으로 재구성본 생성(빠진 dry-run 줄 명시). ③ 폴더 mtime 2개는 그대로 둬도 무방.
+3. (a) 삭제: `runs/` 206-39 run 38개, `audits/` 206-39 18개(**`pair-linux-v1-pod-currencyservice-r02`는 남김**), `incidents/` untracked 18개, 루트 목록 파일 2개, `pre-pair-reset/` 206-39 18개. 경로는 `files-206-39.txt`·sha256 목록에서 뽑고 #38 audit·r02 json을 빼서 목록 파일로 만든 뒤 `xargs rm -r --`, 실행 전 목록 검토.
+4. 복구·정리 검증: run 폴더 104 = 2절 기대, 206-39 ID 0, 두 root 사이 run ID 겹침 0. audits 54(53 + #38 시도 1), status.json `175599…bc30`. incidents `inc-linux-v1-*` 51, `git status` untracked 0. pre-pair-reset 43개, r02 json sha256 = `2d0e6f11…`. `python -m unittest` 통과, run-campaign `--shard 206-40-c.json --dry-run`이 decisions.yaml 오류 없이 도는지(이 dry-run도 queue.log에 줄을 덧붙이므로 재구성본 완성 뒤 하거나 생략).
+5. 디스크 회수: run 101.2 GB(94.3 GiB) + audit 0.13 MB + incident 0.07 MB + 목록 53.9 MB ≈ **101.3 GB**. 지금 `/` 913G 중 548G 사용, 320G 여유 → 정리 후 약 414G 여유.
