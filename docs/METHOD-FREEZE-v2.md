@@ -153,3 +153,4 @@ v1 6.4절의 위험은 모두 그대로 유효하고, 다음을 더한다.
   - 이 줄은 바로 다음 커밋에서 적었다(내용 변경 없음).
 - 이 시점에 linux-v1 정식 데이터의 feature·점수·순위는 하나도 보지 않았다. 수집 상태와 적격 여부(valid, impact)만 확인했다.
 - 고정 이후 바뀌는 것은 모두 이 절 아래에 날짜·이유·커밋과 함께 덧붙인다.
+- 2026-11-16: linux-v1 데이터 번역 결정(rx/tx 패킷 신호 없음 → 4개 feature NaN, 보조 분석 RF rel14, onset 정의, 지표 읽기, 표 구성)을 `docs/LINUX-V1-DATA-TRANSLATION.md`에 적었다. 방법 자체는 바꾸지 않았다. 같은 커밋에 로그 의미 변화 추가 실험의 사전 등록 `experiments/20261116-log-semantic-r8/PREREG.md`를 넣었다. linux-v1의 feature·점수·순위는 아직 보지 않았다.
