@@ -773,3 +773,29 @@ queue.log 재구성 방법(실행 안 함): console에서 `2026-10-23T06:18:17` 
 3. (a) 삭제: `runs/` 206-39 run 38개, `audits/` 206-39 18개(**`pair-linux-v1-pod-currencyservice-r02`는 남김**), `incidents/` untracked 18개, 루트 목록 파일 2개, `pre-pair-reset/` 206-39 18개. 경로는 `files-206-39.txt`·sha256 목록에서 뽑고 #38 audit·r02 json을 빼서 목록 파일로 만든 뒤 `xargs rm -r --`, 실행 전 목록 검토.
 4. 복구·정리 검증: run 폴더 104 = 2절 기대, 206-39 ID 0, 두 root 사이 run ID 겹침 0. audits 54(53 + #38 시도 1), status.json `175599…bc30`. incidents `inc-linux-v1-*` 51, `git status` untracked 0. pre-pair-reset 43개, r02 json sha256 = `2d0e6f11…`. `python -m unittest` 통과, run-campaign `--shard 206-40-c.json --dry-run`이 decisions.yaml 오류 없이 도는지(이 dry-run도 queue.log에 줄을 덧붙이므로 재구성본 완성 뒤 하거나 생략).
 5. 디스크 회수: run 101.2 GB(94.3 GiB) + audit 0.13 MB + incident 0.07 MB + 목록 53.9 MB ≈ **101.3 GB**. 지금 `/` 913G 중 548G 사용, 320G 여유 → 정리 후 약 414G 여유.
+
+**정리 실행 (2026-11-16 15:4x KST).**
+- 조건: 사용자가 `/home/cloudman/sentrix-data/206-39`에서 `sha256sum -c --quiet sha256-206-39.txt` 실행 → 종료코드 0, `~/verify-206-39.log` 0바이트(14:29:53). **206-39 사본 294,582 파일 전체 sha256 일치.** 정리 전 로그 크기 0과 sha256sum 프로세스 없음을 다시 확인했다.
+- 휴지통: `/home/cloudman/sentrix-trash-20261116/`(저장소와 같은 파일시스템, `mv`만 사용, 삭제 없음). 원래 상대경로를 유지하고 `MOVED.txt`(96줄: (b) 2 + (a) 94, 시각 포함)를 남겼다. 96G.
+- (b) 복구:
+
+| 파일 | 휴지통으로 옮긴 것(206-39) | 복구한 것 |
+|---|---|---|
+| `runs/_campaign/linux-v1/pre-pair-reset/linux-v1-pod-currencyservice-r02.json` | `1f1ec4dd…` | `audits/pair-linux-v1-pod-currencyservice-r02-a2/pre-pair-reset.json`을 `cp -p`(sha256 `2d0e6f11…`, mtime 11-03 13:47) |
+| `runs/_campaign/linux-v1/queue.log` | `d205108f…`(135줄) | `campaign-console.log`의 2026-10-23T06:18:17Z 이후 357줄 + 머리 주석 1줄 = 358줄(`1ec4edc6…`). 주석: 재구성 사실, dry-run 약 22줄 누락. 큐 코드는 이 파일에 append만 하고 읽지 않음을 다시 확인(`run-campaign.py` 237행) |
+
+- (a) 이동 94개: `runs/linux-v1-*` 38, `audits/pair-linux-v1-*` 18, `incidents/inc-linux-v1-*` 18, `pre-pair-reset/` json 18, 루트 `files-206-39.txt`·`sha256-206-39.txt`. **`audits/pair-linux-v1-pod-currencyservice-r02`(#38 시도 1)는 남김.** 206-39 목록 파일 사본은 휴지통과 `/home/cloudman/sentrix-data/206-39/`에 있다.
+- 검증:
+
+| 항목 | 기대 | 결과 |
+|---|---|---|
+| linux-v1 run 폴더 | 104(LINUX-V1-COLLECTION-FINAL 목록과 동일), 206-39 run ID 0 | 104, 목록과 diff 없음, 206-39 ID 0 |
+| audits `pair-linux-v1-*` | 54, #38 시도 1 status.json `175599…bc30` | 54, 일치 |
+| incidents `inc-linux-v1-*` | 51(tracked), untracked 0 | 51 / 51 |
+| pre-pair-reset | 43, r02 json `2d0e6f11…` | 43, 일치 |
+| decisions.yaml `retry_pairs` | `pair_attempts.apply_retries` 통과 | 통과(#20·#32·#38 attempt 2) |
+| unittest | 통과 | 152개 OK |
+| `git status` | 깨끗 | 변경·untracked 0(이 절 추가 전) |
+
+- 디스크: 휴지통이 같은 파일시스템이라 아직 회수 없음(`/` 548G 사용, 320G 여유). 휴지통을 비우면 약 101 GB 회수.
+- **휴지통은 데이터셋 생성기(`dataset-linux-v1`)가 두 root로 정상 동작한 것을 확인한 뒤 사용자가 비운다**(`rm -rf /home/cloudman/sentrix-trash-20261116`). 그 전까지 이 저장소의 206-39 데이터 기준은 `/home/cloudman/sentrix-data/206-39/`다.
