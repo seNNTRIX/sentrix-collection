@@ -1,0 +1,73 @@
+experiment: 20261027-re2ob-r7-raw-ablation
+purpose: R7 - does SentriX processing improve on the same base model fed with raw values? (ablation, RE2-OB)
+status: pre-registered (committed before any R7 score was computed)
+written_before_results: true   # for the new rows (raw); the SentriX-model rows are R6 results already seen
+code: features/build_raw_r7.py (raw features), training/run_r7.py (check, training via training/run_r6.py, combine)
+motivation: >
+  The advisor asked to describe the system as "base model + SentriX processing = SentriX-model". R6 showed
+  the effect of removing identity features (rel vs core/all) but never fed the base model the un-normalized
+  values. R7 fills that row. R7 is an ablation: it does not choose or change the method (R6 pick stays).
+
+question: >
+  Q1 (primary): for the SentriX base model (Random Forest), is LOSO Avg@5 with the SentriX features (rel18)
+  higher than with the raw counterparts of the same 18 signals (raw18)?
+  Q2 (secondary): the same for LightGBM (is the effect specific to RF?), and for repetition CV.
+  Q3 (secondary): does adding the raw values back on top of rel18 (raw18+rel18) hurt LOSO?
+  Q4 (detection): LightGBM detector with raw aggregates vs rel aggregates.
+
+feature_sets:
+  raw18: >   # one-to-one raw counterpart of each rel18 feature, same windows, no baseline normalisation
+    f_opt_<sig>_mean (6) for f_cm_<sig>_dmean; f_opt_<sig>_max (6) for f_cm_<sig>_dmax;
+    raw_in_rate for f_ct_in_rate_lr; f_ct_in_err for f_ct_in_err_d; raw_in_p50 / raw_in_p90 for the p50/p90 log ratios;
+    raw_out_p90 (max over outgoing edges of client p90) for f_ct_out_p90_lr;
+    raw_in_edge_p90 (max over incoming edges of client p90) for f_ct_in_edge_p90_lr
+    signals: cpu_cores, cpu_limit_ratio, mem_limit_ratio, net_rx_pkts, net_tx_pkts, net_drop_pkts
+  rel18: SentriX features (training/run_r4b.py rel_cols), = R6 "rel"
+  raw18+rel18: both (36)
+  detection: max and mean over the 11 candidates per window of raw18 (36) vs of rel18 (36, = R5 detector inputs)
+
+data:
+  existing: data/features/re2ob-v0 (unchanged, sha256 in experiments/20261027-re2ob-features-v0)
+  new: data/features/re2ob-r7-raw (git-ignored), built by features/build_raw_r7.py from the same RE2-OB cases,
+    windows and labels; it reuses features/compute.py span_stats / make_windows / label_re2ob unchanged
+    (compute.py is frozen and not edited). Logs are not read.
+  consistency check (must pass before any model is trained): rows join one-to-one on (case, window, candidate);
+    log((raw_in_p90 + eps) / (baseline median + eps)) recomputed from the new raw values equals the stored
+    f_ct_in_p90_lr (max abs difference < 1e-9), and raw f_ct_in_err equals the stored column.
+
+models:   # identical code, grids, seeds and inner selection to R6 (training/run_r6.py)
+  preprocessing: identical to R6 for every feature set (rf: NaN -> 0; lgbm: NaN as missing). For raw values
+    NaN -> 0 is not "no change" as it is for rel; it is kept anyway so that only the input values differ.
+  primary: rf    # SentriX base model (R6 pick rf|rel|pure)
+  secondary: lgbm
+  detection: lgbm (SentriX detector family)
+runs:
+  ranking: {rf, lgbm} x {raw18, raw18+rel18} x {LOSO, repetition CV}
+  ranking_reused: rel18 rows for rf and lgbm are read from experiments/20261027-re2ob-r6-models/parts
+    (same code, grid and seed; not re-run)
+  detection: lgbm x {raw18 aggregates}; the rel-aggregate pair is re-run with the same R6 detection code
+    (R6 stored lgbm detection only for its own rel set = 36 rel aggregates, which is the same set; it is re-run so
+    both sides come from one run)
+
+evaluation:   # identical to R6
+  ranking_primary: LOSO Avg@5 (90 cases), inner LOSO tuning
+  ranking_secondary: repetition 3-fold CV Avg@5
+  detection: repetition 3-fold CV window AUROC
+  comparison: paired case bootstrap (ranking 2000, detection 1000, seed 0)
+
+claims_rule: |
+  Q1 is answered "SentriX processing helps RF" only if the paired LOSO Avg@5 difference (rel18 - raw18) has
+  95% CI > 0. "no difference" and "worse" are reported as they are. The same wording rule applies to Q2-Q4.
+  No result of R7 changes the R6 method choice.
+
+report:
+  - ablation table for the presentation, rows in this order (RF, LOSO and repetition CV):
+      base model + raw values (raw18) -> + baseline normalisation, identity features kept (core35, R6)
+      -> + identity features removed (rel18 = SentriX-model, R6)
+  - paired differences for Q1-Q4, LOSO by held-out service, by fault
+  - note that raw18 and identity removal overlap: raw levels themselves identify services, so raw18 -> rel18
+    measures normalisation and identity removal together; core35 -> rel18 (R6) isolates identity removal
+
+disclosure:
+  - designed after R3-R6 and R6b results were seen; the rel18 rows are known (RF LOSO 0.958, LightGBM 0.940)
+  - raw18 and raw18+rel18 results are not known

@@ -1,0 +1,168 @@
+{
+  "ranking": {
+    "method": "V4 hybrid: per-case rank average of LightGBM LambdaRank (rel) and stat_combined",
+    "features": [
+      "f_cm_cpu_cores_dmean",
+      "f_cm_cpu_cores_dmax",
+      "f_cm_cpu_limit_ratio_dmean",
+      "f_cm_cpu_limit_ratio_dmax",
+      "f_cm_mem_limit_ratio_dmean",
+      "f_cm_mem_limit_ratio_dmax",
+      "f_cm_net_rx_pkts_dmean",
+      "f_cm_net_rx_pkts_dmax",
+      "f_cm_net_tx_pkts_dmean",
+      "f_cm_net_tx_pkts_dmax",
+      "f_cm_net_drop_pkts_dmean",
+      "f_cm_net_drop_pkts_dmax",
+      "f_ct_in_rate_lr",
+      "f_ct_in_err_d",
+      "f_ct_in_p50_lr",
+      "f_ct_in_p90_lr",
+      "f_ct_out_p90_lr",
+      "f_ct_in_edge_p90_lr"
+    ],
+    "params": {
+      "min_child_samples": 100,
+      "n_estimators": 100,
+      "num_leaves": 15
+    },
+    "inner_loso_avg5": 0.9488888888888889,
+    "selection": "inner LOSO over all 5 root-cause services, LOSO_GRID, max mean Avg@5, ties -> smaller",
+    "grid": {
+      "num_leaves": [
+        7,
+        15
+      ],
+      "n_estimators": [
+        100,
+        300
+      ],
+      "min_child_samples": [
+        20,
+        100
+      ]
+    },
+    "model_file": "models/ranker.txt",
+    "model_sha256": "0298c1a2dde3f247863534f98756ae399c095b32dedfa8a8568eeaf07e30c97a"
+  },
+  "detection": {
+    "method": "LightGBM binary on rel aggregates",
+    "features": [
+      "f_cm_cpu_cores_dmean__max",
+      "f_cm_cpu_cores_dmean__mean",
+      "f_cm_cpu_cores_dmax__max",
+      "f_cm_cpu_cores_dmax__mean",
+      "f_cm_cpu_limit_ratio_dmean__max",
+      "f_cm_cpu_limit_ratio_dmean__mean",
+      "f_cm_cpu_limit_ratio_dmax__max",
+      "f_cm_cpu_limit_ratio_dmax__mean",
+      "f_cm_mem_limit_ratio_dmean__max",
+      "f_cm_mem_limit_ratio_dmean__mean",
+      "f_cm_mem_limit_ratio_dmax__max",
+      "f_cm_mem_limit_ratio_dmax__mean",
+      "f_cm_net_rx_pkts_dmean__max",
+      "f_cm_net_rx_pkts_dmean__mean",
+      "f_cm_net_rx_pkts_dmax__max",
+      "f_cm_net_rx_pkts_dmax__mean",
+      "f_cm_net_tx_pkts_dmean__max",
+      "f_cm_net_tx_pkts_dmean__mean",
+      "f_cm_net_tx_pkts_dmax__max",
+      "f_cm_net_tx_pkts_dmax__mean",
+      "f_cm_net_drop_pkts_dmean__max",
+      "f_cm_net_drop_pkts_dmean__mean",
+      "f_cm_net_drop_pkts_dmax__max",
+      "f_cm_net_drop_pkts_dmax__mean",
+      "f_ct_in_rate_lr__max",
+      "f_ct_in_rate_lr__mean",
+      "f_ct_in_err_d__max",
+      "f_ct_in_err_d__mean",
+      "f_ct_in_p50_lr__max",
+      "f_ct_in_p50_lr__mean",
+      "f_ct_in_p90_lr__max",
+      "f_ct_in_p90_lr__mean",
+      "f_ct_out_p90_lr__max",
+      "f_ct_out_p90_lr__mean",
+      "f_ct_in_edge_p90_lr__max",
+      "f_ct_in_edge_p90_lr__mean"
+    ],
+    "params": {
+      "min_child_samples": 20,
+      "n_estimators": 300,
+      "num_leaves": 31
+    },
+    "inner_rep_cv_auroc": 0.9932641541920186,
+    "selection": "inner repetition CV over all 3 repetitions, DET_GRID, max mean AUROC, ties -> smaller",
+    "grid": {
+      "num_leaves": [
+        15,
+        31
+      ],
+      "n_estimators": [
+        100,
+        300
+      ],
+      "min_child_samples": [
+        20,
+        100
+      ]
+    },
+    "model_file": "models/detector.txt",
+    "model_sha256": "e2864499cf30feab8e9d91bbd2b40e73f9bd8592e7c51ef99db901bbfa56f7ae",
+    "re2ob_oof": {
+      "AUROC": 0.9925488701578192,
+      "AUPRC": 0.9951542191700994,
+      "positive_rate": 0.6076721883173496,
+      "n_windows": 9176,
+      "AUROC_ci95": [
+        0.9857764513946499,
+        0.9981612631745945
+      ],
+      "chosen_per_fold": {
+        "1": {
+          "params": {
+            "min_child_samples": 100,
+            "n_estimators": 100,
+            "num_leaves": 15
+          },
+          "inner_auroc": 0.9971452200755746
+        },
+        "2": {
+          "params": {
+            "min_child_samples": 100,
+            "n_estimators": 300,
+            "num_leaves": 31
+          },
+          "inner_auroc": 0.9910085978835979
+        },
+        "3": {
+          "params": {
+            "min_child_samples": 100,
+            "n_estimators": 300,
+            "num_leaves": 15
+          },
+          "inner_auroc": 0.9835563941818581
+        }
+      }
+    }
+  },
+  "common_params": {
+    "learning_rate": 0.05,
+    "random_state": 0,
+    "deterministic": true,
+    "force_row_wise": true,
+    "n_jobs": 4,
+    "verbose": -1
+  },
+  "data": {
+    "features": "data/features/re2ob-v0",
+    "ranking_sha256": "c7dfdc761f3f1911a12fd3f529005118efaeba5fc9d1b6e7697f6c5f9a44e5c9",
+    "detection_sha256": "c9b9ca4374e1566bcabe555e744aae4eb8f379663a8f25b9d2bec06e02014ffe",
+    "n_cases": 90
+  },
+  "versions": {
+    "lightgbm": "4.5.0",
+    "scikit-learn": "1.5.2",
+    "pandas": "2.2.3",
+    "numpy": "2.5.4"
+  }
+}

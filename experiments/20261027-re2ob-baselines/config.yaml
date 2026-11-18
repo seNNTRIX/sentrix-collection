@@ -1,0 +1,19 @@
+experiment: 20261027-re2ob-baselines
+purpose: R3 evaluation code + baselines on RE2-OB (lower bounds the R4 model must beat)
+data:
+  features: data/features/re2ob-v0 (experiments/20261027-re2ob-features-v0, feature code 272e514)
+  raw: data/RE2/RE2-OB (Zenodo 14590730, md5 b9e23f8842c404b396ffd2becff15de4) for official BARO
+code: evaluation/metrics.py, evaluation/aggregate.py, evaluation/run_baselines.py, evaluation/run_rcaeval_baro.py
+commands:
+  - python -m evaluation.run_baselines --out experiments/20261027-re2ob-baselines
+  - PYTHONPATH=. data/tools/rcaeval-venv/Scripts/python -m evaluation.run_rcaeval_baro --official --file simple_metrics.csv --out .../rcaeval_baro_official.json
+  - same with --drop-col redis_diskio (sensitivity, not official)
+  - same without --official, on simple_metrics.csv and metrics.csv (function defaults, whole 720 s windows)
+rules_fixed_in_R3:
+  metrics: AC@k and Avg@k per RCAEval arXiv 2412.17015 v5 sec 4.2; MRR
+  ties: expected rank over the tie group (random tie-break on average); NaN ranked last
+  case_aggregation: mean of window scores over fault_active windows starting 60-300 s after injection
+  candidates: 11 canonical services (also reported: 7 traced services only)
+  confidence_intervals: case-level percentile bootstrap, 2000 resamples, seed 0 (detection: 300, seed 0)
+split: repetition-based 3-fold; only freq_prior uses training folds (out-of-fold)
+rcaeval_package: RCAEval 1.8.1 from PyPI in data/tools/rcaeval-venv with numpy, pandas, scikit-learn, networkx, requests, tqdm (pip-freeze-rcaeval.txt)

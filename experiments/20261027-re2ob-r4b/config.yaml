@@ -1,0 +1,69 @@
+experiment: 20261027-re2ob-r4b
+purpose: R4b - does the ranking model generalize to a root-cause service never seen as root cause in training?
+written_before_results: true   # committed before any R4b result was computed
+motivation: >
+  Designed AFTER seeing the R4 leave-one-service-out (LOSO) result (lgbm core below stat_combined for
+  currencyservice 0.800 vs 0.928 and productcatalogservice 0.767 vs 0.961). linux-v1 has paymentservice
+  as a root cause, which RE2-OB never has (it appears only as a negative candidate). LOSO is the closest
+  RE2-OB rehearsal of that situation, so R4b uses LOSO as the primary criterion for the R5 freeze.
+  Because the variants are chosen with LOSO, the chosen variant's LOSO score is optimistic;
+  linux-v1 is the unbiased test.
+data:
+  features: data/features/re2ob-v0 (30 s windows, unchanged since R2)
+code: training/lgbm.py (+ LOSO helpers), training/run_r4b.py; evaluation/ unchanged from R3 (b2465ab)
+
+hypothesis: >
+  Some core features are nearly constant per service (levels, sample counts, flags), so the model can
+  recognize a service ("fingerprint") and learns "this service is never the root cause".
+identity_like_features_removed_in_rel:   # 17 of the 35 core features
+  - f_cm_<signal>_zero_iqr (6)     # baseline IQR flag
+  - f_cm_<signal>_n (6)            # sample count
+  - f_cm_cpu_limit_ratio_mean, f_cm_mem_limit_ratio_mean   # usage level
+  - f_ct_mask                      # traced or not
+  - f_ct_in_err, f_ct_out_err      # raw error ratios (not relative to own baseline)
+rel_features:   # 18 features, each defined relative to the candidate's own baseline
+  - f_cm_<signal>_dmean, f_cm_<signal>_dmax for the 6 metric signals (12)
+  - f_ct_in_rate_lr, f_ct_in_err_d, f_ct_in_p50_lr, f_ct_in_p90_lr, f_ct_out_p90_lr, f_ct_in_edge_p90_lr
+
+variants:   # exactly these four; nothing else is compared
+  V1_core: LightGBM LambdaRank, core 35 features (R4 freeze candidate)
+  V2_rel: LightGBM LambdaRank, rel 18 features
+  V3_rel_mono: >
+    V2 + monotone_constraints=+1 (score never decreases when the feature increases) on features with an a priori
+    "higher = more suspicious" direction: cpu_cores, cpu_limit_ratio, mem_limit_ratio, net_drop_pkts (dmean, dmax),
+    f_ct_in_err_d, f_ct_in_p50_lr, f_ct_in_p90_lr, f_ct_in_edge_p90_lr. Unconstrained: net_rx/net_tx deltas,
+    f_ct_in_rate_lr, f_ct_out_p90_lr (direction ambiguous: a caller of a slow service also has high out latency).
+  V4_hybrid: >
+    per case, rank the 11 candidates by V2 case score and by stat_combined case score (average ranks for ties,
+    NaN last); combined score = -(rank_V2 + rank_stat) / 2. Uses the out-of-fold V2 scores of the same split.
+reference: stat_combined (R3 statistical baseline, no training)
+common_params: learning_rate 0.05, random_state 0, deterministic true, force_row_wise true, n_jobs 4 (same as R4)
+
+evaluation:
+  loso: >
+    outer: for each of the 5 root-cause services s, test = the 18 cases with root cause s; train = the other 72
+    cases (s still appears in them as a negative candidate, as paymentservice does in RE2-OB).
+    hyperparameters chosen by inner LOSO over the 4 training services (train on 3, validate on the 4th),
+    max mean Avg@5, ties -> smaller model. Grid (reduced, inner training sets are small):
+    num_leaves [7, 15] x n_estimators [100, 300] x min_child_samples [20, 100].
+    The held-out service's cases are never used for fitting or selection.
+    Pooled out-of-fold result over all 90 cases + per held-out service.
+  repetition_cv: >
+    same as R4 (outer repetition 3-fold, inner CV in the two training repetitions, R4 grid
+    num_leaves [7, 15, 31] x n_estimators [100, 300] x min_child_samples [20, 100]). V1 is re-run with the same code.
+  metrics: Avg@5 (primary), AC@1, AC@3, MRR; case bootstrap 95% CI; paired case bootstrap (2000, seed 0) for differences
+  fingerprint_probe: >
+    diagnostic only, not used for selection. LightGBM multiclass (num_leaves 15, n_estimators 100) predicts the
+    candidate service name (11 classes) from the bundle's features in windows with meta_rel in [60, 300);
+    repetition 3-fold; report accuracy (chance 0.091) for core and rel, all 11 candidates and the 7 traced ones.
+    High accuracy means the features CAN identify the service (not proof that the ranker uses it).
+
+decision_rule:   # applied mechanically; ties between tiers go to the earlier tier
+  eligible_superior: LOSO paired Avg@5 diff vs stat_combined has 95% CI lower bound > 0, AND repetition-CV paired diff vs stat_combined is not "worse"
+  eligible_noninferior: LOSO paired diff vs stat_combined has 95% CI lower bound > -0.02 (pre-set margin), AND repetition-CV paired diff vs stat_combined is "better"
+  preference_order: [V2_rel, V3_rel_mono, V1_core, V4_hybrid]   # simpler first
+  choose: >
+    take the first non-empty tier (superior, then non-inferior). Within it start from the earliest variant in
+    preference_order; move to a later eligible variant only if its LOSO paired diff vs the current pick is "better".
+  if_no_variant_eligible: stat_combined is the primary linux-v1 ranking method; the variant with the highest LOSO Avg@5 is reported as secondary
+  always: report stat_combined on linux-v1; report paymentservice-root cases separately

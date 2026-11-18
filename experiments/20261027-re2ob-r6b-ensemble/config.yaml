@@ -1,0 +1,56 @@
+experiment: 20261027-re2ob-r6b-ensemble
+purpose: R6b - test whether combining the R6 model families (ensemble) beats the single method R6 picks
+status: pre-registered (committed before the R6 decision was computed or read)
+written_before_results: partial   # see disclosure
+disclosure: >
+  Written while R6 was running. Some R6 progress lines in data/r6-*.log were visible when this was written
+  (detection AUROC of logreg/lgbm/xgb per feature set; LOSO/rep Avg@5 of logreg rel/core and catboost rel).
+  The ensemble members and rules below are fixed by rule (all R6 models), not chosen from those numbers.
+motivation: >
+  Advisor feedback suggested trying ensemble models. RF and GBDTs are already ensembles, and the R5 method V4
+  is a rank-average ensemble (LightGBM + stat_combined) that beat both parts on LOSO in R4b. R6b asks whether
+  averaging more families helps further. RE2-OB scores stay optimistic; linux-v1 is the unbiased test.
+
+inputs:
+  - R6 out-of-fold per-case candidate scores for every model x feature set, LOSO and repetition CV
+    (same hyperparameters R6 chose by inner CV). R6b trains nothing new.
+  - requirement met: training/run_r6.py already saves these rows in experiments/20261027-re2ob-r6-models/parts/<model>.json
+  - stat_combined (ranking) and stat_metric (detection) from R3.
+
+ensembles:   # rank averaging: per case, rank each member's candidate scores (high = 1, ties average, NaN last),
+             # final score = -(mean rank). Same rule as R4b hybrid.
+  ranking:
+    E_all_stat: "{logreg, rf, lgbm, xgb, catboost} + stat_combined, per feature set (rel, core, all)"
+    E_all:      "{logreg, rf, lgbm, xgb, catboost}, per feature set"
+    E_gbdt_stat: "{lgbm, xgb, catboost} + stat_combined, per feature set"
+    count: 3 ensembles x 3 feature sets = 9 candidates
+  detection:   # per window, convert each member's score to its percentile rank within the evaluated fold, then average
+    D_all_stat: "{logreg, rf, lgbm, xgb, catboost} + stat_metric, per detection feature set"
+    D_all:      "{logreg, rf, lgbm, xgb, catboost}, per detection feature set"
+    count: 2 x 3 = 6 candidates
+  members: all members use equal weight; no weights are fitted.
+
+evaluation:   # identical to R6
+  ranking_primary: LOSO Avg@5 (90 cases)
+  ranking_secondary: repetition 3-fold CV Avg@5
+  detection_primary: repetition 3-fold CV window AUROC
+  comparison: paired case bootstrap (ranking 2000, detection 1000, seed 0)
+
+decision_rule: |
+  Ensembles are more complex than any single R6 candidate, so they must win clearly.
+  Ranking:
+    1. R6 pick = method chosen by the R6 decision rule.
+    2. an ensemble is eligible only if its paired LOSO Avg@5 difference vs the R6 pick has 95% CI > 0 ("better")
+       and its repetition-CV difference vs stat_combined is not "worse".
+    3. among eligible, pick the one with fewer members (E_gbdt_stat < E_all < E_all_stat on ties of size order),
+       then feature set rel < core < all. If none is eligible, the R6 pick stays.
+  Detection: same, with AUROC and the R6 detection pick.
+
+report:
+  - tables like R6 plus the R6 pick and V4 (R5) as reference rows
+  - per-member LOSO Avg@5 and pairwise rank correlation between members (are they diverse?)
+  - prediction time per window for each ensemble (all members must run in sentrix-core)
+
+not_decided_here:
+  - stacking / learned weights (too few cases: 90; would need nested CV) - recorded as not tried and why
+  - edge ranking, windows, labels, features: unchanged from R6

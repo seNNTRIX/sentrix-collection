@@ -1,0 +1,963 @@
+{
+  "file": "metrics.csv",
+  "n_cases": 90,
+  "dedup": {
+    "AC@1": 0.23333333333333334,
+    "AC@3": 0.8111111111111111,
+    "AC@5": 0.9444444444444444,
+    "Avg@5": 0.7066666666666667,
+    "MRR": 0.5327910052910053,
+    "n_cases": 90
+  },
+  "rcaeval_service": {
+    "AC@1": 0.2111111111111111,
+    "AC@3": 0.4111111111111111,
+    "Avg@5": 0.41555555555555557
+  },
+  "by_fault_dedup": {
+    "cpu": {
+      "AC@1": 0.133,
+      "AC@3": 0.667,
+      "AC@5": 0.867,
+      "Avg@5": 0.613,
+      "MRR": 0.458
+    },
+    "delay": {
+      "AC@1": 0.0,
+      "AC@3": 0.667,
+      "AC@5": 0.8,
+      "Avg@5": 0.507,
+      "MRR": 0.337
+    },
+    "disk": {
+      "AC@1": 0.267,
+      "AC@3": 0.867,
+      "AC@5": 1.0,
+      "Avg@5": 0.747,
+      "MRR": 0.563
+    },
+    "loss": {
+      "AC@1": 0.333,
+      "AC@3": 0.867,
+      "AC@5": 1.0,
+      "Avg@5": 0.773,
+      "MRR": 0.6
+    },
+    "mem": {
+      "AC@1": 0.6,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.907,
+      "MRR": 0.789
+    },
+    "socket": {
+      "AC@1": 0.067,
+      "AC@3": 0.8,
+      "AC@5": 1.0,
+      "Avg@5": 0.693,
+      "MRR": 0.45
+    }
+  },
+  "per_case": [
+    {
+      "case_id": "re2ob_checkoutservice_cpu_1",
+      "fault": "cpu",
+      "top3_services": [
+        "redis-cart",
+        "paymentservice",
+        "shippingservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_checkoutservice_cpu_2",
+      "fault": "cpu",
+      "top3_services": [
+        "checkoutservice",
+        "redis-cart",
+        "emailservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_checkoutservice_cpu_3",
+      "fault": "cpu",
+      "top3_services": [
+        "redis-cart",
+        "shippingservice",
+        "adservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_checkoutservice_delay_1",
+      "fault": "delay",
+      "top3_services": [
+        "redis-cart",
+        "productcatalogservice",
+        "emailservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_checkoutservice_delay_2",
+      "fault": "delay",
+      "top3_services": [
+        "redis-cart",
+        "productcatalogservice",
+        "adservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_checkoutservice_delay_3",
+      "fault": "delay",
+      "top3_services": [
+        "redis-cart",
+        "productcatalogservice",
+        "shippingservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_checkoutservice_disk_1",
+      "fault": "disk",
+      "top3_services": [
+        "redis-cart",
+        "checkoutservice",
+        "paymentservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_checkoutservice_disk_2",
+      "fault": "disk",
+      "top3_services": [
+        "checkoutservice",
+        "redis-cart",
+        "cartservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_checkoutservice_disk_3",
+      "fault": "disk",
+      "top3_services": [
+        "redis-cart",
+        "shippingservice",
+        "checkoutservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_checkoutservice_loss_1",
+      "fault": "loss",
+      "top3_services": [
+        "redis-cart",
+        "paymentservice",
+        "checkoutservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_checkoutservice_loss_2",
+      "fault": "loss",
+      "top3_services": [
+        "redis-cart",
+        "emailservice",
+        "paymentservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_checkoutservice_loss_3",
+      "fault": "loss",
+      "top3_services": [
+        "checkoutservice",
+        "frontend",
+        "adservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_checkoutservice_mem_1",
+      "fault": "mem",
+      "top3_services": [
+        "redis-cart",
+        "checkoutservice",
+        "paymentservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_checkoutservice_mem_2",
+      "fault": "mem",
+      "top3_services": [
+        "redis-cart",
+        "checkoutservice",
+        "adservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_checkoutservice_mem_3",
+      "fault": "mem",
+      "top3_services": [
+        "checkoutservice",
+        "redis-cart",
+        "shippingservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_checkoutservice_socket_1",
+      "fault": "socket",
+      "top3_services": [
+        "checkoutservice",
+        "cartservice",
+        "paymentservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_checkoutservice_socket_2",
+      "fault": "socket",
+      "top3_services": [
+        "redis-cart",
+        "paymentservice",
+        "checkoutservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_checkoutservice_socket_3",
+      "fault": "socket",
+      "top3_services": [
+        "redis-cart",
+        "cartservice",
+        "paymentservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_currencyservice_cpu_1",
+      "fault": "cpu",
+      "top3_services": [
+        "redis-cart",
+        "paymentservice",
+        "cartservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_currencyservice_cpu_2",
+      "fault": "cpu",
+      "top3_services": [
+        "redis-cart",
+        "emailservice",
+        "cartservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_currencyservice_cpu_3",
+      "fault": "cpu",
+      "top3_services": [
+        "redis-cart",
+        "checkoutservice",
+        "cartservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_currencyservice_delay_1",
+      "fault": "delay",
+      "top3_services": [
+        "redis-cart",
+        "currencyservice",
+        "paymentservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_currencyservice_delay_2",
+      "fault": "delay",
+      "top3_services": [
+        "redis-cart",
+        "checkoutservice",
+        "currencyservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_currencyservice_delay_3",
+      "fault": "delay",
+      "top3_services": [
+        "redis-cart",
+        "cartservice",
+        "emailservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_currencyservice_disk_1",
+      "fault": "disk",
+      "top3_services": [
+        "paymentservice",
+        "currencyservice",
+        "adservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_currencyservice_disk_2",
+      "fault": "disk",
+      "top3_services": [
+        "redis-cart",
+        "emailservice",
+        "cartservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_currencyservice_disk_3",
+      "fault": "disk",
+      "top3_services": [
+        "redis-cart",
+        "cartservice",
+        "paymentservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_currencyservice_loss_1",
+      "fault": "loss",
+      "top3_services": [
+        "redis-cart",
+        "currencyservice",
+        "productcatalogservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_currencyservice_loss_2",
+      "fault": "loss",
+      "top3_services": [
+        "redis-cart",
+        "currencyservice",
+        "checkoutservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_currencyservice_loss_3",
+      "fault": "loss",
+      "top3_services": [
+        "currencyservice",
+        "redis-cart",
+        "cartservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_currencyservice_mem_1",
+      "fault": "mem",
+      "top3_services": [
+        "redis-cart",
+        "cartservice",
+        "currencyservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_currencyservice_mem_2",
+      "fault": "mem",
+      "top3_services": [
+        "redis-cart",
+        "currencyservice",
+        "productcatalogservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_currencyservice_mem_3",
+      "fault": "mem",
+      "top3_services": [
+        "redis-cart",
+        "currencyservice",
+        "emailservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_currencyservice_socket_1",
+      "fault": "socket",
+      "top3_services": [
+        "redis-cart",
+        "cartservice",
+        "paymentservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_currencyservice_socket_2",
+      "fault": "socket",
+      "top3_services": [
+        "redis-cart",
+        "cartservice",
+        "currencyservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_currencyservice_socket_3",
+      "fault": "socket",
+      "top3_services": [
+        "redis-cart",
+        "checkoutservice",
+        "cartservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_emailservice_cpu_1",
+      "fault": "cpu",
+      "top3_services": [
+        "redis-cart",
+        "emailservice",
+        "cartservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_emailservice_cpu_2",
+      "fault": "cpu",
+      "top3_services": [
+        "redis-cart",
+        "emailservice",
+        "cartservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_emailservice_cpu_3",
+      "fault": "cpu",
+      "top3_services": [
+        "emailservice",
+        "redis-cart",
+        "adservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_emailservice_delay_1",
+      "fault": "delay",
+      "top3_services": [
+        "redis-cart",
+        "emailservice",
+        "paymentservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_emailservice_delay_2",
+      "fault": "delay",
+      "top3_services": [
+        "redis-cart",
+        "emailservice",
+        "paymentservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_emailservice_delay_3",
+      "fault": "delay",
+      "top3_services": [
+        "redis-cart",
+        "emailservice",
+        "cartservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_emailservice_disk_1",
+      "fault": "disk",
+      "top3_services": [
+        "redis-cart",
+        "emailservice",
+        "paymentservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_emailservice_disk_2",
+      "fault": "disk",
+      "top3_services": [
+        "emailservice",
+        "redis-cart",
+        "checkoutservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_emailservice_disk_3",
+      "fault": "disk",
+      "top3_services": [
+        "redis-cart",
+        "emailservice",
+        "cartservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_emailservice_loss_1",
+      "fault": "loss",
+      "top3_services": [
+        "redis-cart",
+        "cartservice",
+        "emailservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_emailservice_loss_2",
+      "fault": "loss",
+      "top3_services": [
+        "emailservice",
+        "redis-cart",
+        "paymentservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_emailservice_loss_3",
+      "fault": "loss",
+      "top3_services": [
+        "emailservice",
+        "redis-cart",
+        "checkoutservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_emailservice_mem_1",
+      "fault": "mem",
+      "top3_services": [
+        "emailservice",
+        "redis-cart",
+        "paymentservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_emailservice_mem_2",
+      "fault": "mem",
+      "top3_services": [
+        "emailservice",
+        "redis-cart",
+        "shippingservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_emailservice_mem_3",
+      "fault": "mem",
+      "top3_services": [
+        "emailservice",
+        "redis-cart",
+        "shippingservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_emailservice_socket_1",
+      "fault": "socket",
+      "top3_services": [
+        "redis-cart",
+        "emailservice",
+        "paymentservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_emailservice_socket_2",
+      "fault": "socket",
+      "top3_services": [
+        "redis-cart",
+        "emailservice",
+        "paymentservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_emailservice_socket_3",
+      "fault": "socket",
+      "top3_services": [
+        "redis-cart",
+        "emailservice",
+        "paymentservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_productcatalogservice_cpu_1",
+      "fault": "cpu",
+      "top3_services": [
+        "redis-cart",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_productcatalogservice_cpu_2",
+      "fault": "cpu",
+      "top3_services": [
+        "redis-cart",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_productcatalogservice_cpu_3",
+      "fault": "cpu",
+      "top3_services": [
+        "redis-cart",
+        "productcatalogservice",
+        "cartservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_productcatalogservice_delay_1",
+      "fault": "delay",
+      "top3_services": [
+        "redis-cart",
+        "cartservice",
+        "productcatalogservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_productcatalogservice_delay_2",
+      "fault": "delay",
+      "top3_services": [
+        "redis-cart",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_productcatalogservice_delay_3",
+      "fault": "delay",
+      "top3_services": [
+        "redis-cart",
+        "adservice",
+        "emailservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_productcatalogservice_disk_1",
+      "fault": "disk",
+      "top3_services": [
+        "productcatalogservice",
+        "redis-cart",
+        "shippingservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_productcatalogservice_disk_2",
+      "fault": "disk",
+      "top3_services": [
+        "emailservice",
+        "redis-cart",
+        "productcatalogservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_productcatalogservice_disk_3",
+      "fault": "disk",
+      "top3_services": [
+        "productcatalogservice",
+        "redis-cart",
+        "emailservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_productcatalogservice_loss_1",
+      "fault": "loss",
+      "top3_services": [
+        "redis-cart",
+        "recommendationservice",
+        "emailservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_productcatalogservice_loss_2",
+      "fault": "loss",
+      "top3_services": [
+        "redis-cart",
+        "recommendationservice",
+        "productcatalogservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_productcatalogservice_loss_3",
+      "fault": "loss",
+      "top3_services": [
+        "productcatalogservice",
+        "redis-cart",
+        "emailservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_productcatalogservice_mem_1",
+      "fault": "mem",
+      "top3_services": [
+        "productcatalogservice",
+        "redis-cart",
+        "recommendationservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_productcatalogservice_mem_2",
+      "fault": "mem",
+      "top3_services": [
+        "redis-cart",
+        "productcatalogservice",
+        "adservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_productcatalogservice_mem_3",
+      "fault": "mem",
+      "top3_services": [
+        "productcatalogservice",
+        "redis-cart",
+        "emailservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_productcatalogservice_socket_1",
+      "fault": "socket",
+      "top3_services": [
+        "redis-cart",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_productcatalogservice_socket_2",
+      "fault": "socket",
+      "top3_services": [
+        "redis-cart",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_productcatalogservice_socket_3",
+      "fault": "socket",
+      "top3_services": [
+        "redis-cart",
+        "productcatalogservice",
+        "shippingservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_recommendationservice_cpu_1",
+      "fault": "cpu",
+      "top3_services": [
+        "redis-cart",
+        "recommendationservice",
+        "paymentservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_recommendationservice_cpu_2",
+      "fault": "cpu",
+      "top3_services": [
+        "redis-cart",
+        "emailservice",
+        "recommendationservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_recommendationservice_cpu_3",
+      "fault": "cpu",
+      "top3_services": [
+        "redis-cart",
+        "recommendationservice",
+        "checkoutservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_recommendationservice_delay_1",
+      "fault": "delay",
+      "top3_services": [
+        "redis-cart",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_recommendationservice_delay_2",
+      "fault": "delay",
+      "top3_services": [
+        "redis-cart",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_recommendationservice_delay_3",
+      "fault": "delay",
+      "top3_services": [
+        "redis-cart",
+        "productcatalogservice",
+        "recommendationservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_recommendationservice_disk_1",
+      "fault": "disk",
+      "top3_services": [
+        "redis-cart",
+        "recommendationservice",
+        "paymentservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_recommendationservice_disk_2",
+      "fault": "disk",
+      "top3_services": [
+        "emailservice",
+        "redis-cart",
+        "recommendationservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_recommendationservice_disk_3",
+      "fault": "disk",
+      "top3_services": [
+        "redis-cart",
+        "recommendationservice",
+        "paymentservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_recommendationservice_loss_1",
+      "fault": "loss",
+      "top3_services": [
+        "redis-cart",
+        "recommendationservice",
+        "cartservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_recommendationservice_loss_2",
+      "fault": "loss",
+      "top3_services": [
+        "redis-cart",
+        "recommendationservice",
+        "frontend"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_recommendationservice_loss_3",
+      "fault": "loss",
+      "top3_services": [
+        "redis-cart",
+        "recommendationservice",
+        "frontend"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_recommendationservice_mem_1",
+      "fault": "mem",
+      "top3_services": [
+        "recommendationservice",
+        "redis-cart",
+        "paymentservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_recommendationservice_mem_2",
+      "fault": "mem",
+      "top3_services": [
+        "recommendationservice",
+        "redis-cart",
+        "emailservice"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_recommendationservice_mem_3",
+      "fault": "mem",
+      "top3_services": [
+        "recommendationservice",
+        "emailservice",
+        "redis-cart"
+      ],
+      "AC@1": 1.0
+    },
+    {
+      "case_id": "re2ob_recommendationservice_socket_1",
+      "fault": "socket",
+      "top3_services": [
+        "redis-cart",
+        "recommendationservice",
+        "paymentservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_recommendationservice_socket_2",
+      "fault": "socket",
+      "top3_services": [
+        "redis-cart",
+        "recommendationservice",
+        "paymentservice"
+      ],
+      "AC@1": 0.0
+    },
+    {
+      "case_id": "re2ob_recommendationservice_socket_3",
+      "fault": "socket",
+      "top3_services": [
+        "emailservice",
+        "redis-cart",
+        "recommendationservice"
+      ],
+      "AC@1": 0.0
+    }
+  ]
+}
