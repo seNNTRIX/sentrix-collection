@@ -40,6 +40,7 @@ k3d cluster create sentrix-local \
   --image rancher/k3s:v1.33.4-k3s1 --servers 1 --agents 0 --no-lb \
   --api-port 127.0.0.1:6550 \
   --kubeconfig-update-default=false --kubeconfig-switch-context=false \
+  --k3s-arg '--kubelet-arg=housekeeping-interval=2s@server:0' \
   --k3s-arg '--disable=traefik,servicelb,metrics-server@server:0' --timeout 180s
 mkdir -p /private/tmp/sentrix-local
 k3d kubeconfig get sentrix-local > /private/tmp/sentrix-local/kubeconfig
@@ -59,6 +60,8 @@ helm upgrade --install otel-gateway open-telemetry/opentelemetry-collector \
   --wait --timeout 5m
 kubectl wait --for=condition=Available deployment --all -n sentrix --timeout=300s
 ```
+
+CPU 표본은 Prometheus가 5초마다 수집한다. 위 2초 옵션은 kubelet의 cAdvisor가 새 값을 만드는 기본 간격이다. 실제 주기는 노드 부하에 따라 달라지므로 30초 구간마다 서비스별로 신선한 표본이 4개 이상인지 확인한다.
 
 각각 별도 터미널에서 유지한다. Pod가 교체되면 port-forward를 다시 실행한다.
 
