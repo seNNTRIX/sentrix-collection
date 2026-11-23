@@ -139,6 +139,13 @@ class Handler(BaseHTTPRequestHandler):
             file = DIST / ("index.html" if path=="/display" else path.lstrip("/"))
             if not file.is_file(): return self.send_error(404)
             return self.send(200,mimetypes.guess_type(file.name)[0] or "application/octet-stream",file.read_bytes())
+        if path == "/display-policy":
+            try:
+                with urlopen("http://127.0.0.1:8000/health", timeout=3) as response:
+                    health = json.load(response)
+            except (OSError, ValueError):
+                return self.send_error(503)
+            return self.send(200, "application/json", json.dumps({"threshold": health.get("threshold"), "modelVersion": health.get("modelVersion"), "applicationServices": live.SERVICES}).encode())
         if path == "/display-environment":
             with lock:
                 env = state.get("environment")
