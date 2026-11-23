@@ -13,14 +13,19 @@ server:
 # control-plane and Prometheus self metrics are outside its feature set.
 scrapeConfigs:
   kubernetes-api-servers:
-    scrape_interval: 60s
-    scrape_timeout: 10s
+    enabled: false
   kubernetes-nodes:
-    scrape_interval: 60s
-    scrape_timeout: 10s
+    enabled: false
   prometheus:
     scrape_interval: 60s
     scrape_timeout: 10s
+  kubernetes-service-endpoints:
+    scrape_interval: 10s
+    scrape_timeout: 8s
   kubernetes-nodes-cadvisor:
-    scrape_interval: 5s
-    scrape_timeout: 5s
+    scrape_interval: 3s
+    scrape_timeout: 3s
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'container_cpu_usage_seconds_total|container_memory_working_set_bytes|container_network_(receive|transmit)_packets(_dropped)?_total'
+        action: keep

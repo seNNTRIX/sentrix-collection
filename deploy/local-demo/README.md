@@ -61,9 +61,9 @@ helm upgrade --install otel-gateway open-telemetry/opentelemetry-collector \
 kubectl wait --for=condition=Available deployment --all -n sentrix --timeout=300s
 ```
 
-CPU 표본은 Prometheus가 5초마다 수집한다. 위 2초 옵션은 kubelet의 cAdvisor가 새 값을 만드는 기본 간격이다. 실제 주기는 노드 부하에 따라 달라지므로 30초 구간마다 서비스별로 신선한 표본이 4개 이상인지 확인한다.
+전시 구성에서는 Prometheus가 컨테이너 지표를 3초마다 읽고 모델은 기존 5초 격자로 표본을 고른다. 위 2초 옵션은 kubelet의 cAdvisor가 새 값을 만드는 기본 간격이다. 실제 주기는 노드 부하에 따라 달라지므로 30초 구간마다 서비스별로 신선한 표본이 4개 이상인지 확인한다.
 
-로컬 Prometheus 설정은 cAdvisor를 5초 주기·5초 제한으로 읽는다. 모델 입력에 쓰지 않는 Kubernetes API 서버, 노드 자체 지표, Prometheus 자체 지표는 60초 주기·10초 제한으로 읽어 같은 노드의 수집 부하를 줄인다. 실제 적용 여부는 Prometheus의 `/api/v1/targets?state=active`에서 job별 scrapeInterval, scrapeTimeout, lastScrapeDuration, health를 확인한다.
+로컬 Prometheus 설정은 cAdvisor를 3초 주기·3초 제한으로 읽는다. 전시용 구성에서는 API 서버와 노드 자체 지표 수집을 끄고, 컨테이너 지표는 CPU·메모리·패킷 6종만 저장한다. 서비스 엔드포인트(Deployment 상태 포함)는 10초 주기, Prometheus 자체 지표는 60초 주기로 읽는다. Linux 실험용 기본 설정은 별도다. 실제 적용 여부는 Prometheus의 `/api/v1/targets?state=active`에서 job별 scrapeInterval, scrapeTimeout, lastScrapeDuration, health를 확인한다.
 
 각각 별도 터미널에서 유지한다. Pod가 교체되면 port-forward를 다시 실행한다.
 
