@@ -66,3 +66,13 @@ run 기록에 `effect_observed_at` 등의 이름이 그대로 없어 다음과 �
 ## 변경 기록
 
 - (커밋 후 변경 사항을 날짜·이유·커밋과 함께 이 아래에 덧붙인다)
+- 2026-11-23, 데이터셋 생성기 구현(branch `dataset-linux-v1`, `features/adapters/linux_v1.py`, `features/build_linux_v1.py`). 위 규칙은 바꾸지 않았고, 문서에 없던 **구현 세부만** 빌드 전에 정해 적는다. 이 시점에도 linux-v1의 feature 값·점수·순위는 보지 않았다(run 2개로 파일 읽기와 열 이름만 확인).
+  - CPU limit = `container_spec_cpu_quota / container_spec_cpu_period`(RE2-OB와 같은 방식), memory limit = `kube_pod_container_resource_limits{resource="memory"}`. CPU·메모리는 앱 컨테이너(container 라벨이 비어 있지 않고 `POD`가 아님)만 쓴다.
+  - 한 서비스의 여러 series(컨테이너 교체 등)는 같은 시각끼리 합한다. 구성 요소(사용량·limit, rx·tx drop)는 같은 query 시각끼리만 결합하고 채우지 않는다. 5초 재표본은 RE2-OB 어댑터의 `resample`(구간 (g−5, g]의 마지막 값, 없으면 NaN).
+  - Pod onset: `[started_at, ended_at]` 안에서 대상 서비스 앱 컨테이너 Ready의 시각별 최솟값이 0인 첫 표본 시각.
+  - trace 오류 = status code `STATUS_CODE_ERROR`. 서비스 이름이 없는 span(k6 등)은 부모 결합 뒤 버린다.
+  - 로그 오류 = JSON 본문 `severity`(없으면 `level`), 둘 다 없으면 Loki 라벨 `detected_level`이 RE2-OB 어댑터의 `ERROR_LEVELS`에 들거나(pino 숫자 레벨은 40 이상), JSON `error` 필드가 비어 있지 않음. 로그 원문(`message`)과 `labels_json`은 R8용으로 어댑터에서 보존한다.
+  - 채택 시도: fault run incident가 있고 `is_valid_run` true, incident의 `control_run_id`가 그 시도의 control run이며 두 run 폴더가 같은 root에 있을 때 valid. audit `status.json`은 판정에 쓰지 않는다(#15는 기록 단계만 실패해 status.json이 failed).
+  - 비적격 장애 run의 `fault_active` window는 `detection-ineligible.parquet`에 따로 둔다(`detection.parquet`에는 학습·AUROC용 양성·음성만).
+  - case_id = `lv1_` + run ID(시도 접미 `-a2` 포함). 원인 순위 표에는 적격 장애 run의 `fault_active`만 넣고, 연결·급증 장애 행은 정답 0으로 남긴다(노드 보기·서술용, 학습은 CPU·Pod만 골라 쓴다).
+  - 실제 데이터 확인: 허용 누락점(`tolerated_missing_points_unix`)이 있는 채택 run은 0개다(규칙은 구현·테스트함).
