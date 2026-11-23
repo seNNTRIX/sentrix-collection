@@ -20,7 +20,7 @@ DEMO = HERE.parents[1] / "sentrix-model-server" / "demo"
 DIST = HERE.parents[1] / "sentrix-dashboard" / "dist"
 DASH = "http://127.0.0.1:8081"
 ROOT = DASH + "/api/v1/environments"
-ORIGIN = "http://127.0.0.1:5190"
+ORIGIN = f"http://{live.AUTHORITY}"
 ENV_NAME = "실제 실험 기록 재생 · Linux Online Boutique 반복 2"
 MODEL = "linuxv1-b-fold2"
 LABELS = {"network_delay": "네트워크 지연", "pod_failure": "Pod 중단",
@@ -132,7 +132,7 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def do_GET(self):
-        if self.headers.get("Host") != "127.0.0.1:5190":
+        if self.headers.get("Host") != live.AUTHORITY:
             return self.send_error(403)
         path = urlsplit(self.path).path
         if path == "/display" or re.fullmatch(r"/assets/[A-Za-z0-9._-]+",path):
@@ -199,7 +199,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         if self.path != "/start": return self.send_error(404)
-        if self.headers.get("Origin")!=ORIGIN or self.headers.get("Host")!="127.0.0.1:5190":
+        if self.headers.get("Origin")!=ORIGIN or self.headers.get("Host")!=live.AUTHORITY:
             return self.send_error(403)
         if self.headers.get_content_type()!="application/json": return self.send_error(415)
         run = str(uuid.uuid4())
@@ -225,7 +225,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__=="__main__":
-    server=ThreadingHTTPServer(("127.0.0.1",5190),Handler)
+    server=ThreadingHTTPServer(("127.0.0.1",live.PORT),Handler)
     pending=playback.ROOT/"active-environment"
     if pending.exists():
         env=pending.read_text()

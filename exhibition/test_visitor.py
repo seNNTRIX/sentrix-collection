@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 from visitor import location_rank
 
 
@@ -14,6 +15,18 @@ class LocationRankTest(unittest.TestCase):
         self.assertIsNone(location_rank([], "catalog"))
 
 class ExperimentTest(unittest.TestCase):
+    def test_hosted_visitor_uses_its_own_cluster_identity(self):
+        import live
+        with patch.dict(live.os.environ, {"SENTRIX_EXHIBIT_SERVICE_KUBECONFIG": "/run/visitor/config"}), \
+                patch.object(live.subprocess, "run") as invoke:
+            invoke.return_value.returncode = 0
+            invoke.return_value.stdout = '{"items":[]}'
+            self.assertEqual(live.kube("get", "networkchaos"), {"items": []})
+        self.assertEqual(invoke.call_args.args[0], [
+            "kubectl", "--kubeconfig", "/run/visitor/config", "--namespace=sentrix",
+            "--request-timeout=35s", "get", "networkchaos",
+        ])
+
     def test_every_declared_subject(self):
         from visitor import selection
         from live import SERVICES, EDGES

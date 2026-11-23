@@ -17,7 +17,9 @@ SERVICES = sorted(set(EDGES).union(*EDGES.values()))
 KINDS = {"network_delay":"NetworkChaos","packet_loss":"NetworkChaos","cpu_saturation":"StressChaos","pod_failure":"PodChaos"}
 PREFIX = "/apis/chaos-mesh.org/v1alpha1/namespaces/sentrix/"
 OWNER = "sentrix-exhibit"
-DASHBOARD = "http://127.0.0.1:5190/display"
+PORT = int(os.environ.get("SENTRIX_EXHIBIT_PORT", "5190"))
+AUTHORITY = f"127.0.0.1:{PORT}"
+DASHBOARD = f"http://{AUTHORITY}/display"
 CORE = "http://127.0.0.1:8080/api/v1/environments/1"
 DURATION = 180
 
@@ -49,9 +51,14 @@ def build(fault, source, target, run):
 
 
 def kube(*args, body=None):
-    cfg=os.environ.get("SENTRIX_EXHIBIT_KUBECONFIG","/private/tmp/sentrix-local/kubeconfig")
-    command=["kubectl","--kubeconfig",cfg,"--context=k3d-sentrix-local","--namespace=sentrix",
-             "--as=system:serviceaccount:sentrix:sentrix-exhibit","--request-timeout=35s",*args]
+    service_cfg = os.environ.get("SENTRIX_EXHIBIT_SERVICE_KUBECONFIG")
+    if service_cfg:
+        identity = ["--kubeconfig", service_cfg]
+    else:
+        cfg = os.environ.get("SENTRIX_EXHIBIT_KUBECONFIG", "/private/tmp/sentrix-local/kubeconfig")
+        identity = ["--kubeconfig", cfg, "--context=k3d-sentrix-local",
+                    "--as=system:serviceaccount:sentrix:sentrix-exhibit"]
+    command = ["kubectl", *identity, "--namespace=sentrix", "--request-timeout=35s", *args]
     p=subprocess.run(command,input=json.dumps(body) if body else None,capture_output=True,text=True,timeout=42)
     if p.returncode: raise RuntimeError("실험 클러스터 응답을 확인할 수 없습니다.")
     return json.loads(p.stdout)
