@@ -47,6 +47,8 @@ import re
 
 import numpy as np
 import pandas as pd
+import pyarrow as pa
+import pyarrow.compute as pc
 import pyarrow.parquet as pq
 import yaml
 
@@ -300,6 +302,20 @@ def _label_map(labels_json, key):
     return pd.Series(vals[codes], index=labels_json.index)
 
 
+def read_metric_groups(path, groups, columns, batch_rows=131_072):
+    """Rows of the given metric groups only, read batch by batch (the full labels_json column of a
+    canonical metrics.parquet would take ~2.4 GB)."""
+    f = pq.ParquetFile(path)
+    want = pa.array(list(groups))
+    cols = list(dict.fromkeys(list(columns) + ["metric_group"]))
+    parts = [b.filter(pc.is_in(b.column("metric_group"), value_set=want))
+             for b in f.iter_batches(batch_size=batch_rows, columns=cols)]
+    parts = [b for b in parts if b.num_rows]
+    if not parts:
+        return pd.DataFrame(columns=cols)
+    return pa.Table.from_batches(parts).to_pandas()
+
+
 def _app_containers(df):
     c = df["container"]
     return df[c.notna() & ~c.isin(APP_CONTAINER_EXCLUDED)]
@@ -307,9 +323,8 @@ def _app_containers(df):
 
 def ready_onset(run_dir, view, service, started_at, ended_at):
     """First 5 s grid time in [started_at, ended_at] where `service` is not ready, else None."""
-    df = pq.read_table(run_dir / view / "metrics.parquet",
-                       columns=["timestamp_unix", "canonical_service_id", "raw_service_id", "value", "labels_json"],
-                       filters=[("metric_group", "=", G_READY)]).to_pandas()
+    df = read_metric_groups(run_dir / view / "metrics.parquet", [G_READY],
+                            ["timestamp_unix", "canonical_service_id", "raw_service_id", "value", "labels_json"])
     if df.empty:
         return None
     df = df[pd.Series(_services(df), index=df.index) == service].copy()
@@ -442,10 +457,9 @@ def _ratio(num, den):
 def load_metrics(case):
     """DataFrame[t, service, signal, value] on the case's 5 s grid (aligned to onset)."""
     empty = pd.DataFrame(columns=["t", "service", "signal", "value"])
-    df = pq.read_table(case.path / case.view / "metrics.parquet",
-                       columns=["timestamp_unix", "canonical_service_id", "raw_service_id", "metric_group", "value",
-                                "labels_json"],
-                       filters=[("metric_group", "in", list(METRIC_GROUPS))]).to_pandas()
+    df = read_metric_groups(case.path / case.view / "metrics.parquet", METRIC_GROUPS,
+                            ["timestamp_unix", "canonical_service_id", "raw_service_id", "metric_group", "value",
+                             "labels_json"])
     if df.empty:
         return empty
     df["service"] = _services(df)
