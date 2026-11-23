@@ -139,3 +139,20 @@ k3d cluster start sentrix-local
 | Java API | http://127.0.0.1:8080 |
 | Online Boutique | http://127.0.0.1:8088 |
 | Prometheus | http://127.0.0.1:9090 |
+
+## Apple Silicon에서 통화 서비스를 네이티브로 실행하기
+
+맥북에서 통화 서비스 연결 거부와 여러 서비스의 상태 검사 시간 초과를 관측했다. 단일 노드 전시 환경에서만 아래 구성을 선택할 수 있다. 같은 v0.9.0 소스로 Linux ARM64 이미지를 만들고, 통화·광고 서비스의 검사 대기 시간을 늘린다. 상품 조회와 지표 수집의 가용성은 별도로 측정해야 한다.
+
+저장소 루트에서 실행한다. 먼저 Docker Desktop이 Linux ARM64 컨테이너를 실행 중인지, 대상 클러스터가 로컬 sentrix-local인지 확인한다.
+
+```sh
+git clone --depth 1 --branch v0.9.0 https://github.com/GoogleCloudPlatform/microservices-demo.git /tmp/sentrix-boutique-v090
+git -C /tmp/sentrix-boutique-v090 rev-parse HEAD
+# d138db567079e2ef982d46b2993f8349cb18e2b2
+docker build --platform linux/arm64 -t sentrix-local/currencyservice:v0.9.0-arm64 /tmp/sentrix-boutique-v090/src/currencyservice
+docker save sentrix-local/currencyservice:v0.9.0-arm64 | docker exec -i k3d-sentrix-local-server-0 ctr -n k8s.io images import --platform linux/arm64 -
+kubectl --context k3d-sentrix-local apply -k deploy/local-demo-arm64
+```
+
+기본 이미지와 검사 설정으로 되돌릴 때는 같은 로컬 컨텍스트에서 `kubectl apply -k deploy/local-demo`를 실행한다. 위 명령으로 새로 적용한 구성을 기준으로 한다. 적용 전후에 상품 상세 요청 성공 여부와 Prometheus의 cAdvisor 수집 상태를 함께 비교한다.
