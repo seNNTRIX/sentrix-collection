@@ -43,6 +43,7 @@ class ExperimentTest(unittest.TestCase):
                     self.assertEqual(spec["target"]["selector"]["labelSelectors"]["app"],target)
                     self.assertEqual(spec["selector"]["labelSelectors"]["app"],source)
                     self.assertEqual(spec["direction"],"to")
+                    self.assertEqual(spec["externalTargets"], [f"{target}.sentrix.svc.cluster.local"])
 
     def test_invalid_or_unrecorded_path(self):
         from visitor import selection

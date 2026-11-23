@@ -33,7 +33,10 @@ def build(fault, source, target, run):
     if fault in ("network_delay","packet_loss"):
         if target not in EDGES.get(source, []):
             raise ValueError("쇼핑몰에 정의된 호출 경로를 선택하세요.")
-        spec.update(selector=selector(source),direction="to",target={"mode":"one","selector":selector(target)})
+        # At source egress, kube-proxy may not have translated the service
+        # address to its pod IP yet. Include the selected in-cluster service.
+        spec.update(selector=selector(source), direction="to", target={"mode":"one","selector":selector(target)},
+                    externalTargets=[f"{target}.sentrix.svc.cluster.local"])
         if fault=="network_delay":
             spec.update(action="delay",delay={"latency":"100ms","jitter":"10ms"})
         else:
