@@ -34,19 +34,12 @@ dl{margin:0}dt{color:var(--muted);font-size:14px}dd{margin:0;overflow-wrap:anywh
 .row{display:grid;grid-template-columns:94px 1fr;gap:8px;padding:11px 0;border-top:1px solid var(--line)}
 #phase{font-size:23px;letter-spacing:-.04em;margin:-4px 0 15px}
 #notice{color:#913324;font-size:14px;margin-top:9px}
-#wall{height:100dvh;display:flex;flex-direction:column}#wall .bar{padding:7px 20px;font-size:14px}#wallSummary{margin-left:auto}
-iframe{width:100%;flex:1;min-height:0;border:0;background:white}
 @media(max-width:720px){.grid{grid-template-columns:1fr}main{padding:0 16px}.heading{align-items:start}.bar{padding:10px 16px}}
-.plot-wrap{padding:9px max(2vw,16px) 6px;background:white;border-bottom:1px solid var(--line)}
-.plot-head{display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:14px}
-.plot-head h2{font-size:17px;margin:0}.plot-head strong{font:600 18px ui-monospace,monospace;color:#005d51}
-.plot-head small{margin-left:auto;color:var(--muted)}.plot-head button{background:white;border:1px solid var(--line);border-radius:4px;font-size:12px;padding:3px 8px}
-#plot{width:100%;height:clamp(87px,15vh,165px);display:block}#events{font:13px system-ui;color:#4e554d;white-space:pre-wrap}
 </style>
 <div id="operator" hidden>
 <nav class="bar"><span class="brand">SentriX</span><a href="/display" target="_blank" rel="noopener">대시보드 열기 ↗</a></nav>
 <main><div class="heading"><div><h1>장애 실험실</h1></div>
-<div class="switch" aria-label="실행 방식"><button type="button" data-mode="live" aria-pressed="true">실시간 실험</button><button type="button" data-mode="replay" aria-pressed="false">기록 재생</button></div></div>
+<div class="switch" aria-label="실행 방식"><button type="button" data-mode="replay" aria-pressed="true">실험 재현</button><button type="button" data-mode="live" aria-pressed="false">실시간 실험</button></div></div>
 <div class="grid"><form id="form" class="panel"><h2>실험 설정</h2>
 <fieldset id="fields"><legend>장애 유형</legend><div class="faults">
 <button type="button" data-fault="network_delay">네트워크 지연</button><button type="button" data-fault="packet_loss">패킷 손실</button>
@@ -56,17 +49,14 @@ iframe{width:100%;flex:1;min-height:0;border:0;background:white}
 <span class="config" id="config"></span><button id="start" class="primary" disabled>실험 시작</button></fieldset>
 <p id="notice" role="alert"></p></form>
 <section class="panel" aria-label="최근 실행"><h2>최근 실행</h2><p id="phase" role="status">대기 중</p><dl id="details"></dl></section></div></main></div>
-<section id="wall" hidden><div class="bar"><b>SentriX</b><span id="wallMode"></span><span id="wallSummary" role="status"></span></div><section class="plot-wrap"><div class="plot-head"><h2 id="plotName">관측 지표</h2><strong id="reading">—</strong><small id="plotStatus"></small><button id="hold" type="button">일시 정지</button></div><canvas id="plot" role="img" aria-label="관측 시계열"></canvas><div id="events"></div></section><iframe id="frame" title="SentriX 대시보드"></iframe></section>
 <script>
 const $ = id => document.getElementById(id);
-const wall = location.pathname === '/display';
-$(wall ? 'wall' : 'operator').hidden = false;
+$('operator').hidden=false;
 const modes = {live:'실시간 실험',replay:'기록 재생'};
 const decisions = {NORMAL:'정상',ANOMALY:'이상 감지',ABSTAIN:'판정 보류'};
 const config = {network_delay:'지연 100 ms · 변동 10 ms',packet_loss:'패킷 손실 2%',cpu_saturation:'CPU 작업자 1개 · 목표 부하 100%',pod_failure:'선택 서비스의 Pod 1개 중단'};
-const links = {live:'http://127.0.0.1:5176',replay:'http://127.0.0.1:5177'};
 const buttons = selector => Array.from(document.querySelectorAll(selector));
-let catalog, mode='live', fault='network_delay', last={}, sending=false, frameUrl='', connected=false;
+let catalog, mode='replay', fault='network_delay', last={}, sending=false, connected=false;
 function options(select, names){
  const current=select.value;
  select.replaceChildren(...names.map(name=>new Option(name,name)));
@@ -75,18 +65,18 @@ function options(select, names){
 function choose(){
  if(!catalog) return;
  const edge=['network_delay','packet_loss'].includes(fault);
- const recorded=catalog.recordings[fault]?.split('->') || [];
+ const recorded=(catalog.recordings[fault]||[]).map(x=>x.split('->'));
  $('from').hidden=!edge;
  $('toLabel').textContent=edge?'호출 도착 서비스':'대상 서비스';
- options($('source'),edge?(mode==='live'?Object.keys(catalog.edges):recorded.slice(0,1)):[]);
- const dest=mode==='replay'?recorded.slice(-1):edge?(catalog.edges[$('source').value]||[]):catalog.services;
+ options($('source'),edge?(mode==='live'?Object.keys(catalog.edges):[...new Set(recorded.map(pair=>pair[0]))]):[]);
+ const dest=mode==='replay'?(edge?recorded.filter(pair=>pair[0]===$('source').value).map(pair=>pair[1]):recorded.map(pair=>pair[0])):edge?(catalog.edges[$('source').value]||[]):catalog.services;
  options($('dest'),dest);
  $('config').textContent=mode==='live'?config[fault]+' · 3분 후 자동 복구 요청':'분석 구간 30초';
- $('start').textContent=mode==='live'?'실험 시작':'기록 재생';
+ $('start').textContent=mode==='live'?'실험 시작':'시나리오 시작';
  for(const b of buttons('[data-mode]')) b.setAttribute('aria-pressed',b.dataset.mode===mode);
  for(const b of buttons('[data-fault]')){
   b.setAttribute('aria-pressed',b.dataset.fault===fault);
-  b.disabled=mode==='replay' && !catalog.recordings[b.dataset.fault];
+  b.disabled=mode==='replay' && !catalog.recordings[b.dataset.fault]?.length;
  }
  lockInputs();
 }
@@ -102,14 +92,6 @@ function render(s){
  const decision=decisions[s.decision], first=s.candidates?.[0];
  const firstName=first && (first.kind==='EDGE'?first.source+' → '+first.target:first.service);
  const status=s.phase==='idle'?'대기 중':s.phase==='failed'?'실행 확인 필요':s.phase==='done'?(s.mode==='live'?s.step:'재생 완료'):s.step;
- if(wall){
-  window.syncWallChart?.(s);
-  $('wallMode').textContent=modes[s.mode||'live'];
-  $('wallSummary').textContent=[status,decision,firstName && '1순위 '+firstName].filter(Boolean).join(' · ');
-  const url=s.link || links[s.mode||'live']+'/#B1-Overview';
-  if(url!==frameUrl){$('frame').src=url;frameUrl=url;}
-  return;
- }
  $('phase').textContent=status;
  const fields=[['실행 방식',modes[s.mode]],['실험 조건',s.label],['선택한 위치',pretty(s.location)],
  ['주입 전 판정',decisions[s.before]],['모델 판정',decision || (s.phase==='done'?'결과 없음':'대기 중')],
@@ -123,13 +105,13 @@ function render(s){
 }
 async function poll(){
  try{
-  if(!wall && !catalog){const r=await fetch('/catalog');if(!r.ok)throw Error();catalog=await r.json();choose();}
+  if(!catalog){const r=await fetch('/catalog');if(!r.ok)throw Error();catalog=await r.json();choose();}
   const r=await fetch('/state',{cache:'no-store'});if(!r.ok)throw Error();
   connected=true;render(await r.json());
- }catch{connected=false;$(wall?'wallSummary':'phase').textContent='전시 콘솔 연결 확인 중';if(!wall)lockInputs();}
+ }catch{connected=false;$('phase').textContent='전시 콘솔 연결 확인 중';lockInputs();}
  setTimeout(poll,1200);
 }
-for(const b of buttons('[data-mode]')) b.onclick=()=>{mode=b.dataset.mode;if(mode==='replay' && !catalog.recordings[fault])fault=Object.keys(catalog.recordings)[0];choose();};
+for(const b of buttons('[data-mode]')) b.onclick=()=>{mode=b.dataset.mode;if(mode==='replay' && !catalog.recordings[fault]?.length)fault=Object.keys(catalog.recordings)[0];choose();};
 for(const b of buttons('[data-fault]')) b.onclick=()=>{fault=b.dataset.fault;choose();};
 $('source').onchange=choose;
 $('form').onsubmit=async e=>{
@@ -141,5 +123,5 @@ $('form').onsubmit=async e=>{
   render(await (await fetch('/state')).json());
  }catch(err){$('notice').textContent=err.message;}finally{sending=false;lockInputs();}
 };
-if(wall){const script=document.createElement('script');script.src='/chart.js';script.onload=poll;document.head.append(script);}else poll();
+poll();
 </script></html>

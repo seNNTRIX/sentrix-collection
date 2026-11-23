@@ -1,7 +1,10 @@
 """Local exhibition console and wall display."""
 import subprocess
 import live
-import series
+import playback
+import mimetypes
+import re
+from urllib.parse import urlsplit, parse_qs
 import json
 import threading
 import time
@@ -14,26 +17,22 @@ from urllib.request import Request, urlopen
 
 HERE = Path(__file__).resolve().parent
 DEMO = HERE.parents[1] / "sentrix-model-server" / "demo"
-DASH = "http://127.0.0.1:5177"
+DIST = HERE.parents[1] / "sentrix-dashboard" / "dist"
+DASH = "http://127.0.0.1:8081"
 ROOT = DASH + "/api/v1/environments"
 ORIGIN = "http://127.0.0.1:5190"
 ENV_NAME = "실제 실험 기록 재생 · Linux Online Boutique 반복 2"
 MODEL = "linuxv1-b-fold2"
 LABELS = {"network_delay": "네트워크 지연", "pod_failure": "Pod 중단",
           "cpu_saturation": "CPU 포화", "packet_loss": "패킷 손실"}
-def recorded_cases():
-    path = DEMO / "demo-times-b-fold2.json"
-    return {x["fault"]: x for x in json.loads(path.read_text())} if path.is_file() else {}
-
-
-CASES = recorded_cases()
+CASES = playback.cases(DEMO)
 lock = threading.Lock()
 state = {"phase": "idle", "mode": "live"}
 
 
-def api(url, body=None):
+def api(url, body=None, method=None):
     post = None if body is None else json.dumps(body).encode()
-    with urlopen(Request(url, data=post, headers={"Content-Type": "application/json"}), timeout=12) as response:
+    with urlopen(Request(url, data=post, method=method, headers={"Content-Type": "application/json"}), timeout=12) as response:
         return json.load(response)
 
 
@@ -52,44 +51,55 @@ def location_rank(candidates, target):
     return None
 
 
-def analyze(selection, run):
-    case = CASES[selection]
+def monitor(env, enabled):
+    return api(f"{ROOT}/{env}/monitoring", {"enabled":enabled, "intervalSeconds":30}, "PUT")
+
+
+def analyze(case, run):
+    env = None
     try:
         health = api("http://127.0.0.1:8001/health")
-        expected = json.loads((DEMO / "model-b-fold2/calibration.json").read_text())
-        if (health.get("onlineFeatureStatus"), health.get("modelVersion"), health.get("threshold")) != (
-                "FILE_INPUT_ONLY", MODEL, expected["threshold"]):
-            raise ValueError("전시용 모델과 기준값을 확인해 주세요.")
-        envs = api(ROOT)["items"]
-        if len(envs) != 1 or (envs[0]["id"], envs[0]["name"], envs[0]["namespace"]) != (1, ENV_NAME, "sentrix"):
-            raise ValueError("저장 실험 전용 환경을 확인해 주세요.")
-        end = case["during"]["windowEnd_unix"]
-        stamp = lambda t: datetime.fromtimestamp(t, timezone.utc).isoformat()
-        # One case record, a fresh inference job for every visitor. No fault labels in the model request.
-        record = api(ROOT + "/1/incidents", {"requestKey": str(uuid.uuid5(uuid.NAMESPACE_URL,"exhibition-v1/"+case["case_id"])),
-                     "service": "frontend", "title": "실험 구간 재분석",
-                     "occurredAt": stamp(end-30), "description": "전시용 재분석 기록. 서비스 필드는 쇼핑몰 진입점입니다. 실제 원인 후보는 아래 모델 결과에 표시됩니다."})
-        jobs = ROOT + "/1/incidents/" + record["id"] + "/rca-jobs"
-        job = api(jobs, {"requestKey": run, "windowEnd": stamp(end)})
-        job_id = job["id"]
-        link = DASH + "/#B4-Incident?incidentId=" + record["id"] + "&jobId=" + job_id
-        url = jobs + "/" + job_id
-        update(window=stamp(end), job=job_id)
-        deadline = time.monotonic() + 120
-        while job["status"] in ("QUEUED", "RUNNING") and time.monotonic() < deadline:
-            time.sleep(0.5)
-            job = api(url)
-        if job["status"] != "SUCCEEDED":
-            raise ValueError("분석 작업 상태 · "+job["status"])
-        result = api(url + "/result")
-        if (result["jobId"] != job_id or result["modelVersion"] != MODEL or
-                datetime.fromisoformat(result["windowEnd"].replace("Z","+00:00")).timestamp() != end):
-            raise ValueError("선택한 분석 구간과 결과가 일치하지 않습니다.")
-        update(phase="done", link=link, decision=result["decision"], score=result["score"],
-               candidates=result["candidates"], reason=result.get("abstainReason"),
-               locationRank=location_rank(result["candidates"],case["root_cause"]))
-    except (HTTPError, URLError, TimeoutError, KeyError, ValueError, OSError) as exc:
-        update(phase="failed", message=str(exc) if isinstance(exc,ValueError) else "재생용 Java·모델 서버의 연결과 작업 상태를 확인하세요.")
+        expected=json.loads((DEMO/"model-b-fold2"/"calibration.json").read_text())
+        if (health.get("onlineFeatureStatus"),health.get("modelVersion"),health.get("threshold")) != ("FILE_INPUT_ONLY",MODEL,expected["threshold"]):
+            raise ValueError("전시 분석 서버 설정을 확인하세요.")
+        if not (playback.ROOT/"1").is_dir() or not (playback.ROOT/"1").samefile(DEMO/"replay"/"1"):
+            raise ValueError("전시 모델 서버를 최신 실행 설정으로 시작하세요.")
+        if api(ROOT+"/1")["name"] != ENV_NAME:
+            raise ValueError("전시 DB의 기준 환경을 확인하세요.")
+        now = datetime.now().astimezone()
+        item = api(ROOT, {"name":f"Online Boutique · 재현 {now:%m%d %H%M%S} {run[:4]}", "namespace":"sentrix"})
+        env = item["id"]
+        if env <= 1: raise ValueError("독립 실험 환경 생성 실패")
+        last = playback.prepare(DEMO,playback.ROOT/str(env),case,time.time())
+        (playback.ROOT/"active-environment").write_text(str(env))
+        config = monitor(env,True)
+        if config["executionStatus"] != "SCHEDULED": raise ValueError("자동 관측이 활성화되지 않았습니다.")
+        update(environment={**item,"recorded":True}, step="관측 중")
+        while time.time() <= last+120:
+            rows = api(f"{ROOT}/{env}/anomaly-scores?limit=3")
+            row = next((r for r in rows if r.get("decision")),None)
+            if row:
+                update(window=row["windowEnd"], decision=row["decision"], reason=row.get("reason"))
+                if row.get("incidentId") and row["decision"]=="ANOMALY":
+                    result=api(f"{ROOT}/{env}/incidents/{row['incidentId']}/rca-jobs/{row['jobId']}/result")
+                    update(candidates=result["candidates"],locationRank=location_rank(result["candidates"],case["root_cause"]))
+                else:
+                    update(candidates=[], locationRank=None)
+                if playback.epoch(row["windowEnd"]) >= last-29: break
+            time.sleep(4)
+        else:
+            raise ValueError("마지막 구간의 분석을 확인하지 못했습니다.")
+        update(step="실험 종료")
+    except (OSError,ValueError,KeyError) as exc:
+        update(message=str(exc) if isinstance(exc,ValueError) else "전시 서버 연결 또는 분석 작업을 확인하세요.")
+    finally:
+        if env is not None and env > 1:
+            try:
+                monitor(env,False)
+                (playback.ROOT/"active-environment").unlink(missing_ok=True)
+            except (OSError,ValueError): update(message="실험 환경의 자동 관측 중지를 확인하세요.")
+        with lock:
+            state.update(phase="failed" if state.get("message") else "done", ended=time.time())
 
 
 def selection(payload, run):
@@ -100,7 +110,7 @@ def selection(payload, run):
         raise ValueError("잘못된 실험 조건입니다.")
     manifest = live.build(fault, source, target, run)
     location = source + "->" + target if source else target
-    if mode == "replay" and CASES.get(fault, {}).get("root_cause") != location:
+    if mode == "replay" and not any(c["fault"]==fault and c["root_cause"]==location for c in CASES):
         raise ValueError("선택한 조합의 기록이 없습니다.")
     return manifest, location
 
@@ -124,28 +134,66 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.headers.get("Host") != "127.0.0.1:5190":
             return self.send_error(403)
-        if self.path == "/series":
+        path = urlsplit(self.path).path
+        if path == "/display" or re.fullmatch(r"/assets/[A-Za-z0-9._-]+",path):
+            file = DIST / ("index.html" if path=="/display" else path.lstrip("/"))
+            if not file.is_file(): return self.send_error(404)
+            return self.send(200,mimetypes.guess_type(file.name)[0] or "application/octet-stream",file.read_bytes())
+        if path == "/display-environment":
             with lock:
-                snapshot = state.copy()
+                env = state.get("environment")
+                if state.get("ended",float("inf")) + 60 < time.time(): env=None
+            pinned=parse_qs(urlsplit(self.path).query).get("environment",[])
+            if pinned:
+                if not re.fullmatch(r"[1-9][0-9]{0,15}",pinned[0]): return self.send_error(400)
+                if pinned[0]=="1": env=None
+                elif (playback.ROOT/pinned[0]/"source.json").is_file():
+                    try: env={**api(ROOT+"/"+pinned[0]),"recorded":True}
+                    except OSError: return self.send_error(503)
+                else: return self.send_error(404)
+            if not env:
+                try: env=api(live.CORE)
+                except OSError: return self.send_error(503)
+            return self.send(200,"application/json",json.dumps(env).encode())
+        if path.startswith("/api/v1/environments/") or path == "/actuator/health":
+            match = re.fullmatch(r"/api/v1/environments/([1-9][0-9]*)(/.*)?",path)
+            if match and match[1] != "1":
+                if not (playback.ROOT/match[1]/"source.json").is_file(): return self.send_error(404)
+                folder=playback.ROOT/match[1]
+                query=parse_qs(urlsplit(self.path).query)
+                if match[2] in ("/observed-calls","/observed-topology"):
+                    try:
+                        if match[2]=="/observed-calls":
+                            service=query["service"][0]
+                            if service not in live.SERVICES: raise ValueError()
+                            value=playback.observation(folder,int(time.time()),service)
+                        else:
+                            end=playback.epoch(query["end"][0])
+                            value=playback.observation(folder,min(int(time.time()),end+30))
+                    except (KeyError,ValueError): return self.send_error(400)
+                    return self.send(200,"application/json",json.dumps(value).encode())
+                if match[2]=="/services":
+                    value={"environmentId":int(match[1]),"items":[{"name":n,"kind":"Service"} for n in live.SERVICES]}
+                    return self.send(200,"application/json",json.dumps(value).encode())
+                base = DASH
+            else:
+                base = "http://127.0.0.1:8080"
             try:
-                if snapshot["mode"] == "replay":
-                    data = series.replay_series(snapshot, CASES, DEMO)
-                else:
-                    data = series.live_series(snapshot, api)
-            except (ValueError, OSError, KeyError, StopIteration):
-                return self.send(503,"application/json",b'{"unavailable":true}')
-            return self.send(200,"application/json",json.dumps(dict(data,run=snapshot.get("run"),mode=snapshot["mode"]),allow_nan=False).encode())
+                response=api(base+self.path)
+            except HTTPError as exc:
+                return self.send(exc.code,"application/json",exc.read())
+            except OSError:
+                return self.send_error(503)
+            return self.send(200,"application/json",json.dumps(response).encode())
         if self.path == "/catalog":
-            catalog = {"services":live.SERVICES, "edges":live.EDGES,
-                       "recordings":{k:v["root_cause"] for k,v in CASES.items()}}
+            catalog = {"services":live.SERVICES,"edges":live.EDGES,
+                       "recordings":{key:sorted({c["root_cause"] for c in CASES if c["fault"]==key}) for key in LABELS}}
             return self.send(200,"application/json",json.dumps(catalog).encode())
         if self.path == "/state":
             with lock:
                 payload = json.dumps(state, ensure_ascii=False).encode()
             return self.send(200,"application/json; charset=utf-8",payload)
-        if self.path == "/chart.js":
-            return self.send(200,"application/javascript; charset=utf-8",(HERE/"chart.js").read_bytes())
-        if self.path in ("/", "/display"):
+        if self.path == "/":
             return self.send(200,"text/html; charset=utf-8",(HERE/"screens.html").read_bytes())
         return self.send_error(404)
 
@@ -171,10 +219,18 @@ class Handler(BaseHTTPRequestHandler):
         if mode == "live":
             worker = threading.Thread(target=run_live, args=(manifest,), daemon=True)
         else:
-            worker = threading.Thread(target=analyze, args=(fault,run), daemon=True)
+            worker = threading.Thread(target=analyze, args=(next(c for c in CASES if c["fault"]==fault and c["root_cause"]==location),run), daemon=True)
         worker.start()
         self.send(202,"application/json",b'{"accepted":true}')
 
 
 if __name__=="__main__":
-    ThreadingHTTPServer(("127.0.0.1",5190),Handler).serve_forever()
+    server=ThreadingHTTPServer(("127.0.0.1",5190),Handler)
+    pending=playback.ROOT/"active-environment"
+    if pending.exists():
+        env=pending.read_text()
+        if not env.isdecimal() or int(env)<=1 or not (playback.ROOT/env/"source.json").is_file():
+            raise ValueError("전시 환경 식별자를 확인하세요.")
+        monitor(int(env),False)
+        pending.unlink()
+    server.serve_forever()

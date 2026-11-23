@@ -37,26 +37,28 @@ class ExperimentTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 selection({"mode":mode,"case":"network_delay","source":source,"target":target}, "test")
 
-    def test_replay_samples_keep_gaps(self):
+    def test_replay_preserves_features_and_does_not_show_future(self):
+        from playback import prepare,observation,epoch
         from visitor import DEMO,CASES
-        from series import replay_series
-        if not CASES: self.skipTest("No replay fixtures installed")
-        samples=replay_series({"fault":"network_delay"},CASES,DEMO)
-        self.assertEqual(samples["subject"],"frontend->productcatalogservice")
-        self.assertTrue(any(v is None for _,v in samples["points"]))
+        from tempfile import TemporaryDirectory
+        from pathlib import Path
         import json
-        t=CASES["network_delay"]["during"]["windowEnd_unix"]
-        features=json.loads((DEMO/"replay"/"1"/(str(t)+".json")).read_text())["features"]
-        edge=next(e for e in features["edges"] if e["source"]=="frontend" and e["target"]=="productcatalogservice")
-        self.assertAlmostEqual(dict(samples["points"])[t],edge["p90"]*1000)
-
-    def test_zero_and_missing_service_metrics(self):
-        from series import live_series
-        def api(url):
-            self.assertIn("service=checkoutservice",url)
-            return {"environmentId":1,"service":"checkoutservice","metric":"error_ratio","points":[
-                {"timestamp":"2026-11-23T00:00:10Z","value":None},
-                {"timestamp":"2026-11-23T00:00:20Z","value":0.0},
-                {"timestamp":"2026-11-23T00:00:30Z","value":0.04}]}
-        actual=live_series({"location":"checkoutservice->paymentservice","fault":"packet_loss"},api)
-        self.assertEqual([p[1] for p in actual["points"]],[None,0,4])
+        if not CASES: self.skipTest("Archive not installed")
+        case=next(c for c in CASES if c["fault"]=="network_delay")
+        with TemporaryDirectory() as temp:
+            folder=Path(temp)/"8"
+            last=prepare(DEMO,folder,case,1800000000)
+            meta=json.loads((folder/"source.json").read_text())
+            self.assertEqual(last,meta["last"]+meta["offset"])
+            for path in folder.glob("[0-9]*.json"):
+                end=int(path.stem)
+                raw=json.loads((DEMO/"replay"/"1"/f"{end-meta['offset']}.json").read_text())
+                rebased=json.loads(path.read_text())
+                self.assertEqual(raw["features"],rebased["features"])
+                self.assertEqual(epoch(rebased["windowEnd"]),end)
+            now=1800000050
+            rows=observation(folder,now,"frontend")
+            self.assertTrue(all(epoch(r["timestamp"])<=now-30 for r in rows))
+            self.assertTrue(any(r["p90"] is None for r in rows))
+            self.assertTrue(any(r["p90"] is not None for r in rows))
+            self.assertTrue(all(epoch(w["time"])<=now-30 for w in observation(folder,now)["history"]))
