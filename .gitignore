@@ -24,7 +24,11 @@ __pycache__/
 # Linux setup (v2 package)
 .venv/
 audits/
-data/
+data/*
+# R8 public input (masked logs + feature tables, data/r8-input/linux-v1-v0/README.md)
+!data/r8-input/
+data/r8-input/*
+!data/r8-input/linux-v1-v0/
 linux/out/
 rcaeval/out/
 linux/charts/
