@@ -1,0 +1,1080 @@
+{
+ "label": "post-hoc supplementary analysis (사후·보조); reported Method B numbers unchanged",
+ "checks": [
+  {
+   "fold": 1,
+   "threshold": 0.0035318934977180893,
+   "recorded": 0.0035318934977180893,
+   "match": true
+  },
+  {
+   "fold": 2,
+   "threshold": 0.0033313148521423785,
+   "recorded": 0.0033313148521423785,
+   "match": true
+  },
+  {
+   "fold": 3,
+   "threshold": 0.003995144832792556,
+   "recorded": 0.003995144832792556,
+   "match": true
+  },
+  {
+   "per_run_alarms_match_recorded": true,
+   "n_runs": 123
+  }
+ ],
+ "control_alarm_by_pair_fault": {
+  "cpu_saturation": [
+   6,
+   15
+  ],
+  "network_delay": [
+   6,
+   15
+  ],
+  "packet_loss": [
+   6,
+   15
+  ],
+  "pod_failure": [
+   4,
+   15
+  ],
+  "traffic_surge": [
+   4,
+   9
+  ]
+ },
+ "fisher_pod_vs_rest_p": 0.3802179008199644,
+ "control_alarm_by_repetition": {
+  "1": [
+   9,
+   23
+  ],
+  "2": [
+   6,
+   23
+  ],
+  "3": [
+   11,
+   23
+  ]
+ },
+ "control_alarm_by_date_kst": {
+  "10-23": [
+   0,
+   5
+  ],
+  "10-24": [
+   0,
+   3
+  ],
+  "10-26": [
+   0,
+   1
+  ],
+  "10-27": [
+   7,
+   13
+  ],
+  "10-28": [
+   6,
+   18
+  ],
+  "10-29": [
+   8,
+   13
+  ],
+  "10-30": [
+   1,
+   6
+  ],
+  "10-31": [
+   4,
+   9
+  ],
+  "11-03": [
+   0,
+   1
+  ]
+ },
+ "night_00_07_vs_day_fisher_p": 0.7692739004002148,
+ "night_alarm": [
+  5,
+  16
+ ],
+ "campaign_first_half_alarm": [
+  10,
+  35
+ ],
+ "campaign_second_half_alarm": [
+  16,
+  34
+ ],
+ "alarm_rel_s_of_alarming_controls": {
+  "count": 26.0,
+  "mean": 163.07692307692307,
+  "std": 66.07687830212507,
+  "min": 100.0,
+  "25%": 110.0,
+  "50%": 145.0,
+  "75%": 217.5,
+  "max": 290.0
+ },
+ "share_windows_above_threshold": {
+  "normal_before_sham": {
+   "false": 0.08549222797927461,
+   "true": 0.16666666666666666
+  },
+  "sham_active": {
+   "false": 0.023255813953488372,
+   "true": 0.35154826958105645
+  },
+  "recovered": {
+   "false": 0.0227111426543648,
+   "true": 0.147117296222664
+  }
+ },
+ "shap_alarm_minus_quiet_top_features": {
+  "f_ct_in_p50_lr__max": 0.8493,
+  "f_cm_cpu_limit_ratio_mean__mean": 0.8209,
+  "f_ct_out_p90_lr__mean": 0.5238,
+  "f_cm_mem_limit_ratio_mean__max": 0.5014,
+  "f_cm_cpu_limit_ratio_mean__max": 0.3954,
+  "f_cm_mem_limit_ratio_mean__mean": 0.3244,
+  "f_nbr_cm_mem_limit_ratio_dmean__max": 0.2843,
+  "f_ct_in_p90_lr__max": 0.2514,
+  "f_nbr_cm_mem_limit_ratio_dmean__mean": 0.2218,
+  "f_ct_in_edge_p90_lr__mean": 0.1731,
+  "f_cm_mem_limit_ratio_dmean__max": 0.1201,
+  "f_nbr_cm_cpu_cores_dmean__mean": 0.1188
+ },
+ "shap_alarm_minus_quiet_by_base_feature": {
+  "f_cm_cpu_limit_ratio_mean": 1.2163,
+  "f_ct_in_p50_lr": 0.8476,
+  "f_cm_mem_limit_ratio_mean": 0.8258,
+  "f_nbr_cm_mem_limit_ratio_dmean": 0.5061,
+  "f_ct_out_p90_lr": 0.4589,
+  "f_ct_in_p90_lr": 0.3586,
+  "f_nbr_cm_cpu_cores_dmean": 0.2009,
+  "f_ct_in_edge_p90_lr": 0.1731,
+  "f_cm_mem_limit_ratio_dmean": 0.1703,
+  "f_cm_mem_limit_ratio_dmax": 0.1386
+ },
+ "shap_alarm_minus_quiet_by_source": {
+  "지표": 2.7979,
+  "trace": 1.8595,
+  "이웃": 0.756,
+  "로그": 0.0146
+ },
+ "shap_fault_alarm_top_features": {
+  "f_ct_in_p50_lr__max": 2.6777,
+  "f_ct_in_err__max": 1.6942,
+  "f_ct_in_edge_p90_lr__mean": 1.3984,
+  "f_nbr_cm_cpu_cores_dmean__max": 0.5374,
+  "f_ct_out_p90_lr__mean": 0.4619,
+  "f_log_err_rate__max": 0.4255,
+  "f_ct_in_p90_lr__mean": 0.4247,
+  "f_cm_cpu_limit_ratio_mean__max": 0.3661,
+  "f_log_err_rate__mean": 0.3192,
+  "f_cm_cpu_limit_ratio_mean__mean": 0.3102
+ },
+ "top_feature_raw_values": {
+  "f_ct_in_p50_lr__max": {
+   "control_alarm_median": 0.05803772523969199,
+   "control_quiet_median": 0.018502715798266137,
+   "fault_alarm_median": 1.064963958460256,
+   "p_mwu": 3.953941136773383e-20
+  },
+  "f_cm_cpu_limit_ratio_mean__mean": {
+   "control_alarm_median": 0.05576067409544089,
+   "control_quiet_median": 0.05379439709952657,
+   "fault_alarm_median": 0.09724705854545361,
+   "p_mwu": 6.517021484560407e-59
+  },
+  "f_ct_out_p90_lr__mean": {
+   "control_alarm_median": 0.231818170969819,
+   "control_quiet_median": 0.07106741566065738,
+   "fault_alarm_median": 1.2664877874405578,
+   "p_mwu": 3.609769645869752e-27
+  },
+  "f_cm_mem_limit_ratio_mean__max": {
+   "control_alarm_median": 0.4350086805555556,
+   "control_quiet_median": 0.41454060872395837,
+   "fault_alarm_median": 0.4102962239583334,
+   "p_mwu": 0.1561286537748079
+  },
+  "f_cm_cpu_limit_ratio_mean__max": {
+   "control_alarm_median": 0.30024314458961343,
+   "control_quiet_median": 0.29070395582240116,
+   "fault_alarm_median": 0.539167220740474,
+   "p_mwu": 3.1209576923800926e-19
+  },
+  "f_cm_mem_limit_ratio_mean__mean": {
+   "control_alarm_median": 0.22819209320376616,
+   "control_quiet_median": 0.2305424846302379,
+   "fault_alarm_median": 0.23143821562179412,
+   "p_mwu": 6.64253158577369e-05
+  },
+  "f_nbr_cm_mem_limit_ratio_dmean__max": {
+   "control_alarm_median": 4.085274633801909,
+   "control_quiet_median": 4.938098887397614,
+   "fault_alarm_median": 7.841074769757201,
+   "p_mwu": 0.0006806281140370329
+  },
+  "f_ct_in_p90_lr__max": {
+   "control_alarm_median": 0.33784160504771454,
+   "control_quiet_median": 0.0763051065387989,
+   "fault_alarm_median": 1.995134501103787,
+   "p_mwu": 1.623856085907816e-22
+  }
+ },
+ "first_alarm_window_top_feature_counts": {
+  "f_cm_mem_limit_ratio_mean__max": 8,
+  "f_cm_mem_limit_ratio_mean__mean": 5,
+  "f_ct_out_p90_lr__mean": 5,
+  "f_cm_mem_limit_ratio_dmax__max": 2,
+  "f_ct_in_p50_lr__max": 1,
+  "f_nbr_cm_cpu_cores_dmean__max": 1,
+  "f_cm_mem_limit_ratio_dmean__mean": 1,
+  "f_nbr_cm_mem_limit_ratio_dmean__mean": 1,
+  "f_cm_cpu_limit_ratio_mean__max": 1,
+  "f_cm_mem_limit_ratio_dmean__max": 1
+ },
+ "n_windows": {
+  "control_sham_alarm": 214,
+  "control_sham_quiet": 1238,
+  "fault_active_alarm": 1022
+ },
+ "control_runs": [
+  {
+   "case_id": "lv1_linux-v1-control-cpu-productcatalogservice-r01",
+   "kind": "control",
+   "fault": "cpu_saturation",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 1,
+   "start_kst": "2026-10-23 15:23:18.790581942+09:00",
+   "date": "10-23",
+   "hour": 15
+  },
+  {
+   "case_id": "lv1_linux-v1-control-pod-checkoutservice-r02",
+   "kind": "control",
+   "fault": "pod_failure",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 2,
+   "start_kst": "2026-10-23 17:02:38.558336973+09:00",
+   "date": "10-23",
+   "hour": 17
+  },
+  {
+   "case_id": "lv1_linux-v1-control-delay-front-recommendation-r02",
+   "kind": "control",
+   "fault": "network_delay",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 2,
+   "start_kst": "2026-10-23 18:38:15.722213984+09:00",
+   "date": "10-23",
+   "hour": 18
+  },
+  {
+   "case_id": "lv1_linux-v1-control-delay-front-currency-r02",
+   "kind": "control",
+   "fault": "network_delay",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 2,
+   "start_kst": "2026-10-23 20:18:58.469202995+09:00",
+   "date": "10-23",
+   "hour": 20
+  },
+  {
+   "case_id": "lv1_linux-v1-control-delay-checkout-payment-r01",
+   "kind": "control",
+   "fault": "network_delay",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 1,
+   "start_kst": "2026-10-23 21:56:53.100599051+09:00",
+   "date": "10-23",
+   "hour": 21
+  },
+  {
+   "case_id": "lv1_linux-v1-control-pod-recommendationservice-r03",
+   "kind": "control",
+   "fault": "pod_failure",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 3,
+   "start_kst": "2026-10-24 00:23:43.985578060+09:00",
+   "date": "10-24",
+   "hour": 0
+  },
+  {
+   "case_id": "lv1_linux-v1-control-delay-front-product-r02",
+   "kind": "control",
+   "fault": "network_delay",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 2,
+   "start_kst": "2026-10-24 02:01:55.379822969+09:00",
+   "date": "10-24",
+   "hour": 2
+  },
+  {
+   "case_id": "lv1_linux-v1-control-surge-l3-r01",
+   "kind": "control",
+   "fault": "traffic_surge",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 1,
+   "start_kst": "2026-10-24 03:51:44.596451998+09:00",
+   "date": "10-24",
+   "hour": 3
+  },
+  {
+   "case_id": "lv1_linux-v1-control-loss-recommendation-product-r01",
+   "kind": "control",
+   "fault": "packet_loss",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 1,
+   "start_kst": "2026-10-26 19:04:09.899168015+09:00",
+   "date": "10-26",
+   "hour": 19
+  },
+  {
+   "case_id": "lv1_linux-v1-control-pod-productcatalogservice-r01-a2",
+   "kind": "control",
+   "fault": "pod_failure",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 110.0,
+   "repetition": 1,
+   "start_kst": "2026-10-27 12:54:38.870970011+09:00",
+   "date": "10-27",
+   "hour": 12
+  },
+  {
+   "case_id": "lv1_linux-v1-control-delay-checkout-payment-r02",
+   "kind": "control",
+   "fault": "network_delay",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 2,
+   "start_kst": "2026-10-27 14:23:44.498215914+09:00",
+   "date": "10-27",
+   "hour": 14
+  },
+  {
+   "case_id": "lv1_linux-v1-control-surge-l2-r01",
+   "kind": "control",
+   "fault": "traffic_surge",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 100.0,
+   "repetition": 1,
+   "start_kst": "2026-10-27 15:12:14.105601072+09:00",
+   "date": "10-27",
+   "hour": 15
+  },
+  {
+   "case_id": "lv1_linux-v1-control-cpu-paymentservice-r03",
+   "kind": "control",
+   "fault": "cpu_saturation",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 110.0,
+   "repetition": 3,
+   "start_kst": "2026-10-27 15:17:12.583487034+09:00",
+   "date": "10-27",
+   "hour": 15
+  },
+  {
+   "case_id": "lv1_linux-v1-control-loss-front-currency-r02",
+   "kind": "control",
+   "fault": "packet_loss",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 2,
+   "start_kst": "2026-10-27 16:49:16.552200079+09:00",
+   "date": "10-27",
+   "hour": 16
+  },
+  {
+   "case_id": "lv1_linux-v1-control-pod-checkoutservice-r01",
+   "kind": "control",
+   "fault": "pod_failure",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 1,
+   "start_kst": "2026-10-27 16:59:04.374422073+09:00",
+   "date": "10-27",
+   "hour": 16
+  },
+  {
+   "case_id": "lv1_linux-v1-control-cpu-checkoutservice-r02",
+   "kind": "control",
+   "fault": "cpu_saturation",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 130.0,
+   "repetition": 2,
+   "start_kst": "2026-10-27 17:55:00.849242926+09:00",
+   "date": "10-27",
+   "hour": 17
+  },
+  {
+   "case_id": "lv1_linux-v1-control-pod-recommendationservice-r01",
+   "kind": "control",
+   "fault": "pod_failure",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 150.0,
+   "repetition": 1,
+   "start_kst": "2026-10-27 18:18:18.593732119+09:00",
+   "date": "10-27",
+   "hour": 18
+  },
+  {
+   "case_id": "lv1_linux-v1-control-delay-checkout-payment-r03",
+   "kind": "control",
+   "fault": "network_delay",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 3,
+   "start_kst": "2026-10-27 20:20:40.791520119+09:00",
+   "date": "10-27",
+   "hour": 20
+  },
+  {
+   "case_id": "lv1_linux-v1-control-cpu-paymentservice-r01",
+   "kind": "control",
+   "fault": "cpu_saturation",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 1,
+   "start_kst": "2026-10-27 20:28:19.510195971+09:00",
+   "date": "10-27",
+   "hour": 20
+  },
+  {
+   "case_id": "lv1_linux-v1-control-delay-recommendation-product-r01",
+   "kind": "control",
+   "fault": "network_delay",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 290.0,
+   "repetition": 1,
+   "start_kst": "2026-10-27 21:15:25.677916050+09:00",
+   "date": "10-27",
+   "hour": 21
+  },
+  {
+   "case_id": "lv1_linux-v1-control-pod-paymentservice-r02",
+   "kind": "control",
+   "fault": "pod_failure",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 2,
+   "start_kst": "2026-10-27 22:01:17.957848072+09:00",
+   "date": "10-27",
+   "hour": 22
+  },
+  {
+   "case_id": "lv1_linux-v1-control-delay-front-currency-r03",
+   "kind": "control",
+   "fault": "network_delay",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 130.0,
+   "repetition": 3,
+   "start_kst": "2026-10-27 22:43:47.222537994+09:00",
+   "date": "10-27",
+   "hour": 22
+  },
+  {
+   "case_id": "lv1_linux-v1-control-pod-paymentservice-r03",
+   "kind": "control",
+   "fault": "pod_failure",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 3,
+   "start_kst": "2026-10-28 00:15:33.678878069+09:00",
+   "date": "10-28",
+   "hour": 0
+  },
+  {
+   "case_id": "lv1_linux-v1-control-pod-currencyservice-r03",
+   "kind": "control",
+   "fault": "pod_failure",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 3,
+   "start_kst": "2026-10-28 02:23:59.707817078+09:00",
+   "date": "10-28",
+   "hour": 2
+  },
+  {
+   "case_id": "lv1_linux-v1-control-delay-front-product-r01",
+   "kind": "control",
+   "fault": "network_delay",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 100.0,
+   "repetition": 1,
+   "start_kst": "2026-10-28 03:13:28.319058895+09:00",
+   "date": "10-28",
+   "hour": 3
+  },
+  {
+   "case_id": "lv1_linux-v1-control-cpu-productcatalogservice-r02",
+   "kind": "control",
+   "fault": "cpu_saturation",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 170.0,
+   "repetition": 2,
+   "start_kst": "2026-10-28 05:25:48.524142981+09:00",
+   "date": "10-28",
+   "hour": 5
+  },
+  {
+   "case_id": "lv1_linux-v1-control-pod-checkoutservice-r03",
+   "kind": "control",
+   "fault": "pod_failure",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 3,
+   "start_kst": "2026-10-28 06:57:29.722712994+09:00",
+   "date": "10-28",
+   "hour": 6
+  },
+  {
+   "case_id": "lv1_linux-v1-control-loss-checkout-payment-r02",
+   "kind": "control",
+   "fault": "packet_loss",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 2,
+   "start_kst": "2026-10-28 08:26:08.927877903+09:00",
+   "date": "10-28",
+   "hour": 8
+  },
+  {
+   "case_id": "lv1_linux-v1-control-delay-front-recommendation-r01",
+   "kind": "control",
+   "fault": "network_delay",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 1,
+   "start_kst": "2026-10-28 09:15:39.885296106+09:00",
+   "date": "10-28",
+   "hour": 9
+  },
+  {
+   "case_id": "lv1_linux-v1-control-cpu-recommendationservice-r01",
+   "kind": "control",
+   "fault": "cpu_saturation",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 1,
+   "start_kst": "2026-10-28 11:30:11.036817074+09:00",
+   "date": "10-28",
+   "hour": 11
+  },
+  {
+   "case_id": "lv1_linux-v1-control-delay-front-product-r03",
+   "kind": "control",
+   "fault": "network_delay",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 3,
+   "start_kst": "2026-10-28 12:58:46.508162974+09:00",
+   "date": "10-28",
+   "hour": 12
+  },
+  {
+   "case_id": "lv1_linux-v1-control-loss-front-product-r02",
+   "kind": "control",
+   "fault": "packet_loss",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 2,
+   "start_kst": "2026-10-28 13:46:50.356779099+09:00",
+   "date": "10-28",
+   "hour": 13
+  },
+  {
+   "case_id": "lv1_linux-v1-control-cpu-currencyservice-r02-a2",
+   "kind": "control",
+   "fault": "cpu_saturation",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 2,
+   "start_kst": "2026-10-28 14:52:31.741735935+09:00",
+   "date": "10-28",
+   "hour": 14
+  },
+  {
+   "case_id": "lv1_linux-v1-control-loss-front-product-r03",
+   "kind": "control",
+   "fault": "packet_loss",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 150.0,
+   "repetition": 3,
+   "start_kst": "2026-10-28 15:39:12.878384113+09:00",
+   "date": "10-28",
+   "hour": 15
+  },
+  {
+   "case_id": "lv1_linux-v1-control-surge-l1-r03",
+   "kind": "control",
+   "fault": "traffic_surge",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 3,
+   "start_kst": "2026-10-28 16:04:01.294531107+09:00",
+   "date": "10-28",
+   "hour": 16
+  },
+  {
+   "case_id": "lv1_linux-v1-control-pod-currencyservice-r01",
+   "kind": "control",
+   "fault": "pod_failure",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 260.0,
+   "repetition": 1,
+   "start_kst": "2026-10-28 17:06:25.363122940+09:00",
+   "date": "10-28",
+   "hour": 17
+  },
+  {
+   "case_id": "lv1_linux-v1-control-loss-checkout-payment-r01",
+   "kind": "control",
+   "fault": "packet_loss",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 1,
+   "start_kst": "2026-10-28 19:15:28.149427891+09:00",
+   "date": "10-28",
+   "hour": 19
+  },
+  {
+   "case_id": "lv1_linux-v1-control-delay-front-recommendation-r03",
+   "kind": "control",
+   "fault": "network_delay",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 270.0,
+   "repetition": 3,
+   "start_kst": "2026-10-28 20:42:29.929141998+09:00",
+   "date": "10-28",
+   "hour": 20
+  },
+  {
+   "case_id": "lv1_linux-v1-control-surge-l1-r01",
+   "kind": "control",
+   "fault": "traffic_surge",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 1,
+   "start_kst": "2026-10-28 21:30:52.468949080+09:00",
+   "date": "10-28",
+   "hour": 21
+  },
+  {
+   "case_id": "lv1_linux-v1-control-delay-recommendation-product-r03",
+   "kind": "control",
+   "fault": "network_delay",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 290.0,
+   "repetition": 3,
+   "start_kst": "2026-10-28 23:45:21.085489035+09:00",
+   "date": "10-28",
+   "hour": 23
+  },
+  {
+   "case_id": "lv1_linux-v1-control-loss-front-recommendation-r01",
+   "kind": "control",
+   "fault": "packet_loss",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 1,
+   "start_kst": "2026-10-29 01:11:54.914638996+09:00",
+   "date": "10-29",
+   "hour": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-control-cpu-productcatalogservice-r03",
+   "kind": "control",
+   "fault": "cpu_saturation",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 100.0,
+   "repetition": 3,
+   "start_kst": "2026-10-29 02:00:31.714148998+09:00",
+   "date": "10-29",
+   "hour": 2
+  },
+  {
+   "case_id": "lv1_linux-v1-control-surge-l3-r03",
+   "kind": "control",
+   "fault": "traffic_surge",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 3,
+   "start_kst": "2026-10-29 04:19:04.210365057+09:00",
+   "date": "10-29",
+   "hour": 4
+  },
+  {
+   "case_id": "lv1_linux-v1-control-loss-checkout-payment-r03",
+   "kind": "control",
+   "fault": "packet_loss",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 260.0,
+   "repetition": 3,
+   "start_kst": "2026-10-29 05:07:17.275048971+09:00",
+   "date": "10-29",
+   "hour": 5
+  },
+  {
+   "case_id": "lv1_linux-v1-control-cpu-currencyservice-r03",
+   "kind": "control",
+   "fault": "cpu_saturation",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 3,
+   "start_kst": "2026-10-29 07:15:12.878979921+09:00",
+   "date": "10-29",
+   "hour": 7
+  },
+  {
+   "case_id": "lv1_linux-v1-control-surge-l2-r03",
+   "kind": "control",
+   "fault": "traffic_surge",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 150.0,
+   "repetition": 3,
+   "start_kst": "2026-10-29 08:50:50.406621933+09:00",
+   "date": "10-29",
+   "hour": 8
+  },
+  {
+   "case_id": "lv1_linux-v1-control-pod-recommendationservice-r02",
+   "kind": "control",
+   "fault": "pod_failure",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 100.0,
+   "repetition": 2,
+   "start_kst": "2026-10-29 09:38:21.832551003+09:00",
+   "date": "10-29",
+   "hour": 9
+  },
+  {
+   "case_id": "lv1_linux-v1-control-cpu-recommendationservice-r03",
+   "kind": "control",
+   "fault": "cpu_saturation",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 110.0,
+   "repetition": 3,
+   "start_kst": "2026-10-29 11:08:52.162610054+09:00",
+   "date": "10-29",
+   "hour": 11
+  },
+  {
+   "case_id": "lv1_linux-v1-control-loss-front-currency-r03",
+   "kind": "control",
+   "fault": "packet_loss",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 100.0,
+   "repetition": 3,
+   "start_kst": "2026-10-29 13:18:43.279580116+09:00",
+   "date": "10-29",
+   "hour": 13
+  },
+  {
+   "case_id": "lv1_linux-v1-control-cpu-recommendationservice-r02",
+   "kind": "control",
+   "fault": "cpu_saturation",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 2,
+   "start_kst": "2026-10-29 14:04:36.795702934+09:00",
+   "date": "10-29",
+   "hour": 14
+  },
+  {
+   "case_id": "lv1_linux-v1-control-loss-front-currency-r01",
+   "kind": "control",
+   "fault": "packet_loss",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 140.0,
+   "repetition": 1,
+   "start_kst": "2026-10-29 15:30:06.374553919+09:00",
+   "date": "10-29",
+   "hour": 15
+  },
+  {
+   "case_id": "lv1_linux-v1-control-loss-front-product-r01",
+   "kind": "control",
+   "fault": "packet_loss",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 1,
+   "start_kst": "2026-10-29 17:36:18.160938025+09:00",
+   "date": "10-29",
+   "hour": 17
+  },
+  {
+   "case_id": "lv1_linux-v1-control-surge-l2-r02",
+   "kind": "control",
+   "fault": "traffic_surge",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 120.0,
+   "repetition": 2,
+   "start_kst": "2026-10-29 18:22:04.217425108+09:00",
+   "date": "10-29",
+   "hour": 18
+  },
+  {
+   "case_id": "lv1_linux-v1-control-loss-front-recommendation-r02",
+   "kind": "control",
+   "fault": "packet_loss",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 2,
+   "start_kst": "2026-10-30 16:34:14.527777909+09:00",
+   "date": "10-30",
+   "hour": 16
+  },
+  {
+   "case_id": "lv1_linux-v1-control-surge-l3-r02",
+   "kind": "control",
+   "fault": "traffic_surge",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 2,
+   "start_kst": "2026-10-30 18:00:43.515652895+09:00",
+   "date": "10-30",
+   "hour": 18
+  },
+  {
+   "case_id": "lv1_linux-v1-control-delay-front-currency-r01",
+   "kind": "control",
+   "fault": "network_delay",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 230.0,
+   "repetition": 1,
+   "start_kst": "2026-10-30 20:11:51.483231068+09:00",
+   "date": "10-30",
+   "hour": 20
+  },
+  {
+   "case_id": "lv1_linux-v1-control-loss-recommendation-product-r03",
+   "kind": "control",
+   "fault": "packet_loss",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 3,
+   "start_kst": "2026-10-30 20:58:49.466497898+09:00",
+   "date": "10-30",
+   "hour": 20
+  },
+  {
+   "case_id": "lv1_linux-v1-control-cpu-paymentservice-r02",
+   "kind": "control",
+   "fault": "cpu_saturation",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 2,
+   "start_kst": "2026-10-30 22:24:52.710793018+09:00",
+   "date": "10-30",
+   "hour": 22
+  },
+  {
+   "case_id": "lv1_linux-v1-control-cpu-currencyservice-r01",
+   "kind": "control",
+   "fault": "cpu_saturation",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 1,
+   "start_kst": "2026-10-30 23:51:49.039654016+09:00",
+   "date": "10-30",
+   "hour": 23
+  },
+  {
+   "case_id": "lv1_linux-v1-control-cpu-checkoutservice-r03",
+   "kind": "control",
+   "fault": "cpu_saturation",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 3,
+   "start_kst": "2026-10-31 01:58:59.642533064+09:00",
+   "date": "10-31",
+   "hour": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-control-pod-productcatalogservice-r02",
+   "kind": "control",
+   "fault": "pod_failure",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 2,
+   "start_kst": "2026-10-31 03:25:55.766299963+09:00",
+   "date": "10-31",
+   "hour": 3
+  },
+  {
+   "case_id": "lv1_linux-v1-control-loss-front-recommendation-r03",
+   "kind": "control",
+   "fault": "packet_loss",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 160.0,
+   "repetition": 3,
+   "start_kst": "2026-10-31 04:52:55.210709095+09:00",
+   "date": "10-31",
+   "hour": 4
+  },
+  {
+   "case_id": "lv1_linux-v1-control-pod-paymentservice-r01",
+   "kind": "control",
+   "fault": "pod_failure",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 1,
+   "start_kst": "2026-10-31 05:39:04.094912052+09:00",
+   "date": "10-31",
+   "hour": 5
+  },
+  {
+   "case_id": "lv1_linux-v1-control-loss-recommendation-product-r02",
+   "kind": "control",
+   "fault": "packet_loss",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 180.0,
+   "repetition": 2,
+   "start_kst": "2026-10-31 07:46:28.957588911+09:00",
+   "date": "10-31",
+   "hour": 7
+  },
+  {
+   "case_id": "lv1_linux-v1-control-surge-l1-r02",
+   "kind": "control",
+   "fault": "traffic_surge",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 100.0,
+   "repetition": 2,
+   "start_kst": "2026-10-31 08:32:52.832125902+09:00",
+   "date": "10-31",
+   "hour": 8
+  },
+  {
+   "case_id": "lv1_linux-v1-control-cpu-checkoutservice-r01",
+   "kind": "control",
+   "fault": "cpu_saturation",
+   "eligible": true,
+   "alarm": true,
+   "alarm_rel_s": 230.0,
+   "repetition": 1,
+   "start_kst": "2026-10-31 10:04:06.997005939+09:00",
+   "date": "10-31",
+   "hour": 10
+  },
+  {
+   "case_id": "lv1_linux-v1-control-pod-productcatalogservice-r03",
+   "kind": "control",
+   "fault": "pod_failure",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 3,
+   "start_kst": "2026-10-31 12:11:56.295531034+09:00",
+   "date": "10-31",
+   "hour": 12
+  },
+  {
+   "case_id": "lv1_linux-v1-control-delay-recommendation-product-r02",
+   "kind": "control",
+   "fault": "network_delay",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 2,
+   "start_kst": "2026-10-31 13:39:20.166157007+09:00",
+   "date": "10-31",
+   "hour": 13
+  },
+  {
+   "case_id": "lv1_linux-v1-control-pod-currencyservice-r02-a2",
+   "kind": "control",
+   "fault": "pod_failure",
+   "eligible": true,
+   "alarm": false,
+   "alarm_rel_s": NaN,
+   "repetition": 2,
+   "start_kst": "2026-11-03 14:27:23.461477041+09:00",
+   "date": "11-03",
+   "hour": 14
+  }
+ ]
+}
