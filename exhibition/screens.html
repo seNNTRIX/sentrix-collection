@@ -106,6 +106,34 @@ function lockInputs(){
 
 }
 const pretty = s => s?.replaceAll('->',' → ');
+function firstAlarmRanks(s){
+ const candidates=Array.isArray(s.candidates)?[...s.candidates].sort((a,b)=>a.rank-b.rank):[];
+ const hasOrder=candidates.length>0&&candidates.every((c,i)=>c.rank===i+1&&(c.kind==='NODE'||c.kind==='EDGE'));
+ if(!hasOrder){
+  if(!s.job&&!s.locationRank)return [];
+  return [['주입 대상 대조',s.locationRank?'통합 '+s.locationRank+'위 · 유형별 순위 미기록':'후보 목록 미기록']];
+ }
+ const rows=[],targetKind=s.location?.includes('->')?'EDGE':'NODE';
+ const name=c=>c.kind==='EDGE'?c.source+'->'+c.target:c.service;
+ for(const [kind,label] of [['NODE','서비스'],['EDGE','호출 경로']]){
+  const group=candidates.filter(c=>c.kind===kind),first=group[0];
+  if(!first)continue;
+  const lost=first.evidence?.includes('모델 입력 부족으로 이 후보의 점수는 목표 대비 가용 복제본 손실률(100%)을 표시합니다.');
+  const basis=kind==='EDGE'?'경로 통계 점수':lost?'복제본 손실률':'서비스 모델 점수';
+  const value=Number.isFinite(first.score)?' · '+basis+' '+(lost?(100*first.score).toFixed(0)+'%':first.score.toFixed(2)):'';
+  const down=first.evidence?.includes('Kubernetes에서 최근 30초간 목표 복제본은 1개 이상, 가용 복제본은 0개로 관측됐습니다.');
+  rows.push([label+' 후보 1위',pretty(name(first))+value+(down&&!lost?' · 가용 복제본 0개':'')]);
+ }
+ if(s.location){
+  const group=candidates.filter(c=>c.kind===targetKind),label=targetKind==='EDGE'?'호출 경로':'서비스';
+  const i=group.findIndex(c=>name(c)===s.location);
+  let match=group.length?'저장된 '+label+' 후보 '+group.length+'개에 없음':'저장된 '+label+' 후보 없음';
+  if(i>=0)match=label+' '+(i+1)+'위';
+  else if(s.locationRank)match='통합 '+s.locationRank+'위 · 유형별 순위 미기록';
+  rows.push(['주입 대상 대조',match]);
+ }
+ return rows;
+}
 const reasons = {INSUFFICIENT_METRIC_SAMPLES:'30초 동안 수집된 지표가 부족합니다.',TRACE_PARENT_UNAVAILABLE:'호출 관계를 복원할 trace 표본이 부족합니다.',INSUFFICIENT_OPERATIONAL_COVERAGE:'서비스 영향을 확인할 표본이 부족합니다.',TELEMETRY_UPSTREAM_ERROR:'관측 데이터를 제시간에 가져오지 못했습니다.'};
 const clock = value => new Date(value).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
 function renderStages(s){
@@ -138,8 +166,7 @@ function render(s){
  if(s.mode==='replay')s={phase:'idle'};
  document.querySelector('.grid').dataset.running=String(s.phase==='running');
  renderStages(s);
- const decision=decisions[s.decision], first=s.candidates?.[0];
- const firstName=first && (first.kind==='EDGE'?first.source+' → '+first.target:first.service);
+ const decision=decisions[s.decision];
  let status=s.step||'요청 접수';
  if(s.phase==='idle')status='실험 대기';
  else if(s.phase==='failed')status='실험 확인 필요';
@@ -155,7 +182,7 @@ function render(s){
  if(result)$('resultLink').href='/display?environment=1'+result.hash;
  const fields=[['실험 유형',s.label],['주입 대상',pretty(s.location)],
  ['주입 전 판정',decisions[s.before]],['최근 판정',!s.job&&decision],
- ['판정 내역',s.windowsChecked?'정상 '+(s.normalWindows||0)+' · 보류 '+(s.abstainedWindows??'—')+' · 이상 '+(s.anomalyWindows??'—'):null],['모델 1순위',firstName],['주입 대상 순위',s.locationRank?s.locationRank+'위':first?'후보 밖':null],
+ ['판정 내역',s.windowsChecked?'정상 '+(s.normalWindows||0)+' · 보류 '+(s.abstainedWindows??'—')+' · 이상 '+(s.anomalyWindows??'—'):null],...firstAlarmRanks(s),
  ['상세',s.message || reasons[s.reason] || (s.reason!=='COMPLETED'&&s.reason)]];
  $('details').replaceChildren(...(s.phase==='idle'?[]:fields).filter(([,v])=>v).map(([k,v])=>{
   const row=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');
