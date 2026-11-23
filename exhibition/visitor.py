@@ -145,7 +145,8 @@ class Handler(BaseHTTPRequestHandler):
                     health = json.load(response)
             except (OSError, ValueError):
                 health = {}
-            return self.send(200, "application/json", json.dumps({"threshold": health.get("threshold"), "modelVersion": health.get("modelVersion"), "applicationServices": live.SERVICES}).encode())
+            model_version = health.get("environmentModelVersions", {}).get("1", health.get("modelVersion"))
+            return self.send(200, "application/json", json.dumps({"threshold": health.get("threshold"), "modelVersion": model_version, "applicationServices": live.SERVICES}).encode())
         if path == "/display-environment":
             with lock:
                 env = state.get("environment")
