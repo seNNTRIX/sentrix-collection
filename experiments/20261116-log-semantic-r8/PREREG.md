@@ -171,3 +171,20 @@ B·C는 같은 이름에 접두어만 다르게 둔다 (`f_lchr_*`, `f_lsemall_*
 ## 고정 기록
 
 - (커밋 후 이 아래에 커밋 해시, 6절에서 정한 `N_min`·`M_min`과 근거, 그 이후 변경 사항을 날짜와 함께 덧붙인다)
+
+### 2026-11-24 (KST 0시 전후) — 6절 값 고정 (linux-v1 평가 전)
+
+- 실행 코드: `experiments/20261124-r8-run/run_r8.py` (커밋 c3b8669, 튜닝 전에 커밋). 로그 특징 코드: `features/log_semantic.py`
+  (log-semantic-r8 42ffbea와 같은 blob).
+- RE2-OB 입력: Zenodo record 14590730 `RE2-OB.zip` (md5 b9e23f88…de4, 기록과 일치). 표 재생성 후 재현 확인 통과
+  (`experiments/20261124-r8-run/rebuild-check.json`: 같은 하이퍼파라미터, inner LOSO Avg@5 0.96222·rep-CV AUROC 0.99604가 기록과 완전히 같음.
+  parquet 파일 해시는 라이브러리 버전 차이로 다름).
+- 6절 확인 (`re2ob-check.json`): 90 case 모두 `message` 있음, JSON 본문 0%, 후보 밖 컨테이너(주입·관측 도구) 로그 없음.
+  productcatalogservice·redis-cart는 90 case 모두 로그 없음(→ 유효성 0), currencyservice 3 case는 기준 앞 절반 로그 20개 미만.
+  대부분 계산 가능하므로 5절 기본 구성(RE2-OB 90 + linux-v1 학습 fold 혼합 학습)을 유지한다.
+- MiniLM: `sentence-transformers/all-MiniLM-L6-v2` revision 1110a243…, CPU. RE2-OB 고유 정제 문장 8,581개.
+- 튜닝 결과 (`tune.json`, RE2-OB D의 LOSO Avg@5, 고정 RF 설정):
+  N_min 3·5·10 × M_min 20·50 여섯 조합 모두 0.9378로 같음 → 규칙(같으면 작은 값)에 따라 **N_min = 3, M_min = 20**.
+- 이 PREREG 이후 linux-v1 로그에 대해 본 것 (정직하게 기록): 2026-11-23 공개용 마스킹 데이터(`r8-logs-masked`)를 만들며
+  보안 검사 결과의 문장 예시(Go 포인터가 남은 설정 로그 1건)와, 검증 중 무작위 고유 정제 문장 8개(redis 저장 로그, 결제 요청 로그)를 봤다.
+  linux-v1의 로그 특징 값·점수·순위는 보지 않았다.
