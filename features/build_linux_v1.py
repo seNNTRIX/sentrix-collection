@@ -11,8 +11,10 @@ Checks before any case is built (the build stops on failure):
   4. features/compute.py sha256 = frozen value
 Writes (git-ignored, under data/):
   cases.parquet               one row per run (69 fault + 69 control), times, onset source, eligibility, counts
-  ranking.parquet             (eligible fault run, fault_active window, candidate); target = candidate is root cause
-                              (service_node faults; edge/surge rows have target 0 and are kept for node views)
+  ranking.parquet             (eligible cpu_saturation / pod_failure run, fault_active window, candidate 11);
+                              target = candidate is the root cause (exactly one per window)
+  ranking-nodeview.parquet    same rows for eligible network_delay / packet_loss / traffic_surge runs (target 0;
+                              node views and description only, never ranking training)
   detection.parquet           window aggregates (max/mean over candidates) for training/AUROC:
                               positives = fault_active of eligible fault runs, negatives = normal, sham_active,
                               recovered of all runs
@@ -45,8 +47,12 @@ FROZEN_COMPUTE_SHA256 = "1661a9f1dcc731472f47bff91b981f1e366bf5967d89b4c5b7d2cee
 DETECTION_SOURCES = ("f_cm_", "f_ct_", "f_log_", "f_nbr_")          # as features/build_re2ob.py
 DETECTION_SKIP_SUFFIX = ("_n", "_zero_iqr", "_mask")
 NEGATIVE_LABELS = ("normal", "sham_active", "recovered")
+RANKING_FAULTS = ("cpu_saturation", "pod_failure")
 REPO = Path(__file__).resolve().parents[1]
-PART_FILES = ("ranking", "detection", "detection_ineligible", "edges")
+PART_FILES = ("ranking", "ranking_nodeview", "detection", "detection_ineligible", "edges")
+OUTPUT_NAMES = {"ranking": "ranking.parquet", "ranking_nodeview": "ranking-nodeview.parquet",
+                "detection": "detection.parquet", "detection_ineligible": "detection-ineligible.parquet",
+                "edges": "edges.parquet"}
 
 
 def file_sha256(path):
@@ -74,7 +80,7 @@ def case_meta(case):
 
 
 def build_case(case, with_logs=True, verify_hashes=True):
-    """(ranking, detection, detection_ineligible, edges, info) for one run."""
+    """(ranking, ranking_nodeview, detection, detection_ineligible, edges, info) for one run."""
     if verify_hashes:
         for name, want in case.view_hashes.items():
             got = file_sha256(case.path / case.view / name)
@@ -97,11 +103,15 @@ def build_case(case, with_logs=True, verify_hashes=True):
         feats[k] = v
 
     is_fault = case.kind == "fault"
+    ranking = feats.iloc[0:0].assign(**{schema.TARGET_COLUMN: np.int8(0)})
+    ranking_nodeview = ranking
     if is_fault and case.eligible:
-        ranking = feats[feats["meta_label"] == "fault_active"].copy()
-        ranking[schema.TARGET_COLUMN] = (ranking["meta_candidate"] == case.root_cause).astype(np.int8)
-    else:
-        ranking = feats.iloc[0:0].assign(**{schema.TARGET_COLUMN: np.int8(0)})
+        rows_fa = feats[feats["meta_label"] == "fault_active"].copy()
+        rows_fa[schema.TARGET_COLUMN] = (rows_fa["meta_candidate"] == case.root_cause).astype(np.int8)
+        if case.fault in RANKING_FAULTS:
+            ranking = rows_fa
+        else:
+            ranking_nodeview = rows_fa
 
     det_cols = [c for c in feats.columns if c.startswith(DETECTION_SOURCES) and not c.endswith(DETECTION_SKIP_SUFFIX)]
     rows = feats[feats["meta_label"].isin(NEGATIVE_LABELS + ("fault_active",))]
@@ -150,9 +160,10 @@ def build_case(case, with_logs=True, verify_hashes=True):
             **{f"windows_{k}": int(v) for k, v in counts.items()},
             "root_cause_has_metrics": bool(metrics["service"].eq(case.root_cause).any()),
             "root_cause_traced": bool(spans["service"].eq(case.root_cause).any()),
-            "rows_ranking": int(len(ranking)), "rows_detection": int(len(detection)),
+            "rows_ranking": int(len(ranking)), "rows_ranking_nodeview": int(len(ranking_nodeview)),
+            "rows_detection": int(len(detection)),
             "rows_detection_ineligible": int(len(detection_ineligible)), "rows_edges": int(len(edges))}
-    return ranking, detection, detection_ineligible, edges, info
+    return ranking, ranking_nodeview, detection, detection_ineligible, edges, info
 
 
 def _work(args):
@@ -199,10 +210,8 @@ def assemble(out, cases, roots, adopted, excluded, compute_sha, args, started):
         return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
     tables = {name: cat(name) for name in PART_FILES}
     infos = pd.DataFrame(infos)
-    tables["ranking"].to_parquet(out / "ranking.parquet", index=False)
-    tables["detection"].to_parquet(out / "detection.parquet", index=False)
-    tables["detection_ineligible"].to_parquet(out / "detection-ineligible.parquet", index=False)
-    tables["edges"].to_parquet(out / "edges.parquet", index=False)
+    for name, fname in OUTPUT_NAMES.items():
+        tables[name].to_parquet(out / fname, index=False)
     infos.to_parquet(out / "cases.parquet", index=False)
     folds = {str(k): sorted(infos.loc[infos["fold"] == k, "case_id"]) for k in sorted(infos["fold"].unique())}
     for pid, g in infos.groupby("pair_id"):
@@ -254,6 +263,7 @@ def assemble(out, cases, roots, adopted, excluded, compute_sha, args, started):
         "detection": {"rows": int(len(detection)), "feature_columns": len(dcols),
                       "positives": int(detection[schema.TARGET_COLUMN].sum()) if len(detection) else 0,
                       "by_label": detection["meta_label"].value_counts().to_dict() if len(detection) else {}},
+        "ranking_nodeview_rows": int(len(tables["ranking_nodeview"])),
         "detection_ineligible_rows": int(len(tables["detection_ineligible"])),
         "edges_rows": int(len(tables["edges"])),
         "missing_ratio_ranking": {c: round(float(ranking[c].isna().mean()), 4) for c in fcols} if len(ranking) else {},

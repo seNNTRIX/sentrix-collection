@@ -187,8 +187,8 @@ def make_pair(root, env, pair_id, ftype, kind, target, rep, t_fault, t_control, 
 
 
 def make_dataset(base):
-    """Two roots, 3 schedule pairs: A has #1 (cpu, eligible) and #2 (pod, attempt 1 failed -> attempt 2);
-    B has #3 (delay edge, no impact -> ineligible)."""
+    """Two roots, 4 schedule pairs: A has #1 (cpu, eligible) and #2 (pod, attempt 1 failed -> attempt 2);
+    B has #3 (delay edge, no impact -> ineligible) and #4 (traffic surge, eligible)."""
     a, b = base / "rootA", base / "rootB"
     T = 1_800_000_000.0
     make_pair(a, "206-40", "linux-v1-cpu-checkoutservice-r01", "cpu_saturation", "service_node", "checkoutservice",
@@ -201,6 +201,8 @@ def make_dataset(base):
               metrics_kw={"target": "checkoutservice", "pod_down": (615, 905), "ready_zero": (615, 905)})
     make_pair(b, "206-39", "linux-v1-delay-frontend-checkout-r02", "network_delay", "dependency_edge",
               "frontend->checkoutservice", 2, T + 12000, T + 15000, impact=False)
+    make_pair(b, "206-39", "linux-v1-surge-l2-r03", "traffic_surge", "workload_entrypoint", "l2", 3,
+              T + 18000, T + 21000)
     dec = a / "runs" / "_campaign" / "linux-v1"
     dec.mkdir(parents=True)
     (dec / "decisions.yaml").write_text("""retry_pairs:
@@ -216,7 +218,8 @@ def make_dataset(base):
     for i, (pid, ft, kind, tid, rep) in enumerate([
             ("linux-v1-cpu-checkoutservice-r01", "cpu_saturation", "service_node", "checkoutservice", 1),
             ("linux-v1-pod-checkoutservice-r01", "pod_failure", "service_node", "checkoutservice", 1),
-            ("linux-v1-delay-frontend-checkout-r02", "network_delay", "dependency_edge", "frontend-checkout", 2)], 1):
+            ("linux-v1-delay-frontend-checkout-r02", "network_delay", "dependency_edge", "frontend-checkout", 2),
+            ("linux-v1-surge-l2-r03", "traffic_surge", "workload_entrypoint", "l2", 3)], 1):
         cid = pid.replace("linux-v1-", "linux-v1-control-", 1)
         lines.append(f"{i},{pid},{ft},{kind},{tid},{rep},fault_then_control,600,1,{pid},{cid},x,y")
     sched.write_text("\n".join(lines) + "\n")
@@ -232,7 +235,7 @@ class Base(unittest.TestCase):
     def setUpClass(cls):
         cls.tmp = Path(tempfile.mkdtemp(prefix="lv1-"))
         cls.roots, cls.sched, cls.T = make_dataset(cls.tmp)
-        cls.cases = {c.case_id: c for c in L.list_cases(cls.roots, cls.sched, expected_pairs=3)}
+        cls.cases = {c.case_id: c for c in L.list_cases(cls.roots, cls.sched, expected_pairs=4)}
 
     @classmethod
     def tearDownClass(cls):
@@ -325,7 +328,9 @@ class CaseTests(Base):
         e = self.case("linux-v1-delay-frontend-checkout-r02")
         self.assertEqual((e.root_cause, e.edge_src, e.edge_dst), ("frontend->checkoutservice", "frontend", "checkoutservice"))
         self.assertFalse(e.eligible)
-        self.assertEqual(len(self.cases), 6)
+        self.assertEqual(len(self.cases), 8)
+        s = self.case("linux-v1-surge-l2-r03")
+        self.assertEqual((s.root_cause, s.target_kind, s.onset_source), ("workload->frontend", "workload_entrypoint", "started_at"))
 
     def test_sham_times_copied(self):
         for f_id, c_id in (("linux-v1-cpu-checkoutservice-r01", "linux-v1-control-cpu-checkoutservice-r01"),
@@ -362,7 +367,7 @@ class CaseTests(Base):
 
 
 class CheckTests(Base):
-    def resolve(self, roots=None, expected=3, sched=None):
+    def resolve(self, roots=None, expected=4, sched=None):
         return L.resolve_pairs(L.load_roots(roots or self.roots), L.read_schedule(sched or self.sched), expected)
 
     def test_adopted_attempt_excludes_failed(self):
@@ -405,7 +410,7 @@ class CheckTests(Base):
             self.resolve(roots)
         with self.assertRaisesRegex(L.DatasetCheckError, "collision"):
             B.main(["--roots", str(self._roots_file(dst, roots)), "--schedule", str(self.sched),
-                    "--expected-pairs", "3", "--check-only"])
+                    "--expected-pairs", "4", "--check-only"])
 
     def _roots_file(self, dst, roots):
         p = dst / "roots.yaml"
@@ -416,11 +421,11 @@ class CheckTests(Base):
         with self.assertRaisesRegex(L.DatasetCheckError, "expected 69"):
             self.resolve(expected=69)
         sched = self.tmp / "sched4.csv"
-        sched.write_text(self.sched.read_text() + "4,linux-v1-cpu-paymentservice-r01,cpu_saturation,service_node,"
+        sched.write_text(self.sched.read_text() + "5,linux-v1-cpu-paymentservice-r01,cpu_saturation,service_node,"
                          "paymentservice,1,fault_then_control,600,1,linux-v1-cpu-paymentservice-r01,"
                          "linux-v1-control-cpu-paymentservice-r01,x,y\n")
         with self.assertRaisesRegex(L.DatasetCheckError, "no valid attempt"):
-            self.resolve(expected=4, sched=sched)
+            self.resolve(expected=5, sched=sched)
 
     def test_stray_run_folder_stops(self):
         dst, roots = self.copy("stray")
@@ -444,7 +449,7 @@ class BuildTests(Base):
 
     def test_label_linux_v1_identity(self):
         self.assertIs(B.label_linux_v1, windows.label_linux_v1)
-        for cid, (ranking, det, det_in, edges, info) in self.built.items():
+        for cid, (ranking, nodeview, det, det_in, edges, info) in self.built.items():
             c = self.cases[cid]
             for df in (det, det_in, edges):
                 if len(df):
@@ -457,22 +462,22 @@ class BuildTests(Base):
 
     def test_detection_positive_negative_split(self):
         cpu = self.built["lv1_linux-v1-cpu-checkoutservice-r01"]
-        det = cpu[1]
+        det = cpu[2]
         pos = det[det["target"] == 1]
         self.assertTrue(len(pos) > 0 and (pos["meta_label"] == "fault_active").all())
         self.assertTrue((pos["meta_detection_role"] == "positive").all())
         self.assertEqual(set(det.loc[det["target"] == 0, "meta_label"]), {"normal", "recovered"})
-        self.assertEqual(len(cpu[2]), 0)
-        ctrl = self.built["lv1_linux-v1-control-cpu-checkoutservice-r01"][1]
+        self.assertEqual(len(cpu[3]), 0)
+        ctrl = self.built["lv1_linux-v1-control-cpu-checkoutservice-r01"][2]
         self.assertEqual(set(ctrl["meta_label"]), {"normal", "sham_active", "recovered"})
         self.assertTrue((ctrl["target"] == 0).all() and ctrl["meta_eligible"].all())
         inel = self.built["lv1_linux-v1-delay-frontend-checkout-r02"]
-        self.assertNotIn("fault_active", set(inel[1]["meta_label"]))      # not in training/AUROC table
-        self.assertTrue(len(inel[2]) > 0 and (inel[2]["meta_label"] == "fault_active").all())
-        self.assertFalse(inel[2]["meta_eligible"].any())
-        self.assertTrue((inel[2]["meta_detection_role"] == "ineligible").all())
-        self.assertTrue(len(inel[1]) > 0 and (inel[1]["target"] == 0).all())  # its negatives stay
-        for _, det, _, _, _ in self.built.values():
+        self.assertNotIn("fault_active", set(inel[2]["meta_label"]))      # not in training/AUROC table
+        self.assertTrue(len(inel[3]) > 0 and (inel[3]["meta_label"] == "fault_active").all())
+        self.assertFalse(inel[3]["meta_eligible"].any())
+        self.assertTrue((inel[3]["meta_detection_role"] == "ineligible").all())
+        self.assertTrue(len(inel[2]) > 0 and (inel[2]["target"] == 0).all())  # its negatives stay
+        for _, _, det, _, _, _ in self.built.values():
             self.assertFalse(set(det["meta_label"]) & {"transition", "recovering", "baseline_stats", "excluded"})
             self.assertTrue((det["meta_dataset"] == "linux-v1").all())
 
@@ -482,10 +487,33 @@ class BuildTests(Base):
         self.assertEqual(set(r.loc[r["target"] == 1, "meta_candidate"]), {"checkoutservice"})
         self.assertEqual(r.groupby("meta_window")["target"].sum().unique().tolist(), [1])
         self.assertEqual(len(self.built["lv1_linux-v1-delay-frontend-checkout-r02"][0]), 0)   # ineligible
+        self.assertEqual(len(self.built["lv1_linux-v1-delay-frontend-checkout-r02"][1]), 0)   # ineligible: no nodeview
         self.assertEqual(len(self.built["lv1_linux-v1-control-cpu-checkoutservice-r01"][0]), 0)
 
+    def test_ranking_only_cpu_pod_one_target_per_window(self):
+        ranking = pd.concat([b[0] for b in self.built.values() if len(b[0])], ignore_index=True)
+        self.assertEqual(set(ranking["meta_fault"]), {"cpu_saturation", "pod_failure"})
+        self.assertEqual(set(ranking["meta_target_kind"]), {"service_node"})
+        per_window = ranking.groupby(["meta_case_id", "meta_window"])
+        self.assertTrue((per_window["target"].sum() == 1).all())
+        self.assertTrue((per_window.size() == len(CANDIDATES)).all())
+        self.assertEqual(set(ranking["meta_case_id"]), {"lv1_linux-v1-cpu-checkoutservice-r01",
+                                                        "lv1_linux-v1-pod-checkoutservice-r01-a2"})
+        for cid, b in self.built.items():
+            if len(b[0]):
+                self.assertEqual(b[0].loc[b[0]["target"] == 1, "meta_candidate"].unique().tolist(),
+                                 [self.cases[cid].root_cause])
+
+    def test_nodeview_holds_edge_and_surge_only(self):
+        nv = self.built["lv1_linux-v1-surge-l2-r03"][1]
+        self.assertTrue(len(nv) > 0 and (nv["meta_label"] == "fault_active").all())
+        self.assertTrue((nv["target"] == 0).all())
+        self.assertEqual(len(self.built["lv1_linux-v1-surge-l2-r03"][0]), 0)
+        for cid in ("lv1_linux-v1-cpu-checkoutservice-r01", "lv1_linux-v1-pod-checkoutservice-r01-a2"):
+            self.assertEqual(len(self.built[cid][1]), 0)
+
     def test_rx_tx_features_nan(self):
-        r, det = self.built["lv1_linux-v1-cpu-checkoutservice-r01"][:2]
+        r, _, det = self.built["lv1_linux-v1-cpu-checkoutservice-r01"][:3]
         for col in ("f_cm_net_rx_pkts_dmean", "f_cm_net_rx_pkts_dmax", "f_cm_net_tx_pkts_dmean", "f_cm_net_tx_pkts_dmax"):
             self.assertIn(col, r.columns)
             self.assertTrue(r[col].isna().all(), col)
@@ -504,12 +532,16 @@ class MainTests(Base):
     def test_build_resume_and_no_overwrite(self):
         out = self.tmp / "out"
         argv = ["--roots", str(self.roots), "--schedule", str(self.sched), "--out", str(out),
-                "--expected-pairs", "3", "--workers", "2"]
+                "--expected-pairs", "4", "--workers", "2"]
         s = B.main(argv)
-        for f in ("cases.parquet", "ranking.parquet", "detection.parquet", "detection-ineligible.parquet",
+        for f in ("cases.parquet", "ranking.parquet", "ranking-nodeview.parquet", "detection.parquet", "detection-ineligible.parquet",
                   "edges.parquet", "folds.json", "build-summary.json", "build-progress.log"):
             self.assertTrue((out / f).exists(), f)
-        self.assertEqual((s["cases"], s["fault_runs"], s["eligible_fault_runs"]), (6, 3, 2))
+        self.assertEqual((s["cases"], s["fault_runs"], s["eligible_fault_runs"]), (8, 4, 3))
+        rk, nv = pd.read_parquet(out / "ranking.parquet"), pd.read_parquet(out / "ranking-nodeview.parquet")
+        self.assertEqual(set(rk["meta_fault"]), {"cpu_saturation", "pod_failure"})
+        self.assertEqual(set(nv["meta_fault"]), {"traffic_surge"})
+        self.assertEqual(s["ranking_nodeview_rows"], len(nv))
         self.assertEqual(s["excluded_attempts"][0]["fault_run_id"], "linux-v1-pod-checkoutservice-r01")
         self.assertEqual(s["onset_source"]["ready_zero"], 1)
         folds = json.loads((out / "folds.json").read_text())
@@ -517,7 +549,7 @@ class MainTests(Base):
         for _, g in cases.groupby("pair_id"):
             self.assertEqual(g["fold"].nunique(), 1)
             self.assertEqual(sorted(g["kind"]), ["control", "fault"])
-        self.assertEqual(sorted(folds), ["1", "2"])
+        self.assertEqual(sorted(folds), ["1", "2", "3"])
         self.assertTrue(all(cid.startswith("lv1_") for ids in folds.values() for cid in ids))
         with self.assertRaises(SystemExit):
             B.main(argv)

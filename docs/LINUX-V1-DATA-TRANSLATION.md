@@ -76,3 +76,6 @@ run 기록에 `effect_observed_at` 등의 이름이 그대로 없어 다음과 �
   - 비적격 장애 run의 `fault_active` window는 `detection-ineligible.parquet`에 따로 둔다(`detection.parquet`에는 학습·AUROC용 양성·음성만).
   - case_id = `lv1_` + run ID(시도 접미 `-a2` 포함). 원인 순위 표에는 적격 장애 run의 `fault_active`만 넣고, 연결·급증 장애 행은 정답 0으로 남긴다(노드 보기·서술용, 학습은 CPU·Pod만 골라 쓴다).
   - 실제 데이터 확인: 허용 누락점(`tolerated_missing_points_unix`)이 있는 채택 run은 0개다(규칙은 구현·테스트함).
+- 2026-11-23, 구현 보고 후 사용자 결정(빌드 전):
+  - 비적격 장애 run의 `fault_active`는 `meta_eligible` 플래그만 다는 대신 **별도 파일** `detection-ineligible.parquet`에 둔다(승인).
+  - 원인 순위 표 `ranking.parquet`에는 **적격 CPU 포화·Pod 장애 run의 `fault_active` × 후보 11개만** 둔다(window마다 정답 1개). 적격 연결(지연·손실)·급증 장애 run의 같은 행은 `ranking-nodeview.parquet`로 분리한다(정답 0, 노드 보기·서술용). 위 항목의 "연결·급증 장애 행은 정답 0으로 남긴다"를 대체한다.
