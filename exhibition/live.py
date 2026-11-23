@@ -151,7 +151,9 @@ def observe(manifest, api, update, rank):
                 if eligible:
                     last=eligible[-1]
                     update(decision=last["decision"],reason=last.get("reason"),window=last["windowEnd"],
-                           windowsChecked=len(eligible), normalWindows=sum(w["decision"]=="NORMAL" for w in eligible))
+                           windowsChecked=len(eligible), normalWindows=sum(w["decision"]=="NORMAL" for w in eligible),
+                           abstainedWindows=sum(w["decision"]=="ABSTAIN" for w in eligible),
+                           anomalyWindows=sum(w["decision"]=="ANOMALY" for w in eligible))
                 alarm=next((w for w in eligible if w.get("decision")=="ANOMALY" and w.get("incidentId")),None)
                 if alarm:
                     i,j=alarm["incidentId"],alarm["jobId"]

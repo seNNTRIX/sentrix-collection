@@ -9,11 +9,11 @@
 body{margin:0;color:var(--ink);background:#fafafa;font:15px/1.5 "Geist","Apple SD Gothic Neo",system-ui,sans-serif;word-break:keep-all}
 h1,h2,p,dl,dd{margin:0}button,select{font:inherit;color:inherit}button{cursor:pointer}
 .bar{height:60px;padding:0 max(24px,calc((100vw - 1120px)/2));background:white;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:16px}
-.brand{font-size:19px;font-weight:720;letter-spacing:-.04em}.brand b{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:6px;background:#222;color:white;margin-right:8px;font:650 18px system-ui}
+.brand{font-size:19px;font-weight:600;letter-spacing:-.04em}.brand b{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:6px;background:#222;color:white;margin-right:8px;font:650 18px system-ui}
 a{color:var(--blue);text-underline-offset:3px}.bar a{color:var(--ink);font-size:14px;text-decoration:none}.bar a:hover{text-decoration:underline}
-main{max-width:1168px;margin:48px auto;padding:0 24px}.heading{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:24px}h1{font-size:32px;letter-spacing:-.045em;line-height:1.25}#site{color:var(--muted);font-size:13px}
+main{max-width:1168px;margin:32px auto;padding:0 24px}.heading{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:24px}h1{font-size:24px;letter-spacing:-.02em;line-height:1.25}#site{color:var(--muted);font-size:13px}
 .grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);background:white;border:1px solid var(--line);border-radius:8px;overflow:hidden}
-.panel{padding:28px;min-width:0}form.panel{border-right:1px solid var(--line)}h2{font-size:17px;letter-spacing:-.025em;margin-bottom:24px}
+.panel{padding:28px;min-width:0}form.panel{border-right:1px solid var(--line)}h2{font-size:16px;letter-spacing:-.025em;margin-bottom:24px}
 fieldset{border:0;padding:0;margin:0;min-width:0}legend,label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
 .faults{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px}
 .faults button,select{border:1px solid #ccced1;background:white;border-radius:5px;text-align:left;min-height:42px;padding:8px 12px}
@@ -29,6 +29,13 @@ progress{display:block;width:100%;height:4px;accent-color:var(--blue);margin:0 0
 dt,#hint{color:var(--muted)}dd{overflow-wrap:anywhere;word-break:normal;font-variant-numeric:tabular-nums}#hint{font-size:14px}
 #notice{color:#a73437;font-size:14px;margin-top:8px}#notice:empty{display:none}#resultLink{display:inline-block;margin-top:18px}
 @media(max-width:720px){main{margin:24px auto;padding:0 16px}.bar{height:52px;padding:0 16px}.grid{grid-template-columns:1fr}form.panel{border-right:0;border-bottom:1px solid var(--line)}.panel{padding:20px}h1{font-size:27px}.row{grid-template-columns:80px 1fr}}
+.stages{list-style:none;padding:0;margin:16px 0 20px;border-block:1px solid var(--line)}
+.stages li{display:grid;grid-template-columns:12px minmax(64px,1fr) minmax(64px,auto);align-items:center;gap:12px;padding:8px 0;font-size:13px}
+.stages li+li{border-top:1px solid #eee}.stages li::before{content:"";width:8px;height:8px;border:1px solid #b3b6ba;border-radius:50%}
+.stages li[data-state="complete"]::before{background:var(--ink);border-color:var(--ink)}
+.stages li[data-state="active"]::before{border:2px solid var(--blue)}.stages li[data-state="alarm"]::before{background:#b7353b;border-color:#b7353b}
+.stages span:last-child{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.row dd{min-width:0}.selects select{font-family:inherit}.config,#phase,time{font-variant-numeric:tabular-nums}
 </style>
 <div id="operator" hidden>
 <nav class="bar"><span class="brand"><b aria-hidden="true">X</b>SentriX</span><a href="/display" target="_blank" rel="noopener">대시보드 열기 ↗</a></nav>
@@ -41,7 +48,7 @@ dt,#hint{color:var(--muted)}dd{overflow-wrap:anywhere;word-break:normal;font-var
 <div><label id="toLabel" for="dest">호출 도착 서비스</label><select id="dest"></select></div></div>
 <span class="config" id="availability" aria-live="polite"></span><button id="start" class="primary" disabled>장애 주입</button></fieldset>
 <p id="notice" role="alert"></p></form>
-<section class="panel" aria-label="최근 실행"><h2>최근 실행</h2><p id="phase" role="status">연결 중</p><progress id="progress" aria-label="주입 경과 시간" hidden></progress><p id="hint"></p><dl id="details"></dl><a id="resultLink" href="/display" target="_blank" rel="noopener" hidden>원인 분석 열기 ↗</a></section></div></main></div>
+<section class="panel" aria-label="최근 실행"><h2>최근 실행</h2><p id="phase" role="status">연결 중</p><progress id="progress" aria-label="주입 경과 시간" hidden></progress><p id="hint"></p><ol id="stages" class="stages" aria-label="실험 진행 단계" hidden></ol><dl id="details"></dl><a id="resultLink" href="/display" target="_blank" rel="noopener" hidden>원인 분석 열기 ↗</a></section></div></main></div>
 <script>
 const $ = id => document.getElementById(id);
 $('operator').hidden=false;
@@ -94,10 +101,37 @@ function lockInputs(){
 
 }
 const pretty = s => s?.replaceAll('->',' → ');
-const reasons = {INSUFFICIENT_METRIC_SAMPLES:'30초 동안 수집된 지표가 부족합니다.',TELEMETRY_UPSTREAM_ERROR:'관측 데이터를 제시간에 가져오지 못했습니다.'};
+const reasons = {INSUFFICIENT_METRIC_SAMPLES:'30초 동안 수집된 지표가 부족합니다.',TRACE_PARENT_UNAVAILABLE:'호출 관계를 복원할 trace 표본이 부족합니다.',INSUFFICIENT_OPERATIONAL_COVERAGE:'서비스 영향을 확인할 표본이 부족합니다.',TELEMETRY_UPSTREAM_ERROR:'관측 데이터를 제시간에 가져오지 못했습니다.'};
+const clock = value => new Date(value).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+function renderStages(s){
+ const list=$('stages');
+ list.hidden=!s.started;
+ if(list.hidden)return;
+ const running=s.phase==='running';
+ const steps=[
+  ['실험 요청','complete',clock(s.started)],
+  ['클러스터 주입',s.applied?'complete':running?'active':'',s.applied?clock(s.applied):running?'확인 중':'미확인'],
+  ['모델 관측',s.job?'alarm':running?'active':'',s.job?'이상 감지':s.windowsChecked?s.windowsChecked+'개 구간 확인':running?'분석 대기':'판정 없음'],
+  ['주입 해제',s.recovered?'complete':'',s.recovered?clock(s.recovered):running?'대기':'미확인']
+ ];
+ list.replaceChildren(...steps.map(([title,state,value])=>{
+  const item=document.createElement('li');
+  item.dataset.state=state;
+  for(const text of [title,value]){const label=document.createElement('span');label.textContent=text;item.append(label);}
+  return item;
+ }));
+}
 function render(s){
+ if(s.phase==='running' && s.run!==last.run && catalog?.profiles[s.fault]){
+  fault=s.fault;
+  const [first,second]=s.location.split('->');
+  choose();
+  if(second){$('source').value=first;choose();}
+  $('dest').value=second||first;
+ }
  last=s;
  if(s.mode==='replay')s={phase:'idle'};
+ renderStages(s);
  const decision=decisions[s.decision], first=s.candidates?.[0];
  const firstName=first && (first.kind==='EDGE'?first.source+' → '+first.target:first.service);
  let status=s.step||'요청 접수';
@@ -114,9 +148,9 @@ function render(s){
  $('resultLink').hidden=!result;
  if(result)$('resultLink').href='/display?environment=1'+result.hash;
  const fields=[['실험 조건',s.label],['선택한 위치',pretty(s.location)],
- ['주입 시각',s.applied&&new Date(s.applied).toLocaleTimeString('ko-KR')],['복구 시각',s.recovered&&new Date(s.recovered).toLocaleTimeString('ko-KR')],['주입 전 판정',decisions[s.before]],['모델 판정',decision || (s.phase==='done'?'결과 없음':'대기 중')],
- ['확인한 분석 구간',s.windowsChecked?s.windowsChecked+'개':null],['모델 1순위',firstName],['선택 위치 순위',s.locationRank?s.locationRank+'위':first?'후보 밖':null],
- ['실행 시각',s.started && new Date(s.started).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour12:false})],['상세',s.message || reasons[s.reason] || s.reason]];
+ ['주입 전 판정',decisions[s.before]],['모델 판정',decision || (s.phase==='done'?'결과 없음':'대기 중')],
+ ['판정 내역',s.windowsChecked?'정상 '+(s.normalWindows||0)+' · 보류 '+(s.abstainedWindows??'—')+' · 이상 '+(s.anomalyWindows??'—'):null],['모델 1순위',firstName],['선택 위치 순위',s.locationRank?s.locationRank+'위':first?'후보 밖':null],
+ ['상세',s.message || reasons[s.reason] || s.reason]];
  $('details').replaceChildren(...(s.phase==='idle'?[]:fields).filter(([,v])=>v).map(([k,v])=>{
   const row=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');
   row.className='row';dt.textContent=k;dd.textContent=v;row.append(dt,dd);return row;
