@@ -136,3 +136,21 @@ paymentservice 원인 3 case는 모두 Pod 장애다(CPU 3 case는 impact가 없
   - (b) 내부 LOSO Avg@5(frozen 0.9622222)와 내부 반복 CV AUROC(frozen 0.9960397)가 소수 셋째 자리까지 같다. 두 값 모두 소수 셋째 자리에서 반올림해 비교한다(0.962, 0.996).
 - 모델 파일 sha256은 부동소수점 차이로도 달라질 수 있으므로 기록만 하고 기준에 넣지 않는다.
 - 합격이면 B 방식은 바로 돌리지 않고 보고한 뒤 사용자 지시를 기다린다.
+
+### 3.1 재현 확인 결과 (2026-11-23 15:35~15:39 KST) — **합격**
+
+- 실행: `python -m training.freeze_v2 --features data/features/re2ob-v0 --out experiments/20261123-re2ob-v2-rebuild-check`. `systemd-run --user`로 실행했고 약 4분 걸렸다.
+- 첫 실행은 `training/run_r6.py`의 `import catboost`에서 실패했다(RF·LightGBM에는 쓰지 않고 import만 한다). 고정 기록(`pip-freeze.txt`)과 같은 버전으로 catboost 1.2.10, xgboost 3.4.1을 설치한 뒤 다시 실행했다. numpy·scipy·pandas·scikit-learn·lightgbm·joblib 버전은 바뀌지 않았다. 코드는 바꾸지 않았다.
+
+| 항목 | frozen.json (20261028) | 재현 (재생성 표) | 기준 |
+|---|---|---|---|
+| (a) RF 선택 | min_samples_leaf 100, max_features 0.5 | 같음 | 통과 |
+| (a) LightGBM 선택 | num_leaves 15, n_estimators 300, min_child_samples 20 | 같음 | 통과 |
+| (b) 내부 LOSO Avg@5 | 0.9622222222222223 | 0.9622222222222223 (차이 0.0) | 통과 |
+| (b) 내부 반복 CV AUROC | 0.9960397499702127 | 0.9960397499702127 (차이 0.0) | 통과 |
+| 입력 feature 목록 (rel18, 집계 58) | | 같음 | (기록) |
+| ranker_rf.joblib sha256 | `4032f301…e4b5` | `e831f243…f305` | 기록만 (다름) |
+| detector_lgbm.txt sha256 | `296b41ad…c5c0` | `3e1f817f…5b67` | 기록만 (다름) |
+
+- 결론: 재생성 표는 고정 때 쓴 표와 결과상 같다. 두 내부 점수가 소수 셋째 자리가 아니라 부동소수점 전체 자릿수까지 일치했다. 모델 파일은 바이트가 다르다. 부동소수점 끝자리 차이로 나무의 분할 기준값이 달라졌기 때문으로 보인다(확인하지 않음).
+- B 방식은 사용자 지시 전까지 실행하지 않는다.
