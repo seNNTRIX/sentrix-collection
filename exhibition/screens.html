@@ -42,7 +42,7 @@ dl{margin:0}dt{color:var(--muted);font-size:14px}dd{margin:0;overflow-wrap:anywh
 <button type="button" data-fault="cpu_saturation">CPU 포화</button><button type="button" data-fault="pod_failure">Pod 중단</button></div>
 <div class="selects"><div id="from"><label for="source">호출 출발 서비스</label><select id="source"></select></div>
 <div><label id="toLabel" for="dest">호출 도착 서비스</label><select id="dest"></select></div></div>
-<span class="config">실험 기록 · 30초 단위 분석</span><button id="start" class="primary" disabled>실험 시작</button></fieldset>
+<span class="config" id="availability" aria-live="polite">실험 기록 · 30초 단위 분석</span><button id="start" class="primary" disabled>실험 시작</button></fieldset>
 <p id="notice" role="alert"></p></form>
 <section class="panel" aria-label="최근 실행"><h2>최근 실행</h2><p id="phase" role="status">대기 중</p><dl id="details"></dl></section></div></main></div>
 <script>
@@ -51,10 +51,15 @@ $('operator').hidden=false;
 const decisions = {NORMAL:'정상',ANOMALY:'이상 감지',ABSTAIN:'판정 보류'};
 const buttons = selector => Array.from(document.querySelectorAll(selector));
 let catalog, fault='network_delay', last={}, sending=false, connected=false;
-function options(select, names){
+function options(select,names,available){
  const current=select.value;
- select.replaceChildren(...names.map(name=>new Option(name,name)));
- if(names.includes(current)) select.value=current;
+ const ordered=[...names].sort((a,b)=>Number(available(b))-Number(available(a)));
+ select.replaceChildren(...ordered.map(name=>new Option(available(name)?name:name+' · 기록 없음',name)));
+ if(names.includes(current))select.value=current;
+}
+function canStart(){
+ const key=$('source').value?$('source').value+'->'+$('dest').value:$('dest').value;
+ return !!catalog?.recordings[fault]?.includes(key);
 }
 function choose(){
  if(!catalog) return;
@@ -62,9 +67,11 @@ function choose(){
  const recorded=(catalog.recordings[fault]||[]).map(x=>x.split('->'));
  $('from').hidden=!edge;
  $('toLabel').textContent=edge?'호출 도착 서비스':'대상 서비스';
- options($('source'),edge?[...new Set(recorded.map(pair=>pair[0]))]:[]);
- const destinations=edge?recorded.filter(pair=>pair[0]===$('source').value).map(pair=>pair[1]):recorded.map(pair=>pair[0]);
- options($('dest'),destinations);
+ options($('source'),edge?Object.keys(catalog.edges):[],name=>recorded.some(pair=>pair[0]===name));
+ const destinations=edge?(catalog.edges[$('source').value]||[]):catalog.services;
+ const ready=edge?recorded.filter(pair=>pair[0]===$('source').value).map(pair=>pair[1]):recorded.map(pair=>pair[0]);
+ options($('dest'),destinations,name=>ready.includes(name));
+ $('availability').textContent=canStart()?'실험 기록 · 30초 단위 분석':'아직 이 대상의 재현 파일이 없습니다.';
  for(const b of buttons('[data-fault]')){
   b.setAttribute('aria-pressed',b.dataset.fault===fault);
   b.disabled=!catalog.recordings[b.dataset.fault]?.length;
@@ -74,7 +81,7 @@ function choose(){
 function lockInputs(){
  const locked=sending || !connected || last.phase==='running';
  $('fields').disabled=locked;
- $('start').disabled=locked || !$('dest').value;
+ $('start').disabled=locked || !canStart();
 }
 const pretty = s => s?.replaceAll('->',' → ');
 function render(s){
@@ -103,10 +110,11 @@ async function poll(){
  }catch{connected=false;$('phase').textContent='전시 콘솔 연결 확인 중';lockInputs();}
  setTimeout(poll,1200);
 }
-for(const b of buttons('[data-fault]')) b.onclick=()=>{fault=b.dataset.fault;choose();};
+for(const b of buttons('[data-fault]')) b.onclick=()=>{fault=b.dataset.fault;$('source').replaceChildren();$('dest').replaceChildren();choose();};
 $('source').onchange=choose;
+$('dest').onchange=choose;
 $('form').onsubmit=async e=>{
- e.preventDefault();if(sending || last.phase==='running')return;
+ e.preventDefault();if(sending || last.phase==='running' || !canStart())return;
  sending=true;lockInputs();$('notice').textContent='';
  try{
   const r=await fetch('/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'replay',case:fault,source:$('source').value,target:$('dest').value})});
