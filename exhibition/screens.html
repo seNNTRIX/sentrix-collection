@@ -119,8 +119,12 @@ function firstAlarmRanks(s){
   const group=candidates.filter(c=>c.kind===kind),first=group[0];
   if(!first)continue;
   const lost=first.evidence?.includes('모델 입력 부족으로 이 후보의 점수는 목표 대비 가용 복제본 손실률(100%)을 표시합니다.');
-  const basis=kind==='EDGE'?'경로 통계 점수':lost?'복제본 손실률':'서비스 모델 점수';
-  const value=Number.isFinite(first.score)?' · '+basis+' '+(lost?(100*first.score).toFixed(0)+'%':first.score.toFixed(2)):'';
+  let value='';
+  if(Number.isFinite(first.score)){
+   if(kind==='EDGE')value=' · 경로 백분위 점수 '+(100*first.score).toLocaleString('ko-KR',{maximumFractionDigits:1})+'점';
+   else if(lost)value=' · 복제본 손실률 '+(100*first.score).toFixed(0)+'%';
+   else value=' · 서비스 모델 점수 '+first.score.toFixed(2);
+  }
   const down=first.evidence?.includes('Kubernetes에서 최근 30초간 목표 복제본은 1개 이상, 가용 복제본은 0개로 관측됐습니다.');
   rows.push([label+' 후보 1위',pretty(name(first))+value+(down&&!lost?' · 가용 복제본 0개':'')]);
  }
