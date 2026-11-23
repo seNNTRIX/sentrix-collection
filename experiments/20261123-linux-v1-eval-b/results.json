@@ -1,0 +1,4628 @@
+{
+ "features": "data/features/linux-v1-v0",
+ "method_a": {
+  "ranking": {
+   "rf": {
+    "AC@1": 0.5,
+    "AC@3": 0.9090909090909091,
+    "AC@5": 1.0,
+    "Avg@5": 0.8272727272727274,
+    "MRR": 0.696969696969697,
+    "n_cases": 22,
+    "AC@1_ci95": [
+     0.3181818181818182,
+     0.6818181818181818
+    ],
+    "AC@3_ci95": [
+     0.7727272727272727,
+     1.0
+    ],
+    "Avg@5_ci95": [
+     0.7454545454545454,
+     0.9000000000000002
+    ],
+    "MRR_ci95": [
+     0.5681818181818182,
+     0.8182765151515147
+    ],
+    "by_fault": {
+     "cpu_saturation": {
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "n_cases": 9
+     },
+     "pod_failure": {
+      "AC@1": 0.15384615384615385,
+      "AC@3": 0.8461538461538461,
+      "AC@5": 1.0,
+      "Avg@5": 0.7076923076923076,
+      "MRR": 0.48717948717948717,
+      "n_cases": 13
+     }
+    },
+    "paymentservice": {
+     "AC@1": 0.3333333333333333,
+     "AC@3": 0.6666666666666666,
+     "AC@5": 1.0,
+     "Avg@5": 0.6666666666666666,
+     "MRR": 0.5277777777777778,
+     "n_cases": 3
+    },
+    "per_case": [
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r02-a2",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r02",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 2,
+      "n_windows": 22,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r02",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 2,
+      "n_windows": 22,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.6,
+      "MRR": 0.3333333333333333,
+      "rank": 3
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.8,
+      "MRR": 0.5,
+      "rank": 2
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 0.0,
+      "AC@3": 0.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.4,
+      "MRR": 0.25,
+      "rank": 4
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.6,
+      "MRR": 0.3333333333333333,
+      "rank": 3
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r02-a2",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.8,
+      "MRR": 0.5,
+      "rank": 2
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 3,
+      "n_windows": 20,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.8,
+      "MRR": 0.5,
+      "rank": 2
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 1,
+      "n_windows": 20,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.6,
+      "MRR": 0.3333333333333333,
+      "rank": 3
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.0,
+      "AC@3": 0.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.4,
+      "MRR": 0.25,
+      "rank": 4
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 3,
+      "n_windows": 20,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r01-a2",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.6,
+      "MRR": 0.3333333333333333,
+      "rank": 3
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.8,
+      "MRR": 0.5,
+      "rank": 2
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-recommendationservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "recommendationservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.8,
+      "MRR": 0.5,
+      "rank": 2
+     }
+    ]
+   },
+   "v4": {
+    "AC@1": 0.7272727272727273,
+    "AC@3": 1.0,
+    "AC@5": 1.0,
+    "Avg@5": 0.940909090909091,
+    "MRR": 0.8598484848484848,
+    "n_cases": 22,
+    "AC@1_ci95": [
+     0.5454545454545454,
+     0.8863636363636364
+    ],
+    "AC@3_ci95": [
+     1.0,
+     1.0
+    ],
+    "Avg@5_ci95": [
+     0.9,
+     0.9772727272727273
+    ],
+    "MRR_ci95": [
+     0.7651515151515151,
+     0.9431818181818182
+    ],
+    "by_fault": {
+     "cpu_saturation": {
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "n_cases": 9
+     },
+     "pod_failure": {
+      "AC@1": 0.5384615384615384,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.9,
+      "MRR": 0.7628205128205128,
+      "n_cases": 13
+     }
+    },
+    "paymentservice": {
+     "AC@1": 0.8333333333333334,
+     "AC@3": 1.0,
+     "AC@5": 1.0,
+     "Avg@5": 0.9666666666666668,
+     "MRR": 0.9166666666666666,
+     "n_cases": 3
+    },
+    "per_case": [
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r02-a2",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r02",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 2,
+      "n_windows": 22,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r02",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 2,
+      "n_windows": 22,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.5,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.9,
+      "MRR": 0.75,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.8,
+      "MRR": 0.5,
+      "rank": 2
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.7,
+      "MRR": 0.41666666666666663,
+      "rank": 2
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r02-a2",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.8,
+      "MRR": 0.5,
+      "rank": 2
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 3,
+      "n_windows": 20,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.8,
+      "MRR": 0.5,
+      "rank": 2
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 1,
+      "n_windows": 20,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.5,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.9,
+      "MRR": 0.75,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 3,
+      "n_windows": 20,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r01-a2",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-recommendationservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "recommendationservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.8,
+      "MRR": 0.5,
+      "rank": 2
+     }
+    ]
+   },
+   "stat_combined": {
+    "AC@1": 0.5,
+    "AC@3": 0.8181818181818182,
+    "AC@5": 1.0,
+    "Avg@5": 0.7818181818181819,
+    "MRR": 0.671969696969697,
+    "n_cases": 22,
+    "AC@1_ci95": [
+     0.3181818181818182,
+     0.6818181818181818
+    ],
+    "AC@3_ci95": [
+     0.6363636363636364,
+     0.9545454545454546
+    ],
+    "Avg@5_ci95": [
+     0.6727272727272727,
+     0.8772727272727273
+    ],
+    "MRR_ci95": [
+     0.5416666666666666,
+     0.8030303030303029
+    ],
+    "by_fault": {
+     "cpu_saturation": {
+      "AC@1": 0.7777777777777778,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.9555555555555555,
+      "MRR": 0.8888888888888888,
+      "n_cases": 9
+     },
+     "pod_failure": {
+      "AC@1": 0.3076923076923077,
+      "AC@3": 0.6923076923076923,
+      "AC@5": 1.0,
+      "Avg@5": 0.6615384615384615,
+      "MRR": 0.5217948717948717,
+      "n_cases": 13
+     }
+    },
+    "paymentservice": {
+     "AC@1": 0.6666666666666666,
+     "AC@3": 1.0,
+     "AC@5": 1.0,
+     "Avg@5": 0.8666666666666666,
+     "MRR": 0.7777777777777777,
+     "n_cases": 3
+    },
+    "per_case": [
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r02-a2",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 0.5,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.9,
+      "MRR": 0.75,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r02",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 2,
+      "n_windows": 22,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.5,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.9,
+      "MRR": 0.75,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r02",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 2,
+      "n_windows": 22,
+      "AC@1": 0.5,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.9,
+      "MRR": 0.75,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 0.5,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.9,
+      "MRR": 0.75,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.8,
+      "MRR": 0.5,
+      "rank": 2
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 0.0,
+      "AC@3": 0.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.4,
+      "MRR": 0.25,
+      "rank": 4
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 0.0,
+      "AC@3": 0.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.2,
+      "MRR": 0.2,
+      "rank": 5
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.6,
+      "MRR": 0.3333333333333333,
+      "rank": 3
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r02-a2",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.0,
+      "AC@3": 0.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.4,
+      "MRR": 0.25,
+      "rank": 4
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 3,
+      "n_windows": 20,
+      "AC@1": 0.0,
+      "AC@3": 0.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.4,
+      "MRR": 0.25,
+      "rank": 4
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 1,
+      "n_windows": 20,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.6,
+      "MRR": 0.3333333333333333,
+      "rank": 3
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 3,
+      "n_windows": 20,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r01-a2",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.6,
+      "MRR": 0.3333333333333333,
+      "rank": 3
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-recommendationservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "recommendationservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.6,
+      "MRR": 0.3333333333333333,
+      "rank": 3
+     }
+    ]
+   },
+   "random": {
+    "AC@1": 0.09090909090909088,
+    "AC@3": 0.27272727272727265,
+    "AC@5": 0.45454545454545464,
+    "Avg@5": 0.2727272727272727,
+    "MRR": 0.27453430407975865,
+    "n_cases": 22,
+    "AC@1_ci95": [
+     0.09090909090909088,
+     0.09090909090909088
+    ],
+    "AC@3_ci95": [
+     0.27272727272727265,
+     0.27272727272727265
+    ],
+    "Avg@5_ci95": [
+     0.27272727272727265,
+     0.27272727272727265
+    ],
+    "MRR_ci95": [
+     0.27453430407975865,
+     0.27453430407975865
+    ],
+    "by_fault": {
+     "cpu_saturation": {
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "n_cases": 9
+     },
+     "pod_failure": {
+      "AC@1": 0.0909090909090909,
+      "AC@3": 0.2727272727272726,
+      "AC@5": 0.4545454545454544,
+      "Avg@5": 0.27272727272727265,
+      "MRR": 0.27453430407975865,
+      "n_cases": 13
+     }
+    },
+    "paymentservice": {
+     "AC@1": 0.0909090909090909,
+     "AC@3": 0.2727272727272727,
+     "AC@5": 0.45454545454545453,
+     "Avg@5": 0.2727272727272727,
+     "MRR": 0.2745343040797586,
+     "n_cases": 3
+    },
+    "per_case": [
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r02-a2",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r02",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 2,
+      "n_windows": 22,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r02",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 2,
+      "n_windows": 22,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r02-a2",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 3,
+      "n_windows": 20,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 1,
+      "n_windows": 20,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 3,
+      "n_windows": 20,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r01-a2",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-recommendationservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "recommendationservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     }
+    ]
+   }
+  },
+  "ranking_paired": {
+   "rf_minus_stat_combined": {
+    "metric": "Avg@5",
+    "diff": 0.04545454545454545,
+    "ci95": [
+     -0.03636363636363636,
+     0.12727272727272726
+    ],
+    "verdict": "no difference",
+    "n_cases": 22
+   },
+   "rf_minus_v4": {
+    "metric": "Avg@5",
+    "diff": -0.11363636363636363,
+    "ci95": [
+     -0.1863636363636364,
+     -0.04545454545454545
+    ],
+    "verdict": "worse",
+    "n_cases": 22
+   },
+   "v4_minus_stat_combined": {
+    "metric": "Avg@5",
+    "diff": 0.15909090909090906,
+    "ci95": [
+     0.09090909090909091,
+     0.23193181818181763
+    ],
+    "verdict": "better",
+    "n_cases": 22
+   }
+  },
+  "detection": {
+   "lgbm_all58": {
+    "AUROC": 0.8725919011910397,
+    "AUPRC": 0.6592376531147897,
+    "positive_rate": 0.09107672572757156,
+    "n_windows": 12473,
+    "AUROC_ci95": [
+     0.828857585227958,
+     0.9166831889175954
+    ]
+   },
+   "v1_rel36": {
+    "AUROC": 0.7739858319450086,
+    "AUPRC": 0.5988536081914929,
+    "positive_rate": 0.09107672572757156,
+    "n_windows": 12473,
+    "AUROC_ci95": [
+     0.6991478116156414,
+     0.8428864300163683
+    ]
+   },
+   "stat_metric": {
+    "AUROC": 0.7148181993522393,
+    "AUPRC": 0.36854421937918935,
+    "positive_rate": 0.09107672572757156,
+    "n_windows": 12473,
+    "AUROC_ci95": [
+     0.6375891712961738,
+     0.7888997328271956
+    ]
+   },
+   "ineligible_windows": 316
+  },
+  "edge": {
+   "stat_edge": {
+    "AC@1": 0.6153846153846154,
+    "AC@3": 0.6923076923076923,
+    "AC@5": 0.8076923076923077,
+    "Avg@5": 0.7,
+    "MRR": 0.6987637362637362,
+    "n_cases": 26,
+    "AC@1_ci95": [
+     0.4230769230769231,
+     0.8076923076923077
+    ],
+    "AC@3_ci95": [
+     0.5,
+     0.8461538461538461
+    ],
+    "Avg@5_ci95": [
+     0.5382692307692307,
+     0.8538461538461538
+    ],
+    "MRR_ci95": [
+     0.5471989468864469,
+     0.8471233974358974
+    ],
+    "by_fault": {
+     "network_delay": {
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "n_cases": 14
+     },
+     "packet_loss": {
+      "AC@1": 0.16666666666666666,
+      "AC@3": 0.3333333333333333,
+      "AC@5": 0.5833333333333334,
+      "Avg@5": 0.35,
+      "MRR": 0.3473214285714286,
+      "n_cases": 12
+     }
+    },
+    "paymentservice": {},
+    "per_case": [
+     {
+      "case_id": "lv1_linux-v1-delay-checkout-payment-r01",
+      "root_cause": "checkoutservice->paymentservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "network_delay",
+      "fold": 1,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-delay-checkout-payment-r03",
+      "root_cause": "checkoutservice->paymentservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "network_delay",
+      "fold": 3,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-delay-front-currency-r01",
+      "root_cause": "frontend->currencyservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "network_delay",
+      "fold": 1,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-delay-front-currency-r02",
+      "root_cause": "frontend->currencyservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "network_delay",
+      "fold": 2,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-delay-front-currency-r03",
+      "root_cause": "frontend->currencyservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "network_delay",
+      "fold": 3,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-delay-front-product-r01",
+      "root_cause": "frontend->productcatalogservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "network_delay",
+      "fold": 1,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-delay-front-product-r02",
+      "root_cause": "frontend->productcatalogservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "network_delay",
+      "fold": 2,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-delay-front-product-r03",
+      "root_cause": "frontend->productcatalogservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "network_delay",
+      "fold": 3,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-delay-front-recommendation-r01",
+      "root_cause": "frontend->recommendationservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "network_delay",
+      "fold": 1,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-delay-front-recommendation-r02",
+      "root_cause": "frontend->recommendationservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "network_delay",
+      "fold": 2,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-delay-front-recommendation-r03",
+      "root_cause": "frontend->recommendationservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "network_delay",
+      "fold": 3,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-delay-recommendation-product-r01",
+      "root_cause": "recommendationservice->productcatalogservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "network_delay",
+      "fold": 1,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-delay-recommendation-product-r02",
+      "root_cause": "recommendationservice->productcatalogservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "network_delay",
+      "fold": 2,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-delay-recommendation-product-r03",
+      "root_cause": "recommendationservice->productcatalogservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "network_delay",
+      "fold": 3,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-loss-front-currency-r01",
+      "root_cause": "frontend->currencyservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "packet_loss",
+      "fold": 1,
+      "AC@1": 0.0,
+      "AC@3": 0.0,
+      "AC@5": 0.0,
+      "Avg@5": 0.0,
+      "MRR": 0.125,
+      "rank": 8
+     },
+     {
+      "case_id": "lv1_linux-v1-loss-front-currency-r02",
+      "root_cause": "frontend->currencyservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "packet_loss",
+      "fold": 2,
+      "AC@1": 0.0,
+      "AC@3": 0.0,
+      "AC@5": 0.0,
+      "Avg@5": 0.0,
+      "MRR": 0.125,
+      "rank": 8
+     },
+     {
+      "case_id": "lv1_linux-v1-loss-front-currency-r03",
+      "root_cause": "frontend->currencyservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "packet_loss",
+      "fold": 3,
+      "AC@1": 0.0,
+      "AC@3": 0.0,
+      "AC@5": 0.0,
+      "Avg@5": 0.0,
+      "MRR": 0.125,
+      "rank": 8
+     },
+     {
+      "case_id": "lv1_linux-v1-loss-front-product-r01",
+      "root_cause": "frontend->productcatalogservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "packet_loss",
+      "fold": 1,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-loss-front-product-r02",
+      "root_cause": "frontend->productcatalogservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "packet_loss",
+      "fold": 2,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.8,
+      "MRR": 0.5,
+      "rank": 2
+     },
+     {
+      "case_id": "lv1_linux-v1-loss-front-product-r03",
+      "root_cause": "frontend->productcatalogservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "packet_loss",
+      "fold": 3,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-loss-front-recommendation-r01",
+      "root_cause": "frontend->recommendationservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "packet_loss",
+      "fold": 1,
+      "AC@1": 0.0,
+      "AC@3": 0.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.2,
+      "MRR": 0.2,
+      "rank": 5
+     },
+     {
+      "case_id": "lv1_linux-v1-loss-front-recommendation-r02",
+      "root_cause": "frontend->recommendationservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "packet_loss",
+      "fold": 2,
+      "AC@1": 0.0,
+      "AC@3": 0.0,
+      "AC@5": 0.0,
+      "Avg@5": 0.0,
+      "MRR": 0.16666666666666666,
+      "rank": 6
+     },
+     {
+      "case_id": "lv1_linux-v1-loss-front-recommendation-r03",
+      "root_cause": "frontend->recommendationservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "packet_loss",
+      "fold": 3,
+      "AC@1": 0.0,
+      "AC@3": 0.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.2,
+      "MRR": 0.2,
+      "rank": 5
+     },
+     {
+      "case_id": "lv1_linux-v1-loss-recommendation-product-r01",
+      "root_cause": "recommendationservice->productcatalogservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "packet_loss",
+      "fold": 1,
+      "AC@1": 0.0,
+      "AC@3": 0.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.4,
+      "MRR": 0.25,
+      "rank": 4
+     },
+     {
+      "case_id": "lv1_linux-v1-loss-recommendation-product-r02",
+      "root_cause": "recommendationservice->productcatalogservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "packet_loss",
+      "fold": 2,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.6,
+      "MRR": 0.3333333333333333,
+      "rank": 3
+     },
+     {
+      "case_id": "lv1_linux-v1-loss-recommendation-product-r03",
+      "root_cause": "recommendationservice->productcatalogservice",
+      "candidates": [
+       "checkoutservice->emailservice",
+       "checkoutservice->paymentservice",
+       "checkoutservice->productcatalogservice",
+       "frontend->checkoutservice",
+       "frontend->currencyservice",
+       "frontend->productcatalogservice",
+       "frontend->recommendationservice",
+       "recommendationservice->productcatalogservice"
+      ],
+      "fault": "packet_loss",
+      "fold": 3,
+      "AC@1": 0.0,
+      "AC@3": 0.0,
+      "AC@5": 0.0,
+      "Avg@5": 0.0,
+      "MRR": 0.14285714285714285,
+      "rank": 7
+     }
+    ],
+    "by_edge": {
+     "checkoutservice->paymentservice": {
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "n_cases": 2
+     },
+     "frontend->currencyservice": {
+      "AC@1": 0.5,
+      "AC@3": 0.5,
+      "AC@5": 0.5,
+      "Avg@5": 0.5,
+      "MRR": 0.5625,
+      "n_cases": 6
+     },
+     "frontend->productcatalogservice": {
+      "AC@1": 0.8333333333333334,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.9666666666666668,
+      "MRR": 0.9166666666666666,
+      "n_cases": 6
+     },
+     "frontend->recommendationservice": {
+      "AC@1": 0.5,
+      "AC@3": 0.5,
+      "AC@5": 0.8333333333333334,
+      "Avg@5": 0.5666666666666667,
+      "MRR": 0.5944444444444444,
+      "n_cases": 6
+     },
+     "recommendationservice->productcatalogservice": {
+      "AC@1": 0.5,
+      "AC@3": 0.6666666666666666,
+      "AC@5": 0.8333333333333334,
+      "Avg@5": 0.6666666666666667,
+      "MRR": 0.621031746031746,
+      "n_cases": 6
+     }
+    },
+    "n_candidates_median": 8.0
+   },
+   "random": {
+    "AC@1": 0.125,
+    "AC@3": 0.375,
+    "AC@5": 0.625,
+    "Avg@5": 0.375,
+    "MRR": 0.3397321428571428,
+    "n_cases": 26
+   }
+  },
+  "node_view_edge_faults": {
+   "either": {
+    "AC@1": 0.38461538461538464,
+    "AC@3": 0.8846153846153846,
+    "AC@5": 0.9230769230769231,
+    "n_cases": 26
+   },
+   "source": {
+    "AC@1": 0.07692307692307693,
+    "AC@3": 0.46153846153846156,
+    "AC@5": 0.8461538461538461,
+    "n_cases": 26
+   },
+   "destination": {
+    "AC@1": 0.3076923076923077,
+    "AC@3": 0.6923076923076923,
+    "AC@5": 0.8131868131868132,
+    "n_cases": 26
+   }
+  },
+  "surge_frontend_rank": [
+   {
+    "case_id": "lv1_linux-v1-surge-l2-r01",
+    "frontend_rank": 2
+   },
+   {
+    "case_id": "lv1_linux-v1-surge-l2-r02",
+    "frontend_rank": 6
+   },
+   {
+    "case_id": "lv1_linux-v1-surge-l2-r03",
+    "frontend_rank": 6
+   },
+   {
+    "case_id": "lv1_linux-v1-surge-l3-r01",
+    "frontend_rank": 6
+   },
+   {
+    "case_id": "lv1_linux-v1-surge-l3-r02",
+    "frontend_rank": 7
+   },
+   {
+    "case_id": "lv1_linux-v1-surge-l3-r03",
+    "frontend_rank": 6
+   }
+  ],
+  "notes": [
+   "Method A: RE2-OB final models applied unchanged; paymentservice is an unseen root cause.",
+   "rx/tx packet features are NaN in linux-v1 -> 0 in RF (LINUX-V1-DATA-TRANSLATION.md 1).",
+   "Run alarm rates need the RE2-OB training normal-window threshold (Method B / --re2ob)."
+  ]
+ },
+ "method_b": {
+  "folds": [
+   {
+    "fold": 1,
+    "n_train_rank_rows": 64768,
+    "n_train_det_rows": 17511,
+    "threshold": 0.0035318934977180893
+   },
+   {
+    "fold": 2,
+    "n_train_rank_rows": 64537,
+    "n_train_det_rows": 17414,
+    "threshold": 0.0033313148521423785
+   },
+   {
+    "fold": 3,
+    "n_train_rank_rows": 64779,
+    "n_train_det_rows": 17549,
+    "threshold": 0.003995144832792556
+   }
+  ],
+  "ranking": {
+   "rf18": {
+    "AC@1": 0.9545454545454546,
+    "AC@3": 1.0,
+    "AC@5": 1.0,
+    "Avg@5": 0.990909090909091,
+    "MRR": 0.9772727272727273,
+    "n_cases": 22,
+    "AC@1_ci95": [
+     0.8636363636363636,
+     1.0
+    ],
+    "AC@3_ci95": [
+     1.0,
+     1.0
+    ],
+    "Avg@5_ci95": [
+     0.9727272727272727,
+     1.0
+    ],
+    "MRR_ci95": [
+     0.9318181818181818,
+     1.0
+    ],
+    "by_fault": {
+     "cpu_saturation": {
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "n_cases": 9
+     },
+     "pod_failure": {
+      "AC@1": 0.9230769230769231,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.9846153846153847,
+      "MRR": 0.9615384615384616,
+      "n_cases": 13
+     }
+    },
+    "paymentservice": {
+     "AC@1": 1.0,
+     "AC@3": 1.0,
+     "AC@5": 1.0,
+     "Avg@5": 1.0,
+     "MRR": 1.0,
+     "n_cases": 3
+    },
+    "per_case": [
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r02-a2",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r02",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 2,
+      "n_windows": 22,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r02",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 2,
+      "n_windows": 22,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r02-a2",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 3,
+      "n_windows": 20,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 1,
+      "n_windows": 20,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 3,
+      "n_windows": 20,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r01-a2",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-recommendationservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "recommendationservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.8,
+      "MRR": 0.5,
+      "rank": 2
+     }
+    ]
+   },
+   "rf14": {
+    "AC@1": 0.9090909090909091,
+    "AC@3": 1.0,
+    "AC@5": 1.0,
+    "Avg@5": 0.9818181818181818,
+    "MRR": 0.9545454545454546,
+    "n_cases": 22,
+    "AC@1_ci95": [
+     0.7727272727272727,
+     1.0
+    ],
+    "AC@3_ci95": [
+     1.0,
+     1.0
+    ],
+    "Avg@5_ci95": [
+     0.9545454545454546,
+     1.0
+    ],
+    "MRR_ci95": [
+     0.8863636363636364,
+     1.0
+    ],
+    "by_fault": {
+     "cpu_saturation": {
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "n_cases": 9
+     },
+     "pod_failure": {
+      "AC@1": 0.8461538461538461,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.9692307692307693,
+      "MRR": 0.9230769230769231,
+      "n_cases": 13
+     }
+    },
+    "paymentservice": {
+     "AC@1": 1.0,
+     "AC@3": 1.0,
+     "AC@5": 1.0,
+     "Avg@5": 1.0,
+     "MRR": 1.0,
+     "n_cases": 3
+    },
+    "per_case": [
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r02-a2",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r02",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 2,
+      "n_windows": 22,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r02",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 2,
+      "n_windows": 22,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.8,
+      "MRR": 0.5,
+      "rank": 2
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r02-a2",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 3,
+      "n_windows": 20,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 1,
+      "n_windows": 20,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 3,
+      "n_windows": 20,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r01-a2",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-recommendationservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "recommendationservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.8,
+      "MRR": 0.5,
+      "rank": 2
+     }
+    ]
+   },
+   "stat_combined": {
+    "AC@1": 0.5,
+    "AC@3": 0.8181818181818182,
+    "AC@5": 1.0,
+    "Avg@5": 0.7818181818181819,
+    "MRR": 0.671969696969697,
+    "n_cases": 22,
+    "AC@1_ci95": [
+     0.3181818181818182,
+     0.6818181818181818
+    ],
+    "AC@3_ci95": [
+     0.6363636363636364,
+     0.9545454545454546
+    ],
+    "Avg@5_ci95": [
+     0.6727272727272727,
+     0.8772727272727273
+    ],
+    "MRR_ci95": [
+     0.5416666666666666,
+     0.8030303030303029
+    ],
+    "by_fault": {
+     "cpu_saturation": {
+      "AC@1": 0.7777777777777778,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.9555555555555555,
+      "MRR": 0.8888888888888888,
+      "n_cases": 9
+     },
+     "pod_failure": {
+      "AC@1": 0.3076923076923077,
+      "AC@3": 0.6923076923076923,
+      "AC@5": 1.0,
+      "Avg@5": 0.6615384615384615,
+      "MRR": 0.5217948717948717,
+      "n_cases": 13
+     }
+    },
+    "paymentservice": {
+     "AC@1": 0.6666666666666666,
+     "AC@3": 1.0,
+     "AC@5": 1.0,
+     "Avg@5": 0.8666666666666666,
+     "MRR": 0.7777777777777777,
+     "n_cases": 3
+    },
+    "per_case": [
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r02-a2",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 0.5,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.9,
+      "MRR": 0.75,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r02",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 2,
+      "n_windows": 22,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.5,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.9,
+      "MRR": 0.75,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r02",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 2,
+      "n_windows": 22,
+      "AC@1": 0.5,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.9,
+      "MRR": 0.75,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 0.5,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.9,
+      "MRR": 0.75,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.8,
+      "MRR": 0.5,
+      "rank": 2
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 0.0,
+      "AC@3": 0.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.4,
+      "MRR": 0.25,
+      "rank": 4
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 0.0,
+      "AC@3": 0.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.2,
+      "MRR": 0.2,
+      "rank": 5
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.6,
+      "MRR": 0.3333333333333333,
+      "rank": 3
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r02-a2",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.0,
+      "AC@3": 0.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.4,
+      "MRR": 0.25,
+      "rank": 4
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 3,
+      "n_windows": 20,
+      "AC@1": 0.0,
+      "AC@3": 0.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.4,
+      "MRR": 0.25,
+      "rank": 4
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 1,
+      "n_windows": 20,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.6,
+      "MRR": 0.3333333333333333,
+      "rank": 3
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 3,
+      "n_windows": 20,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r01-a2",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.6,
+      "MRR": 0.3333333333333333,
+      "rank": 3
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 1.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 1.0,
+      "MRR": 1.0,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-recommendationservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "recommendationservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.0,
+      "AC@3": 1.0,
+      "AC@5": 1.0,
+      "Avg@5": 0.6,
+      "MRR": 0.3333333333333333,
+      "rank": 3
+     }
+    ]
+   },
+   "random": {
+    "AC@1": 0.09090909090909088,
+    "AC@3": 0.27272727272727265,
+    "AC@5": 0.45454545454545464,
+    "Avg@5": 0.2727272727272727,
+    "MRR": 0.27453430407975865,
+    "n_cases": 22,
+    "AC@1_ci95": [
+     0.09090909090909088,
+     0.09090909090909088
+    ],
+    "AC@3_ci95": [
+     0.27272727272727265,
+     0.27272727272727265
+    ],
+    "Avg@5_ci95": [
+     0.27272727272727265,
+     0.27272727272727265
+    ],
+    "MRR_ci95": [
+     0.27453430407975865,
+     0.27453430407975865
+    ],
+    "by_fault": {
+     "cpu_saturation": {
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "n_cases": 9
+     },
+     "pod_failure": {
+      "AC@1": 0.0909090909090909,
+      "AC@3": 0.2727272727272726,
+      "AC@5": 0.4545454545454544,
+      "Avg@5": 0.27272727272727265,
+      "MRR": 0.27453430407975865,
+      "n_cases": 13
+     }
+    },
+    "paymentservice": {
+     "AC@1": 0.0909090909090909,
+     "AC@3": 0.2727272727272727,
+     "AC@5": 0.45454545454545453,
+     "Avg@5": 0.2727272727272727,
+     "MRR": 0.2745343040797586,
+     "n_cases": 3
+    },
+    "per_case": [
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r02-a2",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-currencyservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "currencyservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r02",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 2,
+      "n_windows": 22,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-productcatalogservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "productcatalogservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r01",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r02",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 2,
+      "n_windows": 22,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-cpu-recommendationservice-r03",
+      "fault": "cpu_saturation",
+      "root_cause": "recommendationservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-checkoutservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "checkoutservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r02-a2",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-currencyservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "currencyservice",
+      "fold": 3,
+      "n_windows": 20,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r01",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 1,
+      "n_windows": 20,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-paymentservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "paymentservice",
+      "fold": 3,
+      "n_windows": 20,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r01-a2",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 1,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 2,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-productcatalogservice-r03",
+      "fault": "pod_failure",
+      "root_cause": "productcatalogservice",
+      "fold": 3,
+      "n_windows": 21,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     },
+     {
+      "case_id": "lv1_linux-v1-pod-recommendationservice-r02",
+      "fault": "pod_failure",
+      "root_cause": "recommendationservice",
+      "fold": 2,
+      "n_windows": 20,
+      "AC@1": 0.09090909090909091,
+      "AC@3": 0.2727272727272727,
+      "AC@5": 0.45454545454545453,
+      "Avg@5": 0.2727272727272727,
+      "MRR": 0.2745343040797586,
+      "rank": 1
+     }
+    ]
+   }
+  },
+  "ranking_paired": {
+   "rf18_minus_stat_combined": {
+    "metric": "Avg@5",
+    "diff": 0.20909090909090908,
+    "ci95": [
+     0.11363636363636363,
+     0.3181818181818182
+    ],
+    "verdict": "better",
+    "n_cases": 22
+   },
+   "rf14_minus_rf18": {
+    "metric": "Avg@5",
+    "diff": -0.009090909090909089,
+    "ci95": [
+     -0.027272727272727268,
+     0.0
+    ],
+    "verdict": "no difference",
+    "n_cases": 22
+   }
+  },
+  "fold_avg5": {
+   "rf18": [
+    1.0,
+    0.975,
+    1.0
+   ],
+   "rf14": [
+    0.9714285714285715,
+    0.975,
+    1.0
+   ],
+   "stat_combined": [
+    0.9,
+    0.6875,
+    0.7714285714285715
+   ],
+   "random": [
+    0.27272727272727276,
+    0.2727272727272727,
+    0.27272727272727276
+   ]
+  },
+  "detection": {
+   "lgbm_all58": {
+    "AUROC": 0.9653527586973727,
+    "AUPRC": 0.897054086834527,
+    "positive_rate": 0.09107672572757156,
+    "n_windows": 12473,
+    "AUROC_ci95": [
+     0.9300508514566637,
+     0.989751085471477
+    ]
+   },
+   "alarms": {
+    "fault_alarm_rate": 0.9444444444444444,
+    "n_fault_runs": 54,
+    "control_false_alarm_rate": 0.37681159420289856,
+    "n_control_runs": 69,
+    "fault_alarm_rate_by_fault": {
+     "cpu_saturation": 1.0,
+     "network_delay": 1.0,
+     "packet_loss": 0.8333333333333334,
+     "pod_failure": 1.0,
+     "traffic_surge": 0.8333333333333334
+    },
+    "median_alarm_rel_s": 100.0
+   },
+   "ineligible_fault_alarm_rate": 0.8666666666666667,
+   "runs": [
+    {
+     "case_id": "lv1_linux-v1-control-cpu-checkoutservice-r01",
+     "kind": "control",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 230.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-cpu-currencyservice-r01",
+     "kind": "control",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-cpu-paymentservice-r01",
+     "kind": "control",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-cpu-productcatalogservice-r01",
+     "kind": "control",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-cpu-recommendationservice-r01",
+     "kind": "control",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-delay-checkout-payment-r01",
+     "kind": "control",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-delay-front-currency-r01",
+     "kind": "control",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 230.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-delay-front-product-r01",
+     "kind": "control",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-delay-front-recommendation-r01",
+     "kind": "control",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-delay-recommendation-product-r01",
+     "kind": "control",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 290.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-loss-checkout-payment-r01",
+     "kind": "control",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-loss-front-currency-r01",
+     "kind": "control",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 140.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-loss-front-product-r01",
+     "kind": "control",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-loss-front-recommendation-r01",
+     "kind": "control",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-loss-recommendation-product-r01",
+     "kind": "control",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-pod-checkoutservice-r01",
+     "kind": "control",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-pod-currencyservice-r01",
+     "kind": "control",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 260.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-pod-paymentservice-r01",
+     "kind": "control",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-pod-productcatalogservice-r01-a2",
+     "kind": "control",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 110.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-pod-recommendationservice-r01",
+     "kind": "control",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 150.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-surge-l1-r01",
+     "kind": "control",
+     "fault": "traffic_surge",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-surge-l2-r01",
+     "kind": "control",
+     "fault": "traffic_surge",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-surge-l3-r01",
+     "kind": "control",
+     "fault": "traffic_surge",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-cpu-currencyservice-r01",
+     "kind": "fault",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-cpu-productcatalogservice-r01",
+     "kind": "fault",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-cpu-recommendationservice-r01",
+     "kind": "fault",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-delay-checkout-payment-r01",
+     "kind": "fault",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-delay-front-currency-r01",
+     "kind": "fault",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-delay-front-product-r01",
+     "kind": "fault",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-delay-front-recommendation-r01",
+     "kind": "fault",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-delay-recommendation-product-r01",
+     "kind": "fault",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-loss-front-currency-r01",
+     "kind": "fault",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 130.0
+    },
+    {
+     "case_id": "lv1_linux-v1-loss-front-product-r01",
+     "kind": "fault",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-loss-front-recommendation-r01",
+     "kind": "fault",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-loss-recommendation-product-r01",
+     "kind": "fault",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 110.0
+    },
+    {
+     "case_id": "lv1_linux-v1-pod-checkoutservice-r01",
+     "kind": "fault",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-pod-currencyservice-r01",
+     "kind": "fault",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-pod-paymentservice-r01",
+     "kind": "fault",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-pod-productcatalogservice-r01-a2",
+     "kind": "fault",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-surge-l2-r01",
+     "kind": "fault",
+     "fault": "traffic_surge",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-surge-l3-r01",
+     "kind": "fault",
+     "fault": "traffic_surge",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-cpu-checkoutservice-r02",
+     "kind": "control",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 130.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-cpu-currencyservice-r02-a2",
+     "kind": "control",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-cpu-paymentservice-r02",
+     "kind": "control",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-cpu-productcatalogservice-r02",
+     "kind": "control",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 170.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-cpu-recommendationservice-r02",
+     "kind": "control",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-delay-checkout-payment-r02",
+     "kind": "control",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-delay-front-currency-r02",
+     "kind": "control",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-delay-front-product-r02",
+     "kind": "control",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-delay-front-recommendation-r02",
+     "kind": "control",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-delay-recommendation-product-r02",
+     "kind": "control",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-loss-checkout-payment-r02",
+     "kind": "control",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-loss-front-currency-r02",
+     "kind": "control",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-loss-front-product-r02",
+     "kind": "control",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-loss-front-recommendation-r02",
+     "kind": "control",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-loss-recommendation-product-r02",
+     "kind": "control",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 180.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-pod-checkoutservice-r02",
+     "kind": "control",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-pod-currencyservice-r02-a2",
+     "kind": "control",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-pod-paymentservice-r02",
+     "kind": "control",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-pod-productcatalogservice-r02",
+     "kind": "control",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-pod-recommendationservice-r02",
+     "kind": "control",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-surge-l1-r02",
+     "kind": "control",
+     "fault": "traffic_surge",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-surge-l2-r02",
+     "kind": "control",
+     "fault": "traffic_surge",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 120.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-surge-l3-r02",
+     "kind": "control",
+     "fault": "traffic_surge",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-cpu-currencyservice-r02-a2",
+     "kind": "fault",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-cpu-productcatalogservice-r02",
+     "kind": "fault",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-cpu-recommendationservice-r02",
+     "kind": "fault",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-delay-front-currency-r02",
+     "kind": "fault",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-delay-front-product-r02",
+     "kind": "fault",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-delay-front-recommendation-r02",
+     "kind": "fault",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-delay-recommendation-product-r02",
+     "kind": "fault",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-loss-front-currency-r02",
+     "kind": "fault",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 110.0
+    },
+    {
+     "case_id": "lv1_linux-v1-loss-front-product-r02",
+     "kind": "fault",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-loss-front-recommendation-r02",
+     "kind": "fault",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-loss-recommendation-product-r02",
+     "kind": "fault",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-pod-checkoutservice-r02",
+     "kind": "fault",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-pod-currencyservice-r02-a2",
+     "kind": "fault",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-pod-paymentservice-r02",
+     "kind": "fault",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-pod-productcatalogservice-r02",
+     "kind": "fault",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-pod-recommendationservice-r02",
+     "kind": "fault",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-surge-l2-r02",
+     "kind": "fault",
+     "fault": "traffic_surge",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-surge-l3-r02",
+     "kind": "fault",
+     "fault": "traffic_surge",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-cpu-checkoutservice-r03",
+     "kind": "control",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-cpu-currencyservice-r03",
+     "kind": "control",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-cpu-paymentservice-r03",
+     "kind": "control",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 110.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-cpu-productcatalogservice-r03",
+     "kind": "control",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-cpu-recommendationservice-r03",
+     "kind": "control",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 110.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-delay-checkout-payment-r03",
+     "kind": "control",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-delay-front-currency-r03",
+     "kind": "control",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 130.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-delay-front-product-r03",
+     "kind": "control",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-delay-front-recommendation-r03",
+     "kind": "control",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 270.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-delay-recommendation-product-r03",
+     "kind": "control",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 290.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-loss-checkout-payment-r03",
+     "kind": "control",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 260.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-loss-front-currency-r03",
+     "kind": "control",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-loss-front-product-r03",
+     "kind": "control",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 150.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-loss-front-recommendation-r03",
+     "kind": "control",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 160.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-loss-recommendation-product-r03",
+     "kind": "control",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-pod-checkoutservice-r03",
+     "kind": "control",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-pod-currencyservice-r03",
+     "kind": "control",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-pod-paymentservice-r03",
+     "kind": "control",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-pod-productcatalogservice-r03",
+     "kind": "control",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-pod-recommendationservice-r03",
+     "kind": "control",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-surge-l1-r03",
+     "kind": "control",
+     "fault": "traffic_surge",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-control-surge-l2-r03",
+     "kind": "control",
+     "fault": "traffic_surge",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 150.0
+    },
+    {
+     "case_id": "lv1_linux-v1-control-surge-l3-r03",
+     "kind": "control",
+     "fault": "traffic_surge",
+     "eligible": true,
+     "alarm": false,
+     "alarm_rel_s": NaN
+    },
+    {
+     "case_id": "lv1_linux-v1-cpu-currencyservice-r03",
+     "kind": "fault",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-cpu-productcatalogservice-r03",
+     "kind": "fault",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-cpu-recommendationservice-r03",
+     "kind": "fault",
+     "fault": "cpu_saturation",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-delay-checkout-payment-r03",
+     "kind": "fault",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-delay-front-currency-r03",
+     "kind": "fault",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-delay-front-product-r03",
+     "kind": "fault",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-delay-front-recommendation-r03",
+     "kind": "fault",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-delay-recommendation-product-r03",
+     "kind": "fault",
+     "fault": "network_delay",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-loss-front-currency-r03",
+     "kind": "fault",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 120.0
+    },
+    {
+     "case_id": "lv1_linux-v1-loss-front-product-r03",
+     "kind": "fault",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-loss-front-recommendation-r03",
+     "kind": "fault",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 130.0
+    },
+    {
+     "case_id": "lv1_linux-v1-loss-recommendation-product-r03",
+     "kind": "fault",
+     "fault": "packet_loss",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 170.0
+    },
+    {
+     "case_id": "lv1_linux-v1-pod-checkoutservice-r03",
+     "kind": "fault",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-pod-currencyservice-r03",
+     "kind": "fault",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-pod-paymentservice-r03",
+     "kind": "fault",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-pod-productcatalogservice-r03",
+     "kind": "fault",
+     "fault": "pod_failure",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-surge-l2-r03",
+     "kind": "fault",
+     "fault": "traffic_surge",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    },
+    {
+     "case_id": "lv1_linux-v1-surge-l3-r03",
+     "kind": "fault",
+     "fault": "traffic_surge",
+     "eligible": true,
+     "alarm": true,
+     "alarm_rel_s": 100.0
+    }
+   ]
+  },
+  "node_view_edge_faults": {
+   "either": {
+    "AC@1": 0.34615384615384615,
+    "AC@3": 0.8076923076923077,
+    "AC@5": 0.9230769230769231,
+    "n_cases": 26
+   },
+   "source": {
+    "AC@1": 0.07692307692307693,
+    "AC@3": 0.6153846153846154,
+    "AC@5": 0.7692307692307693,
+    "n_cases": 26
+   },
+   "destination": {
+    "AC@1": 0.2692307692307692,
+    "AC@3": 0.7307692307692307,
+    "AC@5": 0.8076923076923077,
+    "n_cases": 26
+   }
+  },
+  "surge_frontend_rank": [
+   {
+    "case_id": "lv1_linux-v1-surge-l2-r01",
+    "frontend_rank": 2
+   },
+   {
+    "case_id": "lv1_linux-v1-surge-l2-r02",
+    "frontend_rank": 6
+   },
+   {
+    "case_id": "lv1_linux-v1-surge-l2-r03",
+    "frontend_rank": 4
+   },
+   {
+    "case_id": "lv1_linux-v1-surge-l3-r01",
+    "frontend_rank": 6
+   },
+   {
+    "case_id": "lv1_linux-v1-surge-l3-r02",
+    "frontend_rank": 10
+   },
+   {
+    "case_id": "lv1_linux-v1-surge-l3-r03",
+    "frontend_rank": 6
+   }
+  ],
+  "notes": [
+   "Method B: frozen hyperparameters, no selection; training = RE2-OB 90 + linux-v1 other folds.",
+   "rf14 = rel18 without the 4 rx/tx features (secondary, pre-registered sensitivity)."
+  ]
+ }
+}

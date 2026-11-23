@@ -5,9 +5,9 @@
 
 | 구분 | 상태 |
 |---|---|
-| **B 방식 (주 결과)** | 보류. RE2-OB 특징 표를 다시 만들었더니 sha256이 frozen.json과 달라서(1절), 재현 확인(3절) 결과를 보고 사용자가 정한다 |
+| **B 방식 (주 결과)** | **실행됨** 2026-11-23, 재생성 RE2-OB 표 사용(3절 재현 확인 합격). 4절 |
 | A 방식 (보조) | 2026-11-23 실행, 2절 |
-| rel14 (보조) | B 방식과 함께 계산할 예정 |
+| rel14 (보조) | **실행됨** (B 방식과 함께), 4.1절 |
 
 ## 1. RE2-OB 특징 표 재생성과 해시 (2026-11-23)
 
@@ -168,3 +168,113 @@ paymentservice 원인 3 case는 모두 Pod 장애다(CPU 3 case는 impact가 없
 - **일관성 확인:** `--re2ob`를 주면 A 방식도 함께 다시 계산된다. 새 결과의 `method_a`가 `experiments/20261123-linux-v1-eval-a/results.json`의 `method_a`와 같아야 한다. 다르면 B 결과를 해석하지 않고 차이부터 보고한다.
 - 결과가 나빠도 방법을 바꾸지 않는다. 오류가 나면 코드를 고치지 않고 멈춘 뒤 보고한다. 환경 패키지 설치는 고정 기록과 같은 버전일 때만 허용한다.
 - **알고 있는 범위 차이(사실):** METHOD-FREEZE-v2 4절의 비교 행 중 B 방식의 V4(순위)와 v1 탐지기·stat_metric(탐지)은 이 코드의 method_b가 계산하지 않는다. A 방식에서만 나온다. 코드는 바꾸지 않고 그대로 실행한다.
+
+### 4.1 B 방식 결과 (2026-11-23 15:50~15:52 KST)
+
+- 실행: `systemd-run --user`로 `python -m evaluation.run_linux_v1 --features data/features/linux-v1-v0 --re2ob data/features/re2ob-v0 --out experiments/20261123-linux-v1-eval-b`. 2분 21초, 최대 메모리 509 MB, 오류 없음. 결과 파일: `experiments/20261123-linux-v1-eval-b/results.json`, `results.md`.
+- **일관성 확인 통과:** 새 결과의 `method_a`가 `experiments/20261123-linux-v1-eval-a/results.json`의 `method_a`와 완전히 같다(JSON 전체 동일).
+
+#### fold별 학습
+
+| fold (시험 반복) | 순위 학습 행 | 탐지 학습 행 | 운영 문턱 |
+|---|---:|---:|---:|
+| 1 | 64,768 | 17,511 | 0.003532 |
+| 2 | 64,537 | 17,414 | 0.003331 |
+| 3 | 64,779 | 17,549 | 0.003995 |
+
+#### 원인 서비스 순위 (적격 CPU 9 + Pod 13 = 22 case)
+
+| 방법 | n | AC@1 (95% CI) | AC@3 (95% CI) | Avg@5 (95% CI) | MRR (95% CI) |
+|---|---:|---|---|---|---|
+| **RF rel18 (주 방법)** | 22 | 0.955 (0.864–1.000) | 1.000 (1.000–1.000) | **0.991 (0.973–1.000)** | 0.977 (0.932–1.000) |
+| RF rel14 (보조) | 22 | 0.909 (0.773–1.000) | 1.000 (1.000–1.000) | 0.982 (0.955–1.000) | 0.955 (0.886–1.000) |
+| stat_combined | 22 | 0.500 (0.318–0.682) | 0.818 (0.636–0.955) | 0.782 (0.673–0.877) | 0.672 (0.542–0.803) |
+| random | 22 | 0.091 | 0.273 | 0.273 | 0.275 |
+
+장애 종류별 (n / AC@1 / AC@3 / Avg@5 / MRR):
+
+| 방법 | CPU 포화 (n=9) | Pod 장애 (n=13) | paymentservice 원인 (n=3, 모두 Pod) |
+|---|---|---|---|
+| RF rel18 | 1.000 / 1.000 / 1.000 / 1.000 | 0.923 / 1.000 / 0.985 / 0.962 | 1.000 / 1.000 / 1.000 / 1.000 |
+| RF rel14 | 1.000 / 1.000 / 1.000 / 1.000 | 0.846 / 1.000 / 0.969 / 0.923 | 1.000 / 1.000 / 1.000 / 1.000 |
+| stat_combined | 0.778 / 1.000 / 0.956 / 0.889 | 0.308 / 0.692 / 0.662 / 0.522 | 0.667 / 1.000 / 0.867 / 0.778 |
+| random | 0.091 / 0.273 / 0.273 / 0.275 | 같음 | 같음 |
+
+fold별 Avg@5 (fold 1 / 2 / 3):
+
+| 방법 | fold 1 | fold 2 | fold 3 |
+|---|---:|---:|---:|
+| RF rel18 | 1.000 | 0.975 | 1.000 |
+| RF rel14 | 0.971 | 0.975 | 1.000 |
+| stat_combined | 0.900 | 0.688 | 0.771 |
+| random | 0.273 | 0.273 | 0.273 |
+
+짝지은 비교 (case bootstrap 2000, Avg@5 차이):
+
+| 비교 | 차이 | 95% CI | 판정 |
+|---|---:|---|---|
+| RF rel18 − stat_combined | +0.209 | 0.114 ~ 0.318 | **나음** |
+| RF rel14 − RF rel18 | −0.009 | −0.027 ~ 0.000 | 차이 없음 |
+
+정답 순위 4위 이하: RF rel18·rel14는 없음. stat_combined는 A 방식과 같은 4 case(pod-checkoutservice-r02 4위, pod-checkoutservice-r03 5위, pod-currencyservice-r02-a2 4위, pod-currencyservice-r03 4위). stat_combined는 학습이 없어 A·B 결과가 같다.
+
+#### 장애 탐지 (LightGBM all58)
+
+| 항목 | 값 |
+|---|---|
+| window AUROC (95% CI) | **0.965 (0.930–0.990)** |
+| AUPRC | 0.897 |
+| window 수 / 양성 비율 | 12,473 / 0.091 |
+| 적격 장애 run 경보율 | **0.944 (51/54)** |
+| 대조 run 오경보율 | **0.377 (26/69)** |
+| 비적격(no-impact) 장애 run 경보율 | 0.867 (13/15) |
+| 경보까지 걸린 시간 중앙값 | onset + 100 s (장애 종류별: CPU·지연·Pod·급증 100 s, 손실 110 s) |
+
+| 장애 종류 | 적격 장애 run 경보 | 대조 run 오경보 |
+|---|---|---|
+| cpu_saturation | 9/9 | 6/15 |
+| network_delay | 14/14 | 6/15 |
+| packet_loss | 10/12 | 6/15 |
+| pod_failure | 13/13 | 4/15 |
+| traffic_surge | 5/6 | 4/9 |
+
+- 경보가 없던 적격 장애 run: loss-front-recommendation-r01, loss-front-recommendation-r02, surge-l2-r01.
+- 오경보가 난 대조 run 26개: control-cpu-checkoutservice-r01·r02, control-cpu-paymentservice-r03, control-cpu-productcatalogservice-r02·r03, control-cpu-recommendationservice-r03, control-delay-front-currency-r01·r03, control-delay-front-product-r01, control-delay-front-recommendation-r03, control-delay-recommendation-product-r01·r03, control-loss-checkout-payment-r03, control-loss-front-currency-r01·r03, control-loss-front-product-r03, control-loss-front-recommendation-r03, control-loss-recommendation-product-r02, control-pod-currencyservice-r01, control-pod-productcatalogservice-r01-a2, control-pod-recommendationservice-r01·r02, control-surge-l1-r02, control-surge-l2-r01·r02·r03.
+- 경보 판정 구간에서 가장 이른 경보 시각은 onset+100 s다. window가 rel 60·70 s에서 시작해 두 번째 window가 끝나는 때다.
+
+#### 노드 보기 (연결 장애 26 case, B 방식 RF rel18)
+
+| 기준 | AC@1 | AC@3 | AC@5 |
+|---|---:|---:|---:|
+| 양 끝 중 하나 | 0.346 | 0.808 | 0.923 |
+| 출발 서비스 | 0.077 | 0.615 | 0.769 |
+| 도착 서비스 | 0.269 | 0.731 | 0.808 |
+
+#### 트래픽 급증: frontend 순위 (적격 6 case, 서술)
+
+| case | A 방식 | B 방식 |
+|---|---:|---:|
+| surge-l2-r01 | 2 | 2 |
+| surge-l2-r02 | 6 | 6 |
+| surge-l2-r03 | 6 | 4 |
+| surge-l3-r01 | 6 | 6 |
+| surge-l3-r02 | 7 | 10 |
+| surge-l3-r03 | 6 | 6 |
+
+호출 경로 순위(통계 연결 점수)는 학습이 없어 B 방식에서 따로 계산하지 않는다. 2.3절 값이 그대로 적용된다.
+
+#### 4.2 해석 (사실과 추정 구분)
+
+**사실**
+- Pod 장애 순위(RF rel18)는 A 방식 Avg@5 0.708(AC@1 0.154)에서 B 방식 0.985(AC@1 0.923)가 됐다. CPU 포화는 두 방식 모두 1.000이다. 전체 Avg@5는 0.827에서 0.991이 됐다.
+- B 방식에서 RF rel18은 stat_combined보다 짝지은 비교로 나았다(+0.209, CI 0.114~0.318). rel14와는 차이가 없었다(−0.009).
+- 탐지 window AUROC는 A 방식 0.873(0.829–0.917)에서 B 방식 0.965(0.930–0.990)가 됐다.
+- 대조 run 오경보율은 0.377(26/69)이다. 장애 종류별 대조 run 오경보율은 0.27~0.44로 고르게 분포한다.
+- 운영 문턱은 fold마다 0.0033~0.0040이다. 경보까지 걸린 시간의 중앙값은 판정 구간에서 가장 이른 시각(onset+100 s)과 같다.
+
+**확인하지 않은 추정**
+- Pod 장애 개선은 linux-v1 학습 fold에 Pod 장애 case(fold당 약 8~9 case)가 들어간 효과로 보인다. RE2-OB에는 Pod 장애가 없다. A 방식에서 우려했던 "NaN → 0" 문제(METHOD-FREEZE-v2 5절)를, linux-v1 Pod 사례로 학습하면서 다른 신호(trace 호출률 감소 등)로 보완했을 수 있다. feature 중요도나 사례별 원인은 보지 않았다.
+- 탐지 AUROC 상승도 linux-v1 정상·장애 window가 학습에 들어간 효과로 보인다. 확인하지 않았다.
+- 오경보율이 높은 것(37.7%)은 문턱이 낮기 때문일 수 있다. 문턱의 기준이 되는 학습 정상 window의 대부분(탐지 학습 행 약 17,500개 중 RE2-OB 9,176개 이상)이 RE2-OB 것이라 점수가 낮게 몰렸을 가능성이 있다. 경보가 판정 구간의 첫 시점에 몰리는 것도 같은 방향의 신호다. 또 번역 결정 5절의 위험(회복 직후 CPU rate[60s] 꼬리)은 sham_active 구간과 관계가 없어 원인으로 보기 어렵다. 모두 확인하지 않았고, 운영 기준점 정의는 고정 규칙 그대로 두었다.
+- 비적격(no-impact) 장애 run의 경보율이 0.867로 높은 것은, 사용자 영향이 없더라도 주입 신호(CPU·지연 등)를 탐지기가 잡았기 때문일 수 있다. 대조 run 오경보율도 높아서, 둘을 나눠 해석하기는 어렵다.
+- B 방식의 V4·v1 탐지기·stat_metric 비교 행은 코드가 계산하지 않는다(4절 기록). METHOD-FREEZE-v2 4절의 "주 방법과 V4의 짝지은 비교"는 A 방식에서만 있다.
