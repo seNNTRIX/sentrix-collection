@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>SentriX · 로그 의미 공간 탐색</title>
+/*STYLE*/
+<style>.change{font-size:14px;color:var(--muted);margin:12px 0 0;line-height:1.7}.change strong{color:var(--ink)}.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:10px;background:#fbe9e4;color:#94503b;margin:0 4px}.kpis{display:flex;flex-wrap:wrap;gap:28px;margin:4px 0 22px}.kpis div{display:grid}.kpis b{font-size:24px;color:var(--navy);letter-spacing:-.02em}.kpis span{font-size:13px;color:var(--muted)}</style>
+</head><body>
+<header><strong>SentriX</strong><a href="/#B1-Overview">시스템 화면으로 돌아가기</a></header>
+<main><h1>로그 의미 공간 탐색</h1><p>직접 구축한 Online Boutique 환경에서 수집한 실험 138회의 애플리케이션 로그를 MiniLM으로 변환한 뒤, UMAP과 t-SNE로 펼친 분포입니다.</p>
+<div class="kpis" id="kpis"></div>
+<form class="controls" onsubmit="return false" aria-label="분포 탐색 조건">
+<label>장애 종류<select id="fault" aria-label="장애 종류"><option value="all">전체</option></select></label>
+<label>시각화<select id="projection" aria-label="시각화"><option value="umap3">UMAP · 3D</option><option value="umap2">UMAP · 2D</option><option value="tsne2">t-SNE · 2D</option></select></label>
+<label>서비스<select id="service" aria-label="서비스"><option value="all">전체 서비스</option></select></label>
+<label>시간 구간<select id="phase" aria-label="시간 구간"><option value="all">전체</option><option value="before">장애 전</option><option value="during">장애 중</option><option value="after">장애 후</option></select></label>
+<label>색상 기준<select id="color" aria-label="색상 기준"><option value="service">서비스</option><option value="fault">장애 종류</option><option value="phase">장애 전·중·후</option><option value="severity">기록된 로그 수준</option><option value="novel">평소에 없던 표현</option></select></label>
+<button type="button" id="reset">전체 보기로 초기화</button></form>
+<p class="change" id="change"></p>
+<section class="workspace" aria-label="로그 분포와 선택 로그"><section class="plot-wrap"><p id="count" aria-live="polite"></p><p id="empty" hidden>이 조건에 해당하는 로그가 없습니다.</p><div id="scatter" role="img" aria-label="확대 및 회전 가능한 로그 임베딩 분포"></div><p class="legend-note">점 하나는 같은 장애 종류·서비스·구간의 같은 정제 문장이고, 점 크기는 나온 횟수입니다. 같은 문장은 같은 위치에 놓입니다. 3D는 드래그로 회전, 2D는 드래그로 확대할 수 있습니다.</p></section>
+<aside class="detail"><h2>선택한 로그</h2><p id="detail-meta">분포에서 점을 선택해 보세요.</p><pre id="message">로그 메시지가 여기에 표시됩니다.</pre><p id="distance"></p><p id="detail-help">서비스·장애 종류는 색상과 필터에만 씁니다. 임베딩 입력에는 서비스 식별자, 시간, 장애 정답을 넣지 않았습니다.</p></aside></section>
+<section class="lower"><section><h2>서비스별 로그 발생률</h2><p class="muted" id="volume-note">선택한 장애 종류의 장애 전·중 초당 로그 수. 장애의 원인 점수가 아닙니다.</p><div id="volume" role="img" aria-label="서비스별 장애 전후 로그 발생률"></div></section>
+<section class="method"><h2>데이터와 해석 범위</h2><p id="dataset-note"></p><p>분포는 저장된 실험 로그를 분석한 결과입니다. 가까운 점은 비슷한 표현의 단서이며, 점이 떨어져 있다는 이유만으로 장애나 원인 서비스가 확정되지는 않습니다.</p><p><strong>평소에 없던 표현</strong>은 모든 실험의 장애 전 구간에서 그 서비스가 한 번도 남기지 않은 문장입니다. 거리는 384차원 원본 벡터에서 그 서비스의 장애 전 문장 중 가장 가까운 것과의 코사인 거리입니다.</p>
+<p>사전등록 실험(R8)에서 이 로그 의미 거리를 원인 순위 모델에 더했을 때 22개 사례의 순위는 좋아지지 않았습니다(차이 없음). 로그는 <strong>원인 판단의 근거를 보여 주는 용도</strong>로 씁니다.</p>
+<details><summary>모델·전처리·차원 축소 설정</summary><p id="settings"></p><p>메시지 본문과 error 필드를 추출한 뒤 식별자, 주소, Pod 이름, 시각, 숫자, 서비스 이름을 마스킹(R8 사전등록 전처리). 중복 문장은 한 번 임베딩해 재사용. 임의 좌표나 jitter를 추가하지 않음. 각 실험의 시작 후 180초(안정화)는 제외.</p></details><p class="status">저장된 실제 실험 데이터(linux-v1) 분석 화면 · 실시간 수집·백엔드 추론과 별개</p></section></section>
+<footer>임베딩 및 시각화 아이디어: (주)케파스 제공 자료 참고. 해당 기관의 원본 데이터는 포함하지 않았습니다.<br>사용 도구: <a href="https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2">MiniLM</a>, <a href="https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html">t-SNE</a>, <a href="https://umap-learn.readthedocs.io/en/latest/parameters.html">UMAP</a>, Plotly.</footer></main>
+<noscript>분포 탐색에는 JavaScript가 필요합니다.</noscript>
+<script>/*PLOTLY*/</script>
+<script id="dataset" type="application/json">/*DATA*/</script>
+<script>
+'use strict';
+const D=JSON.parse(document.getElementById('dataset').textContent),M=D.meta,T=D.texts;
+const $=id=>document.getElementById(id),colors=['#386FA4','#C5822F','#AF4F55','#2D8C81','#8170A7','#345A84','#C27484','#6F8955','#9C6D4A','#4F9BB8','#B8873A'];
+const palette=Object.fromEntries(M.services.map((s,i)=>[s,colors[i%colors.length]]));
+const faultName=Object.fromEntries(M.faults.map(f=>[f.key,f.name])),faultColors={cpu_saturation:'#C5822F',pod_failure:'#AF4F55',network_delay:'#386FA4',packet_loss:'#8170A7',load_surge:'#2D8C81',control:'#9AA4B2'};
+const phaseName={before:'장애 전',during:'장애 중',after:'장애 후'},phaseColors={before:'#6285AC',during:'#BC634D',after:'#7E9B6A'};
+const novelName={true:'평소에 없던 표현',false:'평소에도 있던 표현'},novelColors={true:'#C2402E',false:'#B7C0CD'},sevColors={'일반':'#7C8AA0','오류·경고':'#C2402E'};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+M.faults.forEach(f=>{const o=document.createElement('option');o.value=f.key;o.textContent=`${f.name} (${f.runs}회)`;$('fault').append(o)});
+M.services.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;$('service').append(o)});
+$('kpis').innerHTML=[[M.runs,'실험 (장애 69 + 대조 69)'],[M.lines.toLocaleString(),'로그 줄'],[M.services.length,'서비스'],[M.unique_texts.toLocaleString(),'정제 후 서로 다른 문장'],[M.dimension,'MiniLM 차원']].map(([b,s])=>`<div><b>${b}</b><span>${s}</span></div>`).join('');
+$('settings').textContent=`모델 ${M.model.name}, revision ${M.model.revision}, L2 정규화. UMAP: cosine, n_neighbors ${M.umap.n_neighbors}, min_dist ${M.umap.min_dist}. t-SNE: cosine, perplexity ${M.tsne.perplexity}, 1,500회. 고정 seed ${M.seed}. 점 ${M.points.toLocaleString()}개.`;
+const F=()=>$('fault').value;
+function chosen(){return D.points.filter(p=>(F()==='all'||p.fault===F())&&($('service').value==='all'||p.service===$('service').value)&&($('phase').value==='all'||p.phase===$('phase').value))}
+function rate(f,s,ph){const rows=D.summary.filter(x=>(f==='all'?x.fault!=='control':x.fault===f)&&x.service===s&&x.phase===ph),secs={};
+ D.summary.filter(x=>(f==='all'?x.fault!=='control':x.fault===f)&&x.phase===ph).forEach(x=>secs[x.fault]=x.seconds);
+ const total=Object.values(secs).reduce((a,b)=>a+b,0);return total?rows.reduce((a,x)=>a+x.count,0)/total:0}
+function changes(){const f=F(),notes=[],nov=D.points.filter(p=>(f==='all'||p.fault===f)&&p.phase==='during'&&p.novel).sort((a,b)=>b.count-a.count);
+ const name=f==='all'?'장애 전체':faultName[f];
+ const rs=M.services.map(s=>({s,b:rate(f,s,'before'),d:rate(f,s,'during')})).filter(x=>x.b>=0.5).map(x=>({...x,r:x.d/x.b})).sort((x,y)=>Math.abs(Math.log(y.r||1e-3))-Math.abs(Math.log(x.r||1e-3)));
+ for(const x of rs.slice(0,3))if(Math.abs(Math.log(x.r||1e-3))>Math.log(1.25))notes.push(`<strong>${esc(x.s)}</strong> 로그 ${x.r<0.05?'거의 중단':(x.r>1?'+':'')+((x.r-1)*100).toFixed(0)+'%'} (초당 ${x.b.toFixed(1)} → ${x.d.toFixed(1)})`);
+ const errS=M.services.map(s=>{const e=ph=>D.points.filter(p=>(f==='all'?p.fault!=='control':p.fault===f)&&p.service===s&&p.phase===ph&&p.severity!=='일반').reduce((a,p)=>a+p.count,0);return{s,b:e('before'),d:e('during')}}).filter(x=>x.d>x.b*1.5&&x.d>=20).sort((a,b)=>b.d-a.d);
+ for(const x of errS.slice(0,2))notes.push(`<strong>${esc(x.s)}</strong> 오류·경고 로그 ${x.b.toLocaleString()} → ${x.d.toLocaleString()}줄`);
+ let html=`<strong>${name}</strong> 장애 중 변화: `+(notes.length?notes.join(' · '):'로그 양과 오류에 뚜렷한 변화 없음');
+ html+=nov.length?`<br>장애 중 평소에 없던 표현 <span class="pill">${nov.length}개 · ${nov.reduce((a,p)=>a+p.count,0).toLocaleString()}줄</span> 가장 많은 것: <strong>${esc(nov[0].service)}</strong> — ${esc(T[nov[0].t].slice(0,150))}`:'<br>장애 중 평소에 없던 표현 <span class="pill">0개</span>';
+ $('change').innerHTML=html;
+ $('dataset-note').textContent=f==='all'?`장애 실험 69회(CPU 과부하·Pod 장애·네트워크 지연·패킷 손실 각 15회, 부하 급증 9회)와 같은 조건의 대조 실험 69회입니다. 장애는 결제 흐름의 서비스 5개와 호출 경로 5개에 주입했고, 로그는 11개 서비스 전체에서 수집했습니다. productcatalogservice와 redis-cart는 원래 로그를 거의 남기지 않습니다.`:`${faultName[f]} 실험 ${M.faults.find(x=>x.key===f).runs}회의 로그입니다. 대조 실험은 장애를 넣지 않고 같은 시각 구간을 '장애 중'으로 표시했습니다.`}
+function detail(p){$('detail-meta').textContent=`${faultName[p.fault]} · ${p.service} · ${phaseName[p.phase]} · ${p.count.toLocaleString()}줄 · ${p.severity}`;$('message').textContent=T[p.t];
+ $('distance').textContent=p.distance===null?'이 서비스의 장애 전 로그가 없어 비교할 수 없음':p.novel?`평소에 없던 표현 · 장애 전 문장과 가장 가까운 거리 ${p.distance.toFixed(4)}`:'평소(장애 전)에도 나오는 표현'}
+let serial=0;
+async function draw(){$('detail-meta').textContent='분포에서 점을 선택해 보세요.';$('message').textContent='로그 메시지가 여기에 표시됩니다.';$('distance').textContent='';
+ const me=++serial,mode=$('projection').value,is3=mode==='umap3',sel=chosen(),by=$('color').value,groups=new Map();
+ $('count').textContent=`${sel.reduce((a,p)=>a+p.count,0).toLocaleString()}줄 · 점 ${sel.length.toLocaleString()}개 · ${is3?'UMAP 3D':mode==='tsne2'?'t-SNE 2D':'UMAP 2D'}`;$('empty').hidden=sel.length>0;
+ for(const p of sel){const k=String(p[by]);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(p)}
+ const order=by==='novel'?['false','true']:[...groups.keys()].sort();
+ const nameOf=k=>by==='phase'?phaseName[k]:by==='novel'?novelName[k]:by==='fault'?faultName[k]:k,colorOf=(k,i)=>by==='service'?palette[k]:by==='phase'?phaseColors[k]:by==='novel'?novelColors[k]:by==='fault'?faultColors[k]:(sevColors[k]||colors[i%colors.length]);
+ const size=c=>(is3?2.6:4)+(is3?1.6:2.6)*Math.log10(c);
+ const traces=order.filter(k=>groups.has(k)).map((k,i)=>{const ps=groups.get(k);return{type:is3?'scatter3d':'scattergl',mode:'markers',name:nameOf(k),x:ps.map(p=>p[mode][0]),y:ps.map(p=>p[mode][1]),...(is3?{z:ps.map(p=>p[mode][2])}:{}),customdata:ps.map(p=>p.id),
+  text:ps.map(p=>`${esc(p.service)} · ${faultName[p.fault]} · ${phaseName[p.phase]} · ${p.count.toLocaleString()}줄<br>${esc(T[p.t].slice(0,140))}`),hovertemplate:'%{text}<extra></extra>',marker:{size:ps.map(p=>size(p.count)),opacity:.78,color:colorOf(k,i),line:{width:0}},showlegend:true}});
+ const range=a=>{const v=D.points.map(p=>p[mode][a]),mn=Math.min(...v),mx=Math.max(...v),g=(mx-mn)*.05||1;return[mn-g,mx+g]};
+ const axis=n=>({title:`${is3?'UMAP':mode==='tsne2'?'t-SNE':'UMAP'} ${n+1}`,range:range(n),showgrid:true,gridcolor:'#e9edf3',zeroline:false,tickfont:{size:11},showbackground:false});
+ const layout={margin:{l:is3?0:55,r:20,t:8,b:65},paper_bgcolor:'#fff',plot_bgcolor:'#fff',font:{family:'Arial, Apple SD Gothic Neo, sans-serif',color:'#364153'},legend:{orientation:'h',x:0,y:-.12,font:{size:11}},uirevision:mode,hovermode:'closest',...(is3?{scene:{xaxis:axis(0),yaxis:axis(1),zaxis:axis(2),aspectmode:'data',camera:{eye:{x:1.5,y:1.5,z:1.1}}}}:{xaxis:axis(0),yaxis:axis(1),dragmode:'zoom'})};
+ try{await Plotly.react('scatter',traces,layout,{responsive:true,displaylogo:false,scrollZoom:true,modeBarButtonsToRemove:['lasso2d','select2d'],toImageButtonOptions:{filename:'SentriX-log-embedding',scale:2}});if(me!==serial)return;$('scatter').removeAllListeners('plotly_click');$('scatter').on('plotly_click',e=>{const id=e.points?.[0]?.customdata;if(Number.isInteger(id))detail(D.points[id])})}
+ catch(e){$('count').textContent='3D 표시를 지원하지 않는 환경입니다. UMAP 2D로 전환합니다.';if(is3){$('projection').value='umap2';await draw()}else throw e}}
+function volume(){const f=F(),names=M.services.map(s=>s.replace('service',''));
+ Plotly.react('volume',[{type:'bar',name:'장애 전',x:names,y:M.services.map(s=>rate(f,s,'before')),marker:{color:phaseColors.before},hovertemplate:'%{x}<br>%{y:.2f}건/초<extra>장애 전</extra>'},{type:'bar',name:'장애 중',x:names,y:M.services.map(s=>rate(f,s,'during')),marker:{color:phaseColors.during},hovertemplate:'%{x}<br>%{y:.2f}건/초<extra>장애 중</extra>'}],
+ {barmode:'group',margin:{l:50,r:10,t:15,b:95},font:{family:'Arial, sans-serif',color:'#596272'},yaxis:{title:'건 / 초',gridcolor:'#e9edf3',zeroline:false},xaxis:{tickangle:-30,tickfont:{size:11}},legend:{orientation:'h',y:1.13},paper_bgcolor:'#fff',plot_bgcolor:'#fff'},{responsive:true,displaylogo:false});
+ $('volume-note').textContent=`${f==='all'?'장애 실험 전체(대조 제외)':faultName[f]}의 장애 전·중 초당 로그 수(실험 시간으로 나눔). 장애의 원인 점수가 아닙니다.`}
+$('fault').addEventListener('change',()=>{changes();volume();draw()});
+for(const id of ['projection','service','phase','color'])$(id).addEventListener('change',()=>draw());
+$('reset').addEventListener('click',()=>{$('fault').value='all';$('service').value='all';$('phase').value='all';$('color').value='service';Plotly.purge('scatter');changes();volume();draw()});
+changes();volume();draw();
+</script></body></html>
