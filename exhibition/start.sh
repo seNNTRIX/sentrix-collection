@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -eu
 here=$(cd "$(dirname "$0")" && pwd)
+if [[ "$(uname)" == Darwin ]] && curl -fsS --max-time 3 http://127.0.0.1:5191/display-policy >/dev/null; then
+  open http://127.0.0.1:5191/ http://127.0.0.1:5191/display
+  exit 0
+fi
 children=()
 cleanup(){ for child in "${children[@]:-}"; do [[ -z "$child" ]] || kill "$child" 2>/dev/null || true; done; }
 trap cleanup EXIT

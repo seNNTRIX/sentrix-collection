@@ -35,7 +35,7 @@ dl{margin:0}dt{color:var(--muted);font-size:14px}dd{margin:0;overflow-wrap:anywh
 </style>
 <div id="operator" hidden>
 <nav class="bar"><span class="brand">SentriX</span><a href="/display" target="_blank" rel="noopener">대시보드 열기 ↗</a></nav>
-<main><div class="heading"><h1>장애 실험실</h1></div>
+<main><div class="heading"><h1>장애 실험실</h1><span id="site"></span></div>
 <div class="grid"><form id="form" class="panel"><h2>실험 설정</h2>
 <fieldset id="fields"><legend>장애 유형</legend><div class="faults">
 <button type="button" data-fault="network_delay">네트워크 지연</button><button type="button" data-fault="packet_loss">패킷 손실</button>
@@ -48,6 +48,10 @@ dl{margin:0}dt{color:var(--muted);font-size:14px}dd{margin:0;overflow-wrap:anywh
 <script>
 const $ = id => document.getElementById(id);
 $('operator').hidden=false;
+if(location.port==='5190'&&['localhost','127.0.0.1'].includes(location.hostname)){
+ $('site').textContent='맥북 로컬 · ';
+ const exhibit=document.createElement('a');exhibit.href='http://127.0.0.1:5191/';exhibit.textContent='시드니 전시 실험실 열기';$('site').append(exhibit);
+}else if(location.port==='5191')$('site').textContent='시드니 전시';
 const decisions = {NORMAL:'정상',ANOMALY:'이상 감지',ABSTAIN:'판정 보류'};
 const buttons = selector => Array.from(document.querySelectorAll(selector));
 let catalog, fault='network_delay', last={}, sending=false, connected=false;
@@ -72,6 +76,14 @@ function lockInputs(){
  const locked=sending || !connected || last.phase==='running';
  $('fields').disabled=locked;
  $('start').disabled=locked || !$('dest').value;
+ let caption='장애 주입';
+ if(!connected)caption='실험실 연결 확인 중';
+ else if(sending)caption='주입 요청 중';
+ else if(last.phase==='running'){
+  const remaining=last.applied?Math.max(0,180-Math.floor((Date.now()-Date.parse(last.applied))/1000)):null;
+  caption=last.recovered||remaining===0?'이전 실험의 판정 확인 중':remaining===null?'이전 실험 준비 중':'실험 중 · 주입 종료까지 '+Math.floor(remaining/60)+'분 '+remaining%60+'초';
+ }
+ $('start').textContent=caption;
 }
 const pretty = s => s?.replaceAll('->',' → ');
 const reasons = {INSUFFICIENT_METRIC_SAMPLES:'30초 동안 수집된 지표가 부족합니다.',TELEMETRY_UPSTREAM_ERROR:'관측 데이터를 제시간에 가져오지 못했습니다.'};
