@@ -14,10 +14,7 @@ body{margin:0;background:#f3f6f5;color:var(--ink);font:16px/1.55 "Geist","Apple 
 main{max-width:1100px;margin:clamp(22px,5vh,64px) auto;padding:0 26px}
 .heading{display:flex;align-items:end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
 h1,h2,p{margin:0}h1{font-size:clamp(31px,4vw,46px);letter-spacing:-.06em;line-height:1.22}
-.switch{display:flex;padding:3px;border:1px solid var(--line);border-radius:7px}
 button,select{font:inherit;color:inherit}button{cursor:pointer}
-.switch button{border:0;background:transparent;padding:6px 14px;border-radius:4px;font-size:14px}
-.switch button[aria-pressed=true]{background:#214844;color:white}
 .grid{display:grid;grid-template-columns:minmax(0,1.26fr) minmax(0,1fr);gap:18px;align-items:start}
 .panel{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:clamp(17px,2.4vw,29px)}
 h2{font-size:20px;letter-spacing:-.04em;margin-bottom:18px}
@@ -38,25 +35,22 @@ dl{margin:0}dt{color:var(--muted);font-size:14px}dd{margin:0;overflow-wrap:anywh
 </style>
 <div id="operator" hidden>
 <nav class="bar"><span class="brand">SentriX</span><a href="/display" target="_blank" rel="noopener">대시보드 열기 ↗</a></nav>
-<main><div class="heading"><div><h1>장애 실험실</h1></div>
-<div class="switch" aria-label="실행 방식"><button type="button" data-mode="replay" aria-pressed="true">실험 재현</button><button type="button" data-mode="live" aria-pressed="false">실시간 실험</button></div></div>
+<main><div class="heading"><h1>장애 실험실</h1></div>
 <div class="grid"><form id="form" class="panel"><h2>실험 설정</h2>
 <fieldset id="fields"><legend>장애 유형</legend><div class="faults">
 <button type="button" data-fault="network_delay">네트워크 지연</button><button type="button" data-fault="packet_loss">패킷 손실</button>
 <button type="button" data-fault="cpu_saturation">CPU 포화</button><button type="button" data-fault="pod_failure">Pod 중단</button></div>
 <div class="selects"><div id="from"><label for="source">호출 출발 서비스</label><select id="source"></select></div>
 <div><label id="toLabel" for="dest">호출 도착 서비스</label><select id="dest"></select></div></div>
-<span class="config" id="config"></span><button id="start" class="primary" disabled>실험 시작</button></fieldset>
+<span class="config">실험 기록 · 30초 단위 분석</span><button id="start" class="primary" disabled>실험 시작</button></fieldset>
 <p id="notice" role="alert"></p></form>
 <section class="panel" aria-label="최근 실행"><h2>최근 실행</h2><p id="phase" role="status">대기 중</p><dl id="details"></dl></section></div></main></div>
 <script>
 const $ = id => document.getElementById(id);
 $('operator').hidden=false;
-const modes = {live:'실시간 실험',replay:'기록 재생'};
 const decisions = {NORMAL:'정상',ANOMALY:'이상 감지',ABSTAIN:'판정 보류'};
-const config = {network_delay:'지연 100 ms · 변동 10 ms',packet_loss:'패킷 손실 2%',cpu_saturation:'CPU 작업자 1개 · 목표 부하 100%',pod_failure:'선택 서비스의 Pod 1개 중단'};
 const buttons = selector => Array.from(document.querySelectorAll(selector));
-let catalog, mode='replay', fault='network_delay', last={}, sending=false, connected=false;
+let catalog, fault='network_delay', last={}, sending=false, connected=false;
 function options(select, names){
  const current=select.value;
  select.replaceChildren(...names.map(name=>new Option(name,name)));
@@ -68,22 +62,18 @@ function choose(){
  const recorded=(catalog.recordings[fault]||[]).map(x=>x.split('->'));
  $('from').hidden=!edge;
  $('toLabel').textContent=edge?'호출 도착 서비스':'대상 서비스';
- options($('source'),edge?(mode==='live'?Object.keys(catalog.edges):[...new Set(recorded.map(pair=>pair[0]))]):[]);
- const dest=mode==='replay'?(edge?recorded.filter(pair=>pair[0]===$('source').value).map(pair=>pair[1]):recorded.map(pair=>pair[0])):edge?(catalog.edges[$('source').value]||[]):catalog.services;
- options($('dest'),dest);
- $('config').textContent=mode==='live'?config[fault]+' · 3분 후 자동 복구 요청':'분석 구간 30초';
- $('start').textContent=mode==='live'?'실험 시작':'시나리오 시작';
- for(const b of buttons('[data-mode]')) b.setAttribute('aria-pressed',b.dataset.mode===mode);
+ options($('source'),edge?[...new Set(recorded.map(pair=>pair[0]))]:[]);
+ const destinations=edge?recorded.filter(pair=>pair[0]===$('source').value).map(pair=>pair[1]):recorded.map(pair=>pair[0]);
+ options($('dest'),destinations);
  for(const b of buttons('[data-fault]')){
   b.setAttribute('aria-pressed',b.dataset.fault===fault);
-  b.disabled=mode==='replay' && !catalog.recordings[b.dataset.fault]?.length;
+  b.disabled=!catalog.recordings[b.dataset.fault]?.length;
  }
  lockInputs();
 }
 function lockInputs(){
  const locked=sending || !connected || last.phase==='running';
  $('fields').disabled=locked;
- for(const b of buttons('[data-mode]')) b.disabled=locked || (b.dataset.mode==='replay' && !Object.keys(catalog?.recordings||{}).length);
  $('start').disabled=locked || !$('dest').value;
 }
 const pretty = s => s?.replaceAll('->',' → ');
@@ -91,9 +81,9 @@ function render(s){
  last=s;
  const decision=decisions[s.decision], first=s.candidates?.[0];
  const firstName=first && (first.kind==='EDGE'?first.source+' → '+first.target:first.service);
- const status=s.phase==='idle'?'대기 중':s.phase==='failed'?'실행 확인 필요':s.phase==='done'?(s.mode==='live'?s.step:'재생 완료'):s.step;
+ const status=s.phase==='idle'?'대기 중':s.phase==='failed'?'실행 확인 필요':s.phase==='done'?'실험 종료':s.step;
  $('phase').textContent=status;
- const fields=[['실행 방식',modes[s.mode]],['실험 조건',s.label],['선택한 위치',pretty(s.location)],
+ const fields=[['실험 조건',s.label],['선택한 위치',pretty(s.location)],
  ['주입 전 판정',decisions[s.before]],['모델 판정',decision || (s.phase==='done'?'결과 없음':'대기 중')],
  ['모델 1순위',firstName],['선택 위치 순위',s.locationRank?s.locationRank+'위':first?'후보 밖':null],
  ['실행 시각',s.started && new Date(s.started).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour12:false})],['상세',s.message || s.reason]];
@@ -105,20 +95,21 @@ function render(s){
 }
 async function poll(){
  try{
-  if(!catalog){const r=await fetch('/catalog');if(!r.ok)throw Error();catalog=await r.json();choose();}
+  if(!catalog){const r=await fetch('/catalog');if(!r.ok)throw Error();catalog=await r.json();
+   if(!catalog.recordings[fault]?.length)fault=Object.keys(catalog.recordings).find(k=>catalog.recordings[k].length)||fault;
+   choose();}
   const r=await fetch('/state',{cache:'no-store'});if(!r.ok)throw Error();
   connected=true;render(await r.json());
  }catch{connected=false;$('phase').textContent='전시 콘솔 연결 확인 중';lockInputs();}
  setTimeout(poll,1200);
 }
-for(const b of buttons('[data-mode]')) b.onclick=()=>{mode=b.dataset.mode;if(mode==='replay' && !catalog.recordings[fault]?.length)fault=Object.keys(catalog.recordings)[0];choose();};
 for(const b of buttons('[data-fault]')) b.onclick=()=>{fault=b.dataset.fault;choose();};
 $('source').onchange=choose;
 $('form').onsubmit=async e=>{
  e.preventDefault();if(sending || last.phase==='running')return;
  sending=true;lockInputs();$('notice').textContent='';
  try{
-  const r=await fetch('/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode,case:fault,source:$('source').value,target:$('dest').value})});
+  const r=await fetch('/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'replay',case:fault,source:$('source').value,target:$('dest').value})});
   if(!r.ok)throw Error(r.status===409?'진행 중인 실험이 있습니다.':r.status===400?await r.text():'실험 요청에 실패했습니다.');
   render(await (await fetch('/state')).json());
  }catch(err){$('notice').textContent=err.message;}finally{sending=false;lockInputs();}
