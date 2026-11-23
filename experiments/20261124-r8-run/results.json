@@ -1,0 +1,592 @@
+{
+ "chosen": {
+  "N_min": 3,
+  "M_min": 20
+ },
+ "re2ob_dev_loso": {
+  "A": {
+   "AC@1": 0.8555555555555555,
+   "AC@3": 0.9888888888888889,
+   "AC@5": 1.0,
+   "Avg@5": 0.9622222222222222,
+   "MRR": 0.9212962962962962,
+   "n_cases": 90
+  },
+  "A'": {
+   "AC@1": 0.8222222222222222,
+   "AC@3": 0.9666666666666667,
+   "AC@5": 1.0,
+   "Avg@5": 0.9444444444444444,
+   "MRR": 0.8972222222222223,
+   "n_cases": 90
+  },
+  "B": {
+   "AC@1": 0.8111111111111111,
+   "AC@3": 0.9555555555555556,
+   "AC@5": 1.0,
+   "Avg@5": 0.9377777777777778,
+   "MRR": 0.8888888888888888,
+   "n_cases": 90
+  },
+  "C": {
+   "AC@1": 0.8111111111111111,
+   "AC@3": 0.9555555555555556,
+   "AC@5": 1.0,
+   "Avg@5": 0.9377777777777778,
+   "MRR": 0.8888888888888888,
+   "n_cases": 90
+  },
+  "D": {
+   "AC@1": 0.8111111111111111,
+   "AC@3": 0.9555555555555556,
+   "AC@5": 1.0,
+   "Avg@5": 0.9377777777777778,
+   "MRR": 0.8888888888888888,
+   "n_cases": 90
+  }
+ },
+ "validity": {
+  "B": {
+   "re2ob_rows_valid_share": 0.8032639885222381,
+   "lv1_rows_valid_share": 0.556570067487098
+  },
+  "C": {
+   "re2ob_rows_valid_share": 0.8032639885222381,
+   "lv1_rows_valid_share": 0.556570067487098
+  },
+  "D": {
+   "re2ob_rows_valid_share": 0.8032639885222381,
+   "lv1_rows_valid_share": 0.556570067487098
+  }
+ },
+ "lv1": {
+  "A": {
+   "AC@1": 0.9545454545454546,
+   "AC@3": 1.0,
+   "AC@5": 1.0,
+   "Avg@5": 0.990909090909091,
+   "MRR": 0.9772727272727273,
+   "n_cases": 22,
+   "AC@1_ci95": [
+    0.8636363636363636,
+    1.0
+   ],
+   "AC@3_ci95": [
+    1.0,
+    1.0
+   ],
+   "Avg@5_ci95": [
+    0.9727272727272727,
+    1.0
+   ],
+   "MRR_ci95": [
+    0.9318181818181818,
+    1.0
+   ],
+   "by_fault": {
+    "cpu_saturation": {
+     "AC@1": 1.0,
+     "AC@3": 1.0,
+     "AC@5": 1.0,
+     "Avg@5": 1.0,
+     "MRR": 1.0,
+     "n_cases": 9
+    },
+    "pod_failure": {
+     "AC@1": 0.9230769230769231,
+     "AC@3": 1.0,
+     "AC@5": 1.0,
+     "Avg@5": 0.9846153846153847,
+     "MRR": 0.9615384615384616,
+     "n_cases": 13
+    }
+   },
+   "paymentservice": {
+    "AC@1": 1.0,
+    "AC@3": 1.0,
+    "AC@5": 1.0,
+    "Avg@5": 1.0,
+    "MRR": 1.0,
+    "n_cases": 3
+   }
+  },
+  "A'": {
+   "AC@1": 0.9545454545454546,
+   "AC@3": 1.0,
+   "AC@5": 1.0,
+   "Avg@5": 0.990909090909091,
+   "MRR": 0.9772727272727273,
+   "n_cases": 22,
+   "AC@1_ci95": [
+    0.8636363636363636,
+    1.0
+   ],
+   "AC@3_ci95": [
+    1.0,
+    1.0
+   ],
+   "Avg@5_ci95": [
+    0.9727272727272727,
+    1.0
+   ],
+   "MRR_ci95": [
+    0.9318181818181818,
+    1.0
+   ],
+   "by_fault": {
+    "cpu_saturation": {
+     "AC@1": 1.0,
+     "AC@3": 1.0,
+     "AC@5": 1.0,
+     "Avg@5": 1.0,
+     "MRR": 1.0,
+     "n_cases": 9
+    },
+    "pod_failure": {
+     "AC@1": 0.9230769230769231,
+     "AC@3": 1.0,
+     "AC@5": 1.0,
+     "Avg@5": 0.9846153846153847,
+     "MRR": 0.9615384615384616,
+     "n_cases": 13
+    }
+   },
+   "paymentservice": {
+    "AC@1": 1.0,
+    "AC@3": 1.0,
+    "AC@5": 1.0,
+    "Avg@5": 1.0,
+    "MRR": 1.0,
+    "n_cases": 3
+   }
+  },
+  "B": {
+   "AC@1": 0.9090909090909091,
+   "AC@3": 1.0,
+   "AC@5": 1.0,
+   "Avg@5": 0.9818181818181818,
+   "MRR": 0.9545454545454546,
+   "n_cases": 22,
+   "AC@1_ci95": [
+    0.7727272727272727,
+    1.0
+   ],
+   "AC@3_ci95": [
+    1.0,
+    1.0
+   ],
+   "Avg@5_ci95": [
+    0.9545454545454546,
+    1.0
+   ],
+   "MRR_ci95": [
+    0.8863636363636364,
+    1.0
+   ],
+   "by_fault": {
+    "cpu_saturation": {
+     "AC@1": 1.0,
+     "AC@3": 1.0,
+     "AC@5": 1.0,
+     "Avg@5": 1.0,
+     "MRR": 1.0,
+     "n_cases": 9
+    },
+    "pod_failure": {
+     "AC@1": 0.8461538461538461,
+     "AC@3": 1.0,
+     "AC@5": 1.0,
+     "Avg@5": 0.9692307692307693,
+     "MRR": 0.9230769230769231,
+     "n_cases": 13
+    }
+   },
+   "paymentservice": {
+    "AC@1": 1.0,
+    "AC@3": 1.0,
+    "AC@5": 1.0,
+    "Avg@5": 1.0,
+    "MRR": 1.0,
+    "n_cases": 3
+   }
+  },
+  "C": {
+   "AC@1": 0.9090909090909091,
+   "AC@3": 1.0,
+   "AC@5": 1.0,
+   "Avg@5": 0.9818181818181818,
+   "MRR": 0.9545454545454546,
+   "n_cases": 22,
+   "AC@1_ci95": [
+    0.7727272727272727,
+    1.0
+   ],
+   "AC@3_ci95": [
+    1.0,
+    1.0
+   ],
+   "Avg@5_ci95": [
+    0.9545454545454546,
+    1.0
+   ],
+   "MRR_ci95": [
+    0.8863636363636364,
+    1.0
+   ],
+   "by_fault": {
+    "cpu_saturation": {
+     "AC@1": 1.0,
+     "AC@3": 1.0,
+     "AC@5": 1.0,
+     "Avg@5": 1.0,
+     "MRR": 1.0,
+     "n_cases": 9
+    },
+    "pod_failure": {
+     "AC@1": 0.8461538461538461,
+     "AC@3": 1.0,
+     "AC@5": 1.0,
+     "Avg@5": 0.9692307692307693,
+     "MRR": 0.9230769230769231,
+     "n_cases": 13
+    }
+   },
+   "paymentservice": {
+    "AC@1": 1.0,
+    "AC@3": 1.0,
+    "AC@5": 1.0,
+    "Avg@5": 1.0,
+    "MRR": 1.0,
+    "n_cases": 3
+   }
+  },
+  "D": {
+   "AC@1": 0.9090909090909091,
+   "AC@3": 1.0,
+   "AC@5": 1.0,
+   "Avg@5": 0.9818181818181818,
+   "MRR": 0.9545454545454546,
+   "n_cases": 22,
+   "AC@1_ci95": [
+    0.7727272727272727,
+    1.0
+   ],
+   "AC@3_ci95": [
+    1.0,
+    1.0
+   ],
+   "Avg@5_ci95": [
+    0.9545454545454546,
+    1.0
+   ],
+   "MRR_ci95": [
+    0.8863636363636364,
+    1.0
+   ],
+   "by_fault": {
+    "cpu_saturation": {
+     "AC@1": 1.0,
+     "AC@3": 1.0,
+     "AC@5": 1.0,
+     "Avg@5": 1.0,
+     "MRR": 1.0,
+     "n_cases": 9
+    },
+    "pod_failure": {
+     "AC@1": 0.8461538461538461,
+     "AC@3": 1.0,
+     "AC@5": 1.0,
+     "Avg@5": 0.9692307692307693,
+     "MRR": 0.9230769230769231,
+     "n_cases": 13
+    }
+   },
+   "paymentservice": {
+    "AC@1": 1.0,
+    "AC@3": 1.0,
+    "AC@5": 1.0,
+    "Avg@5": 1.0,
+    "MRR": 1.0,
+    "n_cases": 3
+   }
+  }
+ },
+ "comparisons": {
+  "primary_D_minus_A": {
+   "metric": "Avg@5",
+   "diff": -0.009090909090909089,
+   "ci95": [
+    -0.027272727272727268,
+    0.0
+   ],
+   "verdict": "no difference",
+   "n_cases": 22
+  },
+  "D_minus_A'": {
+   "metric": "Avg@5",
+   "diff": -0.009090909090909089,
+   "ci95": [
+    -0.027272727272727268,
+    0.0
+   ],
+   "verdict": "no difference",
+   "n_cases": 22
+  },
+  "D_minus_B": {
+   "metric": "Avg@5",
+   "diff": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "verdict": "no difference",
+   "n_cases": 22
+  },
+  "D_minus_C": {
+   "metric": "Avg@5",
+   "diff": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "verdict": "no difference",
+   "n_cases": 22
+  },
+  "A'_minus_A": {
+   "metric": "Avg@5",
+   "diff": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "verdict": "no difference",
+   "n_cases": 22
+  }
+ },
+ "per_case": [
+  {
+   "case_id": "lv1_linux-v1-cpu-currencyservice-r01",
+   "fault": "cpu_saturation",
+   "root_cause": "currencyservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-cpu-currencyservice-r02-a2",
+   "fault": "cpu_saturation",
+   "root_cause": "currencyservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-cpu-currencyservice-r03",
+   "fault": "cpu_saturation",
+   "root_cause": "currencyservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-cpu-productcatalogservice-r01",
+   "fault": "cpu_saturation",
+   "root_cause": "productcatalogservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-cpu-productcatalogservice-r02",
+   "fault": "cpu_saturation",
+   "root_cause": "productcatalogservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-cpu-productcatalogservice-r03",
+   "fault": "cpu_saturation",
+   "root_cause": "productcatalogservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-cpu-recommendationservice-r01",
+   "fault": "cpu_saturation",
+   "root_cause": "recommendationservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-cpu-recommendationservice-r02",
+   "fault": "cpu_saturation",
+   "root_cause": "recommendationservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-cpu-recommendationservice-r03",
+   "fault": "cpu_saturation",
+   "root_cause": "recommendationservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-pod-checkoutservice-r01",
+   "fault": "pod_failure",
+   "root_cause": "checkoutservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-pod-checkoutservice-r02",
+   "fault": "pod_failure",
+   "root_cause": "checkoutservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-pod-checkoutservice-r03",
+   "fault": "pod_failure",
+   "root_cause": "checkoutservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-pod-currencyservice-r01",
+   "fault": "pod_failure",
+   "root_cause": "currencyservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 2,
+   "rank_C": 2,
+   "rank_D": 2
+  },
+  {
+   "case_id": "lv1_linux-v1-pod-currencyservice-r02-a2",
+   "fault": "pod_failure",
+   "root_cause": "currencyservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-pod-currencyservice-r03",
+   "fault": "pod_failure",
+   "root_cause": "currencyservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-pod-paymentservice-r01",
+   "fault": "pod_failure",
+   "root_cause": "paymentservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-pod-paymentservice-r02",
+   "fault": "pod_failure",
+   "root_cause": "paymentservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-pod-paymentservice-r03",
+   "fault": "pod_failure",
+   "root_cause": "paymentservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-pod-productcatalogservice-r01-a2",
+   "fault": "pod_failure",
+   "root_cause": "productcatalogservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-pod-productcatalogservice-r02",
+   "fault": "pod_failure",
+   "root_cause": "productcatalogservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-pod-productcatalogservice-r03",
+   "fault": "pod_failure",
+   "root_cause": "productcatalogservice",
+   "rank_A": 1,
+   "rank_A'": 1,
+   "rank_B": 1,
+   "rank_C": 1,
+   "rank_D": 1
+  },
+  {
+   "case_id": "lv1_linux-v1-pod-recommendationservice-r02",
+   "fault": "pod_failure",
+   "root_cause": "recommendationservice",
+   "rank_A": 2,
+   "rank_A'": 2,
+   "rank_B": 2,
+   "rank_C": 2,
+   "rank_D": 2
+  }
+ ],
+ "notes": [
+  "RE2-OB dev numbers use the data the N_min/M_min were chosen on (optimistic).",
+  "pod-checkoutservice cases: one repetition was viewed before PREREG (PREREG 2); flagged in per_case."
+ ]
+}
