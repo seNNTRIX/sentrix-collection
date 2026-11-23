@@ -6,12 +6,11 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
-# Direct application dependencies specified by deploy/online-boutique/manifest-original.yaml.
+# Exhibition targets with server request metrics and their direct application calls.
 EDGES = {
-    "frontend": ["productcatalogservice","currencyservice","cartservice","recommendationservice","shippingservice","checkoutservice","adservice"],
-    "checkoutservice": ["productcatalogservice","shippingservice","paymentservice","emailservice","currencyservice","cartservice"],
+    "frontend": ["productcatalogservice","currencyservice","recommendationservice","checkoutservice"],
+    "checkoutservice": ["productcatalogservice","paymentservice","emailservice","currencyservice"],
     "recommendationservice": ["productcatalogservice"],
-    "cartservice": ["redis-cart"],
 }
 SERVICES = sorted(set(EDGES).union(*EDGES.values()))
 KINDS = {"network_delay":"NetworkChaos","packet_loss":"NetworkChaos","cpu_saturation":"StressChaos","pod_failure":"PodChaos"}

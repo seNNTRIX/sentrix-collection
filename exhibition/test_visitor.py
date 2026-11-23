@@ -30,8 +30,8 @@ class ExperimentTest(unittest.TestCase):
     def test_every_declared_subject(self):
         from visitor import selection
         from live import SERVICES, EDGES
-        self.assertEqual(len(SERVICES), 11)
-        self.assertEqual(sum(map(len, EDGES.values())), 15)
+        self.assertEqual(set(SERVICES), {"frontend","checkoutservice","currencyservice","emailservice","paymentservice","productcatalogservice","recommendationservice"})
+        self.assertEqual(sum(map(len, EDGES.values())), 9)
         for fault in ("cpu_saturation","pod_failure"):
             for node in SERVICES:
                 spec=selection({"mode":"live","case":fault,"source":"","target":node}, "test")[0]["spec"]

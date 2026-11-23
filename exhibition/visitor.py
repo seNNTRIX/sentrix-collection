@@ -144,7 +144,7 @@ class Handler(BaseHTTPRequestHandler):
                 with urlopen("http://127.0.0.1:8000/health", timeout=3) as response:
                     health = json.load(response)
             except (OSError, ValueError):
-                return self.send_error(503)
+                health = {}
             return self.send(200, "application/json", json.dumps({"threshold": health.get("threshold"), "modelVersion": health.get("modelVersion"), "applicationServices": live.SERVICES}).encode())
         if path == "/display-environment":
             with lock:
@@ -193,8 +193,9 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_error(503)
             return self.send(200,"application/json",json.dumps(response).encode())
         if self.path == "/catalog":
+            subjects = set(live.SERVICES) | {f"{src}->{dst}" for src,targets in live.EDGES.items() for dst in targets}
             catalog = {"services":live.SERVICES,"edges":live.EDGES,
-                       "recordings":{key:sorted({c["root_cause"] for c in CASES if c["fault"]==key}) for key in LABELS}}
+                       "recordings":{key:sorted({c["root_cause"] for c in CASES if c["fault"]==key and c["root_cause"] in subjects}) for key in LABELS}}
             return self.send(200,"application/json",json.dumps(catalog).encode())
         if self.path == "/state":
             with lock:
