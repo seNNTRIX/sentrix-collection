@@ -1,42 +1,145 @@
-<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Online Boutique · 장애 실험 재생</title>
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SentriX · 장애 실험실</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f7f8f7;color:#19251e;font-family:system-ui,sans-serif}main{width:min(760px,92vw);margin:8vh auto}h1{font-size:clamp(30px,5vw,54px);letter-spacing:-.07em;margin:20px 0 8px}p{line-height:1.6;color:#46594c}button{background:white;color:inherit;text-align:left;border:1px solid #cad3cb;border-radius:8px;padding:19px;font:600 19px system-ui;cursor:pointer}button:hover,button:focus-visible{border-color:#216646;background:#ecf5ef}button:disabled{opacity:.6;cursor:wait}small{display:block;margin-top:6px;font:14px system-ui;color:#526459}#choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:12px;margin:24px 0}header{padding:12px 20px;background:#18271e;color:white;display:flex;align-items:baseline;gap:20px;flex-wrap:wrap}#out{font-size:clamp(17px,2vw,28px);font-weight:600}#display{height:100dvh;display:flex;flex-direction:column}iframe{width:100%;min-height:0;flex:1;border:0;background:white}#display[hidden],main[hidden]{display:none}a{color:#215a3e}
+:root{color-scheme:light;--ink:#172b29;--muted:#526664;--line:#d4dfdc;--accent:#005d51;--paper:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:#f3f6f5;color:var(--ink);font:16px/1.55 "Geist","Apple SD Gothic Neo",system-ui,sans-serif}
+[hidden]{display:none!important}
+.bar{background:#112f2e;color:white;display:flex;align-items:center;justify-content:space-between;padding:14px max(5vw,24px);gap:18px}
+.brand{font-weight:750;letter-spacing:-.04em;font-size:23px}
+.bar a{color:#dcf1eb;text-decoration:none;font-size:14px}
+main{max-width:1100px;margin:clamp(22px,5vh,64px) auto;padding:0 26px}
+.heading{display:flex;align-items:end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+h1,h2,p{margin:0}h1{font-size:clamp(31px,4vw,46px);letter-spacing:-.06em;line-height:1.22}
+.switch{display:flex;padding:3px;border:1px solid var(--line);border-radius:7px}
+button,select{font:inherit;color:inherit}button{cursor:pointer}
+.switch button{border:0;background:transparent;padding:6px 14px;border-radius:4px;font-size:14px}
+.switch button[aria-pressed=true]{background:#214844;color:white}
+.grid{display:grid;grid-template-columns:minmax(0,1.26fr) minmax(0,1fr);gap:18px;align-items:start}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:clamp(17px,2.4vw,29px)}
+h2{font-size:20px;letter-spacing:-.04em;margin-bottom:18px}
+fieldset{border:0;padding:0;margin:0;min-width:0}legend,label{font-size:14px;font-weight:650;display:block;margin-bottom:5px}
+.faults{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0 0 18px}
+.faults button,select{background:white;border:1px solid #b8c7c3;border-radius:5px;padding:10px;text-align:left}
+.faults button[aria-pressed=true]{border-color:var(--accent);background:#e9f4f0;color:#004c42;font-weight:700;box-shadow:inset 3px 0 var(--accent)}
+select{width:100%;font:15px ui-monospace,monospace;min-height:42px}
+.selects{display:grid;gap:11px}
+.config{display:block;color:var(--muted);border-top:1px solid var(--line);margin-top:17px;padding:12px 0;font-size:14px}
+.primary{display:block;width:100%;border:0;border-radius:5px;background:var(--accent);color:white;padding:12px;font-weight:700}
+button:disabled,select:disabled{opacity:.5;cursor:default}button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #289ada;outline-offset:2px}
+dl{margin:0}dt{color:var(--muted);font-size:14px}dd{margin:0;overflow-wrap:anywhere;font-weight:550}
+.row{display:grid;grid-template-columns:94px 1fr;gap:8px;padding:11px 0;border-top:1px solid var(--line)}
+#phase{font-size:23px;letter-spacing:-.04em;margin:-4px 0 15px}
+#notice{color:#913324;font-size:14px;margin-top:9px}
+#wall{height:100dvh;display:flex;flex-direction:column}#wall .bar{padding:7px 20px;font-size:14px}#wallSummary{margin-left:auto}
+iframe{width:100%;flex:1;min-height:0;border:0;background:white}
+@media(max-width:720px){.grid{grid-template-columns:1fr}main{padding:0 16px}.heading{align-items:start}.bar{padding:10px 16px}}
+.plot-wrap{padding:9px max(2vw,16px) 6px;background:white;border-bottom:1px solid var(--line)}
+.plot-head{display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:14px}
+.plot-head h2{font-size:17px;margin:0}.plot-head strong{font:600 18px ui-monospace,monospace;color:#005d51}
+.plot-head small{margin-left:auto;color:var(--muted)}.plot-head button{background:white;border:1px solid var(--line);border-radius:4px;font-size:12px;padding:3px 8px}
+#plot{width:100%;height:clamp(87px,15vh,165px);display:block}#events{font:13px system-ui;color:#4e554d;white-space:pre-wrap}
 </style>
-<main id="visitor" hidden><small>Online Boutique · 졸업전시</small><h1>장애 실험을 골라 보세요</h1>
-<p>리눅스 쇼핑몰에서 수집한 실제 실험 기록입니다. 선택하면 모델이 해당 30초 구간을 다시 분석합니다. 결과는 큰 화면에서 확인하세요.</p>
-<div id="choices"><button data-case="network_delay">네트워크 지연<small>화면 서비스 → 상품 서비스</small></button><button data-case="pod_failure">결제 Pod 중단<small>결제 서비스</small></button><button data-case="cpu_saturation">CPU 포화<small>통화 변환 서비스</small></button><button data-case="packet_loss">패킷 손실<small>추천 서비스 → 상품 서비스</small></button></div>
-<p id="note" role="status"></p><a href="/display" target="_blank" rel="noopener">큰 모니터 화면 열기 ↗</a></main>
-<section id="display" hidden><header><span>Online Boutique · 저장 실험 재분석</span><span id="out" role="status"></span></header><iframe id="frame" title="SentriX 대시보드"></iframe></section>
+<div id="operator" hidden>
+<nav class="bar"><span class="brand">SentriX</span><a href="/display" target="_blank" rel="noopener">대시보드 열기 ↗</a></nav>
+<main><div class="heading"><div><h1>장애 실험실</h1></div>
+<div class="switch" aria-label="실행 방식"><button type="button" data-mode="live" aria-pressed="true">실시간 실험</button><button type="button" data-mode="replay" aria-pressed="false">기록 재생</button></div></div>
+<div class="grid"><form id="form" class="panel"><h2>실험 설정</h2>
+<fieldset id="fields"><legend>장애 유형</legend><div class="faults">
+<button type="button" data-fault="network_delay">네트워크 지연</button><button type="button" data-fault="packet_loss">패킷 손실</button>
+<button type="button" data-fault="cpu_saturation">CPU 포화</button><button type="button" data-fault="pod_failure">Pod 중단</button></div>
+<div class="selects"><div id="from"><label for="source">호출 출발 서비스</label><select id="source"></select></div>
+<div><label id="toLabel" for="dest">호출 도착 서비스</label><select id="dest"></select></div></div>
+<span class="config" id="config"></span><button id="start" class="primary" disabled>실험 시작</button></fieldset>
+<p id="notice" role="alert"></p></form>
+<section class="panel" aria-label="최근 실행"><h2>최근 실행</h2><p id="phase" role="status">대기 중</p><dl id="details"></dl></section></div></main></div>
+<section id="wall" hidden><div class="bar"><b>SentriX</b><span id="wallMode"></span><span id="wallSummary" role="status"></span></div><section class="plot-wrap"><div class="plot-head"><h2 id="plotName">관측 지표</h2><strong id="reading">—</strong><small id="plotStatus"></small><button id="hold" type="button">일시 정지</button></div><canvas id="plot" role="img" aria-label="관측 시계열"></canvas><div id="events"></div></section><iframe id="frame" title="SentriX 대시보드"></iframe></section>
 <script>
-const big=location.pathname==='/display';
-document.querySelector(big?'#display':'#visitor').hidden=false;
-const home='http://127.0.0.1:5177/#B1-Overview';
-const frame=document.getElementById('frame'),note=document.getElementById('note'),out=document.getElementById('out');
-const buttons=[...document.querySelectorAll('button')];
-const decisions={NORMAL:'정상',ANOMALY:'이상 감지',ABSTAIN:'판정 보류'};
-let target='',sending=false;
-function showFrame(url){if(big&&url!==target){target=url;frame.src=url;}}
+const $ = id => document.getElementById(id);
+const wall = location.pathname === '/display';
+$(wall ? 'wall' : 'operator').hidden = false;
+const modes = {live:'실시간 실험',replay:'기록 재생'};
+const decisions = {NORMAL:'정상',ANOMALY:'이상 감지',ABSTAIN:'판정 보류'};
+const config = {network_delay:'지연 100 ms · 변동 10 ms',packet_loss:'패킷 손실 2%',cpu_saturation:'CPU 작업자 1개 · 목표 부하 100%',pod_failure:'선택 서비스의 Pod 1개 중단'};
+const links = {live:'http://127.0.0.1:5176',replay:'http://127.0.0.1:5177'};
+const buttons = selector => Array.from(document.querySelectorAll(selector));
+let catalog, mode='live', fault='network_delay', last={}, sending=false, frameUrl='', connected=false;
+function options(select, names){
+ const current=select.value;
+ select.replaceChildren(...names.map(name=>new Option(name,name)));
+ if(names.includes(current)) select.value=current;
+}
+function choose(){
+ if(!catalog) return;
+ const edge=['network_delay','packet_loss'].includes(fault);
+ const recorded=catalog.recordings[fault]?.split('->') || [];
+ $('from').hidden=!edge;
+ $('toLabel').textContent=edge?'호출 도착 서비스':'대상 서비스';
+ options($('source'),edge?(mode==='live'?Object.keys(catalog.edges):recorded.slice(0,1)):[]);
+ const dest=mode==='replay'?recorded.slice(-1):edge?(catalog.edges[$('source').value]||[]):catalog.services;
+ options($('dest'),dest);
+ $('config').textContent=mode==='live'?config[fault]+' · 3분 후 자동 복구 요청':'분석 구간 30초';
+ $('start').textContent=mode==='live'?'실험 시작':'기록 재생';
+ for(const b of buttons('[data-mode]')) b.setAttribute('aria-pressed',b.dataset.mode===mode);
+ for(const b of buttons('[data-fault]')){
+  b.setAttribute('aria-pressed',b.dataset.fault===fault);
+  b.disabled=mode==='replay' && !catalog.recordings[b.dataset.fault];
+ }
+ lockInputs();
+}
+function lockInputs(){
+ const locked=sending || !connected || last.phase==='running';
+ $('fields').disabled=locked;
+ for(const b of buttons('[data-mode]')) b.disabled=locked || (b.dataset.mode==='replay' && !Object.keys(catalog?.recordings||{}).length);
+ $('start').disabled=locked || !$('dest').value;
+}
+const pretty = s => s?.replaceAll('->',' → ');
 function render(s){
- buttons.forEach(b=>b.disabled=sending||s.phase==='running');
- if(s.phase==='idle'){note.textContent='실험 선택 대기';out.textContent='맥북에서 실험을 선택하세요';showFrame(home);return;}
- if(s.phase==='failed'){note.textContent=s.message;out.textContent=s.message;showFrame(home);return;}
- if(s.phase==='running'){note.textContent=s.label+' · 분석 요청 중';out.textContent='저장된 관측 자료를 분석하고 있습니다';showFrame(home);return;}
- const first=s.candidates?.[0],where=first?(first.kind==='EDGE'?first.source+' → '+first.target:first.service):'';
- const message=(decisions[s.decision]||s.decision)+(where?' · 1순위 '+where:'');
- const rank=s.locationRank?' · 주입 위치가 전체 후보 '+s.locationRank+'위':s.decision==='ANOMALY'?' · 주입 위치가 후보에 없음':'';
- note.textContent=s.label+' 실험 · 모델 판정 '+message+rank;out.textContent=message;showFrame(s.link);
+ last=s;
+ const decision=decisions[s.decision], first=s.candidates?.[0];
+ const firstName=first && (first.kind==='EDGE'?first.source+' → '+first.target:first.service);
+ const status=s.phase==='idle'?'대기 중':s.phase==='failed'?'실행 확인 필요':s.phase==='done'?(s.mode==='live'?s.step:'재생 완료'):s.step;
+ if(wall){
+  window.syncWallChart?.(s);
+  $('wallMode').textContent=modes[s.mode||'live'];
+  $('wallSummary').textContent=[status,decision,firstName && '1순위 '+firstName].filter(Boolean).join(' · ');
+  const url=s.link || links[s.mode||'live']+'/#B1-Overview';
+  if(url!==frameUrl){$('frame').src=url;frameUrl=url;}
+  return;
+ }
+ $('phase').textContent=status;
+ const fields=[['실행 방식',modes[s.mode]],['실험 조건',s.label],['선택한 위치',pretty(s.location)],
+ ['주입 전 판정',decisions[s.before]],['모델 판정',decision || (s.phase==='done'?'결과 없음':'대기 중')],
+ ['모델 1순위',firstName],['선택 위치 순위',s.locationRank?s.locationRank+'위':first?'후보 밖':null],
+ ['실행 시각',s.started && new Date(s.started).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour12:false})],['상세',s.message || s.reason]];
+ $('details').replaceChildren(...fields.filter(([,v])=>v).map(([k,v])=>{
+  const row=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');
+  row.className='row';dt.textContent=k;dd.textContent=v;row.append(dt,dd);return row;
+ }));
+ lockInputs();
 }
 async function poll(){
- try{const r=await fetch('/state',{cache:'no-store'});if(!r.ok)throw Error();render(await r.json());}
- catch{note.textContent=out.textContent='전시 서버 연결을 확인하세요';buttons.forEach(b=>b.disabled=true);}
- setTimeout(poll,1100);
+ try{
+  if(!wall && !catalog){const r=await fetch('/catalog');if(!r.ok)throw Error();catalog=await r.json();choose();}
+  const r=await fetch('/state',{cache:'no-store'});if(!r.ok)throw Error();
+  connected=true;render(await r.json());
+ }catch{connected=false;$(wall?'wallSummary':'phase').textContent='전시 콘솔 연결 확인 중';if(!wall)lockInputs();}
+ setTimeout(poll,1200);
 }
-for(const b of buttons)b.onclick=async()=>{
- sending=true;buttons.forEach(x=>x.disabled=true);
- try{const r=await fetch('/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({case:b.dataset.case})});
- note.textContent=r.ok?'분석 요청을 보냈습니다':r.status===409?'다른 실험을 분석하고 있습니다':'분석 요청을 확인하세요';}
- catch{note.textContent='전시 서버에 연결하지 못했습니다';}finally{sending=false;}
+for(const b of buttons('[data-mode]')) b.onclick=()=>{mode=b.dataset.mode;if(mode==='replay' && !catalog.recordings[fault])fault=Object.keys(catalog.recordings)[0];choose();};
+for(const b of buttons('[data-fault]')) b.onclick=()=>{fault=b.dataset.fault;choose();};
+$('source').onchange=choose;
+$('form').onsubmit=async e=>{
+ e.preventDefault();if(sending || last.phase==='running')return;
+ sending=true;lockInputs();$('notice').textContent='';
+ try{
+  const r=await fetch('/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode,case:fault,source:$('source').value,target:$('dest').value})});
+  if(!r.ok)throw Error(r.status===409?'진행 중인 실험이 있습니다.':r.status===400?await r.text():'실험 요청에 실패했습니다.');
+  render(await (await fetch('/state')).json());
+ }catch(err){$('notice').textContent=err.message;}finally{sending=false;lockInputs();}
 };
-poll();
+if(wall){const script=document.createElement('script');script.src='/chart.js';script.onload=poll;document.head.append(script);}else poll();
 </script></html>

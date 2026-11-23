@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sentrix-exhibit
+  namespace: sentrix
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: sentrix-exhibit
+  namespace: sentrix
+rules:
+  - apiGroups: ["chaos-mesh.org"]
+    resources: ["networkchaos", "stresschaos", "podchaos"]
+    verbs: ["create", "get", "list", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: sentrix-exhibit
+  namespace: sentrix
+subjects:
+  - kind: ServiceAccount
+    name: sentrix-exhibit
+    namespace: sentrix
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: sentrix-exhibit
