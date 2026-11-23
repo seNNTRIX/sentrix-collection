@@ -45,6 +45,28 @@ class ExperimentTest(unittest.TestCase):
                     self.assertEqual(spec["direction"],"to")
                     self.assertEqual(spec["externalTargets"], [f"{target}.sentrix.svc.cluster.local"])
 
+    def test_displayed_profiles_match_scoped_experiments(self):
+        import live
+        for fault, profile in live.PROFILES.items():
+            spec = live.build(fault, profile["source"], profile["target"], "test")["spec"]
+            self.assertEqual(spec["duration"], "180s")
+            if fault == "packet_loss":
+                self.assertIn(spec["loss"]["loss"] + "%", profile["condition"])
+
+    def test_injection_requires_recent_normal_observation(self):
+        import live
+        from datetime import datetime, timezone, timedelta
+        from unittest.mock import Mock
+        manifest = live.build("cpu_saturation", "", "productcatalogservice", "test")
+        for age, decision in [(121, "NORMAL"), (10, "ABSTAIN"), (10, "ANOMALY")]:
+            end = datetime.now(timezone.utc) - timedelta(seconds=age)
+            api = Mock(side_effect=[{"enabled":True, "executionStatus":"SCHEDULED"},
+                                    [{"windowEnd": end.isoformat(), "decision":decision}]])
+            with patch.object(live, "active_experiments", return_value=[]), patch.object(live, "kube") as kube:
+                with self.assertRaises(ValueError):
+                    live.observe(manifest, api, Mock(), Mock())
+                kube.assert_not_called()
+
     def test_invalid_or_unrecorded_path(self):
         from visitor import selection
         for mode,source,target in [("live","productcatalogservice","frontend"),("replay","checkoutservice","productcatalogservice")]:

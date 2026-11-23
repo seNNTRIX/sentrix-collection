@@ -4,37 +4,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SentriX · 장애 실험실</title>
 <style>
-:root{color-scheme:light;--ink:#172b29;--muted:#526664;--line:#d4dfdc;--accent:#005d51;--paper:#fff}
-*{box-sizing:border-box}
-body{margin:0;background:#f3f6f5;color:var(--ink);font:16px/1.55 "Geist","Apple SD Gothic Neo",system-ui,sans-serif}
-[hidden]{display:none!important}
-.bar{background:#112f2e;color:white;display:flex;align-items:center;justify-content:space-between;padding:14px max(5vw,24px);gap:18px}
-.brand{font-weight:750;letter-spacing:-.04em;font-size:23px}
-.bar a{color:#dcf1eb;text-decoration:none;font-size:14px}
-main{max-width:1100px;margin:clamp(22px,5vh,64px) auto;padding:0 26px}
-.heading{display:flex;align-items:end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
-h1,h2,p{margin:0}h1{font-size:clamp(31px,4vw,46px);letter-spacing:-.06em;line-height:1.22}
-button,select{font:inherit;color:inherit}button{cursor:pointer}
-.grid{display:grid;grid-template-columns:minmax(0,1.26fr) minmax(0,1fr);gap:18px;align-items:start}
-.panel{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:clamp(17px,2.4vw,29px)}
-h2{font-size:20px;letter-spacing:-.04em;margin-bottom:18px}
-fieldset{border:0;padding:0;margin:0;min-width:0}legend,label{font-size:14px;font-weight:650;display:block;margin-bottom:5px}
-.faults{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0 0 18px}
-.faults button,select{background:white;border:1px solid #b8c7c3;border-radius:5px;padding:10px;text-align:left}
-.faults button[aria-pressed=true]{border-color:var(--accent);background:#e9f4f0;color:#004c42;font-weight:700;box-shadow:inset 3px 0 var(--accent)}
-select{width:100%;font:15px ui-monospace,monospace;min-height:42px}
-.selects{display:grid;gap:11px}
-.config{display:block;color:var(--muted);border-top:1px solid var(--line);margin-top:17px;padding:12px 0;font-size:14px}
-.primary{display:block;width:100%;border:0;border-radius:5px;background:var(--accent);color:white;padding:12px;font-weight:700}
-button:disabled,select:disabled{opacity:.5;cursor:default}button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #289ada;outline-offset:2px}
-dl{margin:0}dt{color:var(--muted);font-size:14px}dd{margin:0;overflow-wrap:anywhere;font-weight:550}
-.row{display:grid;grid-template-columns:94px 1fr;gap:8px;padding:11px 0;border-top:1px solid var(--line)}
-#phase{font-size:23px;letter-spacing:-.04em;margin:-4px 0 15px}
-#notice{color:#913324;font-size:14px;margin-top:9px}
-@media(max-width:720px){.grid{grid-template-columns:1fr}main{padding:0 16px}.heading{align-items:start}.bar{padding:10px 16px}}
+:root{color-scheme:light;--ink:#202122;--muted:#60666b;--line:#dedfe1;--paper:white;--blue:#255c91;--mono:ui-monospace,"SFMono-Regular",Consolas,monospace}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;color:var(--ink);background:#fafafa;font:15px/1.5 "Geist","Apple SD Gothic Neo",system-ui,sans-serif;word-break:keep-all}
+h1,h2,p,dl,dd{margin:0}button,select{font:inherit;color:inherit}button{cursor:pointer}
+.bar{height:60px;padding:0 max(24px,calc((100vw - 1120px)/2));background:white;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{font-size:19px;font-weight:720;letter-spacing:-.04em}.brand b{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:6px;background:#222;color:white;margin-right:8px;font:650 18px system-ui}
+a{color:var(--blue);text-underline-offset:3px}.bar a{color:var(--ink);font-size:14px;text-decoration:none}.bar a:hover{text-decoration:underline}
+main{max-width:1168px;margin:48px auto;padding:0 24px}.heading{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:24px}h1{font-size:32px;letter-spacing:-.045em;line-height:1.25}#site{color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);background:white;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.panel{padding:28px;min-width:0}form.panel{border-right:1px solid var(--line)}h2{font-size:17px;letter-spacing:-.025em;margin-bottom:24px}
+fieldset{border:0;padding:0;margin:0;min-width:0}legend,label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
+.faults{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px}
+.faults button,select{border:1px solid #ccced1;background:white;border-radius:5px;text-align:left;min-height:42px;padding:8px 12px}
+.faults button{display:flex;align-items:center;gap:10px}.faults button:before{content:"";width:12px;height:12px;border-radius:50%;border:1px solid #a2a5a7}
+.faults button[aria-pressed=true]{background:#f6f7f8;border-color:#46494b;font-weight:630}.faults button[aria-pressed=true]:before{border:4px solid #303437;box-sizing:border-box;width:14px;height:14px}
+button:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.selects{display:grid;gap:16px}select{width:100%;font:14px var(--mono)}
+.config{display:block;margin:20px 0 12px;color:var(--muted);font-size:13px}.primary{width:100%;border:0;border-radius:5px;background:#202122;color:white;min-height:44px;font-weight:650}
+button:disabled,select:disabled{cursor:default}.primary:disabled{background:#e9eaec;color:#50555a}.busy:before{content:"";display:inline-block;width:12px;height:12px;border:2px solid #b1b5b8;border-top-color:#40464c;border-radius:50%;vertical-align:-2px;margin-right:8px;animation:turn .8s linear infinite}
+@keyframes turn{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.busy:before{animation:none}}
+#phase{font-size:23px;font-weight:620;letter-spacing:-.04em;margin:0 0 12px}#phase[data-alarm=true]{color:#b7353b}
+progress{display:block;width:100%;height:4px;accent-color:var(--blue);margin:0 0 12px}
+.row{display:grid;grid-template-columns:100px minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid #eee;font-size:14px}
+dt,#hint{color:var(--muted)}dd{overflow-wrap:anywhere;word-break:normal;font-variant-numeric:tabular-nums}#hint{font-size:14px}
+#notice{color:#a73437;font-size:14px;margin-top:8px}#notice:empty{display:none}#resultLink{display:inline-block;margin-top:18px}
+@media(max-width:720px){main{margin:24px auto;padding:0 16px}.bar{height:52px;padding:0 16px}.grid{grid-template-columns:1fr}form.panel{border-right:0;border-bottom:1px solid var(--line)}.panel{padding:20px}h1{font-size:27px}.row{grid-template-columns:80px 1fr}}
 </style>
 <div id="operator" hidden>
-<nav class="bar"><span class="brand">SentriX</span><a href="/display" target="_blank" rel="noopener">대시보드 열기 ↗</a></nav>
+<nav class="bar"><span class="brand"><b aria-hidden="true">X</b>SentriX</span><a href="/display" target="_blank" rel="noopener">대시보드 열기 ↗</a></nav>
 <main><div class="heading"><h1>장애 실험실</h1><span id="site"></span></div>
 <div class="grid"><form id="form" class="panel"><h2>실험 설정</h2>
 <fieldset id="fields"><legend>장애 유형</legend><div class="faults">
@@ -44,7 +41,7 @@ dl{margin:0}dt{color:var(--muted);font-size:14px}dd{margin:0;overflow-wrap:anywh
 <div><label id="toLabel" for="dest">호출 도착 서비스</label><select id="dest"></select></div></div>
 <span class="config" id="availability" aria-live="polite"></span><button id="start" class="primary" disabled>장애 주입</button></fieldset>
 <p id="notice" role="alert"></p></form>
-<section class="panel" aria-label="최근 실행"><h2>최근 실행</h2><p id="phase" role="status">대기 중</p><dl id="details"></dl><a id="resultLink" href="/display" target="_blank" rel="noopener" hidden>원인 분석 열기 ↗</a></section></div></main></div>
+<section class="panel" aria-label="최근 실행"><h2>최근 실행</h2><p id="phase" role="status">연결 중</p><progress id="progress" aria-label="주입 경과 시간" hidden></progress><p id="hint"></p><dl id="details"></dl><a id="resultLink" href="/display" target="_blank" rel="noopener" hidden>원인 분석 열기 ↗</a></section></div></main></div>
 <script>
 const $ = id => document.getElementById(id);
 $('operator').hidden=false;
@@ -55,20 +52,22 @@ if(location.port==='5190'&&['localhost','127.0.0.1'].includes(location.hostname)
 const decisions = {NORMAL:'정상',ANOMALY:'이상 감지',ABSTAIN:'판정 보류'};
 const buttons = selector => Array.from(document.querySelectorAll(selector));
 let catalog, fault='network_delay', last={}, sending=false, connected=false;
-const conditions={network_delay:'네트워크 지연 100 ms',packet_loss:'패킷 손실 2%',cpu_saturation:'CPU 작업자 1개 · 부하 100%',pod_failure:'Pod 1개 중단'};
 function options(select,names){
  const current=select.value;
  select.replaceChildren(...names.map(name=>new Option(name,name)));
  if(names.includes(current))select.value=current;
 }
-function choose(){
+function choose(reset=false){
  if(!catalog)return;
  const edge=['network_delay','packet_loss'].includes(fault);
  $('from').hidden=!edge;
  $('toLabel').textContent=edge?'호출 도착 서비스':'대상 서비스';
  options($('source'),edge?Object.keys(catalog.edges):[]);
+ const profile=catalog.profiles[fault];
+ if(reset&&edge)$('source').value=profile.source;
  options($('dest'),edge?catalog.edges[$('source').value]||[]:catalog.services);
- $('availability').textContent=conditions[fault]+' · 설정 시간 3분';
+ if(reset)$('dest').value=profile.target;
+ $('availability').textContent=profile.condition+' · '+catalog.durationSeconds/60+'분 후 자동 해제';
  for(const b of buttons('[data-fault]')) b.setAttribute('aria-pressed',b.dataset.fault===fault);
  lockInputs();
 }
@@ -80,10 +79,19 @@ function lockInputs(){
  if(!connected)caption='실험실 연결 확인 중';
  else if(sending)caption='주입 요청 중';
  else if(last.phase==='running'){
-  const remaining=last.applied?Math.max(0,180-Math.floor((Date.now()-Date.parse(last.applied))/1000)):null;
+  const remaining=last.applied?Math.max(0,catalog.durationSeconds-Math.floor((Date.now()-Date.parse(last.applied))/1000)):null;
   caption=last.recovered||remaining===0?'이전 실험의 판정 확인 중':remaining===null?'이전 실험 준비 중':'실험 중 · 주입 종료까지 '+Math.floor(remaining/60)+'분 '+remaining%60+'초';
  }
  $('start').textContent=caption;
+ $('start').classList.toggle('busy',locked);
+ $('start').setAttribute('aria-busy',String(locked));
+ const progress=$('progress');
+ progress.hidden=!last.applied||!!last.recovered||last.phase!=='running'||!catalog;
+ if(!progress.hidden){
+  progress.max=catalog.durationSeconds;
+  progress.value=Math.min(progress.max,Math.max(0,(Date.now()-Date.parse(last.applied))/1000));
+ }
+
 }
 const pretty = s => s?.replaceAll('->',' → ');
 const reasons = {INSUFFICIENT_METRIC_SAMPLES:'30초 동안 수집된 지표가 부족합니다.',TELEMETRY_UPSTREAM_ERROR:'관측 데이터를 제시간에 가져오지 못했습니다.'};
@@ -92,16 +100,24 @@ function render(s){
  if(s.mode==='replay')s={phase:'idle'};
  const decision=decisions[s.decision], first=s.candidates?.[0];
  const firstName=first && (first.kind==='EDGE'?first.source+' → '+first.target:first.service);
- const status=s.phase==='idle'?'대기 중':s.phase==='failed'?'실행 확인 필요':s.step||'실험 종료';
+ let status=s.step||'요청 접수';
+ if(s.phase==='idle')status='실험 대기';
+ else if(s.phase==='failed')status='실험 확인 필요';
+ else if(s.detected||s.job)status='이상 감지';
+ else if(s.phase==='done')status=!s.applied?'주입 미확인':s.normalWindows?'이상 미감지':'판정 자료 부족';
+ else if(s.recovered)status='마지막 판정 대기';
+ else if(s.applied)status='주입 중 · 모델 관측 중';
  $('phase').textContent=status;
+ $('phase').dataset.alarm=String(Boolean(s.job));
+ $('hint').textContent=s.phase==='idle'?'장애 유형과 대상을 선택하세요.':s.phase==='running'?(s.recovered?'주입을 해제했습니다.':s.applied?'모델이 30초 구간별로 판정합니다.':s.step||'요청 접수'):'';
  const result=s.job&&s.link?new URL(s.link,location.origin):null;
  $('resultLink').hidden=!result;
  if(result)$('resultLink').href='/display?environment=1'+result.hash;
  const fields=[['실험 조건',s.label],['선택한 위치',pretty(s.location)],
  ['주입 시각',s.applied&&new Date(s.applied).toLocaleTimeString('ko-KR')],['복구 시각',s.recovered&&new Date(s.recovered).toLocaleTimeString('ko-KR')],['주입 전 판정',decisions[s.before]],['모델 판정',decision || (s.phase==='done'?'결과 없음':'대기 중')],
- ['모델 1순위',firstName],['선택 위치 순위',s.locationRank?s.locationRank+'위':first?'후보 밖':null],
+ ['확인한 분석 구간',s.windowsChecked?s.windowsChecked+'개':null],['모델 1순위',firstName],['선택 위치 순위',s.locationRank?s.locationRank+'위':first?'후보 밖':null],
  ['실행 시각',s.started && new Date(s.started).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour12:false})],['상세',s.message || reasons[s.reason] || s.reason]];
- $('details').replaceChildren(...fields.filter(([,v])=>v).map(([k,v])=>{
+ $('details').replaceChildren(...(s.phase==='idle'?[]:fields).filter(([,v])=>v).map(([k,v])=>{
   const row=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');
   row.className='row';dt.textContent=k;dd.textContent=v;row.append(dt,dd);return row;
  }));
@@ -109,18 +125,18 @@ function render(s){
 }
 async function poll(){
  try{
-  if(!catalog){const r=await fetch('/catalog');if(!r.ok)throw Error();catalog=await r.json();
-   choose();}
+  if(!catalog){const r=await fetch('/catalog');if(!r.ok)throw Error();const data=await r.json();if(!data.profiles)throw Error();catalog=data;
+   choose(true);}
   const r=await fetch('/state',{cache:'no-store'});if(!r.ok)throw Error();
   connected=true;render(await r.json());
- }catch{connected=false;$('phase').textContent='전시 콘솔 연결 확인 중';lockInputs();}
+ }catch{connected=false;$('phase').textContent='실험실 재연결 중';$('hint').textContent='최근 응답을 표시하고 있습니다.';lockInputs();}
  setTimeout(poll,1200);
 }
-for(const b of buttons('[data-fault]')) b.onclick=()=>{fault=b.dataset.fault;$('source').replaceChildren();$('dest').replaceChildren();choose();};
-$('source').onchange=choose;
-$('dest').onchange=choose;
+for(const b of buttons('[data-fault]')) b.onclick=()=>{fault=b.dataset.fault;$('source').replaceChildren();$('dest').replaceChildren();choose(true);};
+$('source').onchange=()=>choose();
+$('dest').onchange=()=>choose();
 $('form').onsubmit=async e=>{
- e.preventDefault();if(sending || last.phase==='running' || !$('dest').value)return;
+ e.preventDefault();if(!connected || sending || last.phase==='running' || !$('dest').value)return;
  sending=true;lockInputs();$('notice').textContent='';
  try{
   const r=await fetch('/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'live',case:fault,source:$('source').value,target:$('dest').value})});

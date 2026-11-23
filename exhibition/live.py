@@ -21,6 +21,14 @@ AUTHORITY = f"127.0.0.1:{PORT}"
 DASHBOARD = f"http://{AUTHORITY}/display"
 CORE = "http://127.0.0.1:8080/api/v1/environments/1"
 DURATION = 180
+# Fixed operator-selected profiles; the model never receives the fault or target.
+LOSS_PERCENT = 15
+PROFILES = {
+    "network_delay": {"condition": "지연 100 ms · 지터 10 ms", "source": "frontend", "target": "productcatalogservice"},
+    "packet_loss": {"condition": f"손실률 {LOSS_PERCENT}%", "source": "recommendationservice", "target": "productcatalogservice"},
+    "cpu_saturation": {"condition": "CPU 작업자 1개 · 부하 100%", "source": "", "target": "productcatalogservice"},
+    "pod_failure": {"condition": "Pod 1개 중단", "source": "", "target": "paymentservice"},
+}
 
 
 def build(fault, source, target, run):
@@ -39,7 +47,7 @@ def build(fault, source, target, run):
         if fault=="network_delay":
             spec.update(action="delay",delay={"latency":"100ms","jitter":"10ms"})
         else:
-            spec.update(action="loss",loss={"loss":"2"})
+            spec.update(action="loss",loss={"loss":str(LOSS_PERCENT)})
     else:
         if source: raise ValueError("서비스 실험에는 호출 출발지가 없습니다.")
         spec["selector"]=selector(target)
@@ -103,6 +111,14 @@ def observe(manifest, api, update, rank):
     settings=api(CORE+"/monitoring")
     if not settings.get("enabled") or settings.get("executionStatus")!="SCHEDULED":
         raise ValueError("SentriX 설정에서 환경의 자동 분석을 먼저 활성화하세요.")
+    update(step="주입 전 정상 판정 확인 중")
+    recent = api(CORE + "/anomaly-scores?limit=8")
+    baseline = next((w for w in recent if w.get("decision")), None)
+    if not baseline or not 0 <= time.time()-timestamp(baseline["windowEnd"]) <= 120:
+        raise ValueError("최근 2분의 모델 판정이 없습니다. 자동 분석이 재개된 뒤 다시 시작하세요.")
+    update(before=baseline["decision"])
+    if baseline["decision"] != "NORMAL":
+        raise ValueError("최근 모델 판정이 정상으로 돌아온 뒤 새 실험을 시작하세요.")
     update(step="실험 생성 중")
     try:
         kube("create","--raw="+PREFIX+fault+"?fieldValidation=Strict","-f","-",body=manifest)
@@ -134,7 +150,8 @@ def observe(manifest, api, update, rank):
                 eligible=sorted((w for w in windows if w.get("decision") and timestamp(w["windowStart"])>=timestamp(applied)+10 and timestamp(w["windowEnd"])<=limit),key=lambda w:w["windowEnd"])
                 if eligible:
                     last=eligible[-1]
-                    update(decision=last["decision"],reason=last.get("reason"),window=last["windowEnd"])
+                    update(decision=last["decision"],reason=last.get("reason"),window=last["windowEnd"],
+                           windowsChecked=len(eligible), normalWindows=sum(w["decision"]=="NORMAL" for w in eligible))
                 alarm=next((w for w in eligible if w.get("decision")=="ANOMALY" and w.get("incidentId")),None)
                 if alarm:
                     i,j=alarm["incidentId"],alarm["jobId"]

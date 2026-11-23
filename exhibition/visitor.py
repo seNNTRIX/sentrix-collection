@@ -194,7 +194,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.send(200,"application/json",json.dumps(response).encode())
         if self.path == "/catalog":
             subjects = set(live.SERVICES) | {f"{src}->{dst}" for src,targets in live.EDGES.items() for dst in targets}
-            catalog = {"services":live.SERVICES,"edges":live.EDGES,
+            catalog = {"services":live.SERVICES,"edges":live.EDGES,"profiles":live.PROFILES,"durationSeconds":live.DURATION,
                        "recordings":{key:sorted({c["root_cause"] for c in CASES if c["fault"]==key and c["root_cause"] in subjects}) for key in LABELS}}
             return self.send(200,"application/json",json.dumps(catalog).encode())
         if self.path == "/state":
