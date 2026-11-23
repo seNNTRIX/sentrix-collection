@@ -1,0 +1,22 @@
+{
+ "ranking.parquet": [],
+ "ranking-nodeview.parquet": [],
+ "detection.parquet": [],
+ "detection-ineligible.parquet": [],
+ "edges.parquet": [],
+ "cases.parquet": [
+  "root (host)",
+  "environment_id (host)"
+ ],
+ "folds.json": [],
+ "build-summary.json": [
+  "$.excluded_attempts[].decision_root (host)",
+  "$.excluded_attempts[].failure_cause (always)",
+  "$.excluded_attempts[].run_folders.<run_id> (host)",
+  "$.roots[].environment_id (host)",
+  "$.roots[].name (host)",
+  "$.roots[].path (path)",
+  "$.roots[].path (path,host)",
+  "$.schedule (path)"
+ ]
+}

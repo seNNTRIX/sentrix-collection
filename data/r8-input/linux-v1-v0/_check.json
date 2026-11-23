@@ -1,0 +1,112 @@
+{
+ "line_counts": {
+  "runs": 138,
+  "mismatch": []
+ },
+ "cases": {
+  "lv1_linux-v1-delay-front-product-r02": {
+   "fault": "network_delay",
+   "kind": "fault",
+   "lines": 249672,
+   "prepared_rows": 249672,
+   "windows": 154,
+   "lines_equal": true,
+   "prepared_equal": true,
+   "windows_equal": true,
+   "B_service": {
+    "equal": true,
+    "nan_positions_equal": true,
+    "rows": 1694,
+    "valid_rows": 1192,
+    "nan_dmean": 502
+   },
+   "B_all": {
+    "equal": true,
+    "nan_positions_equal": true,
+    "rows": 1694,
+    "valid_rows": 1192,
+    "nan_dmean": 502
+   }
+  },
+  "lv1_linux-v1-pod-paymentservice-r02": {
+   "fault": "pod_failure",
+   "kind": "fault",
+   "lines": 239549,
+   "prepared_rows": 239549,
+   "windows": 154,
+   "lines_equal": true,
+   "prepared_equal": true,
+   "windows_equal": true,
+   "B_service": {
+    "equal": true,
+    "nan_positions_equal": true,
+    "rows": 1694,
+    "valid_rows": 1080,
+    "nan_dmean": 614
+   },
+   "B_all": {
+    "equal": true,
+    "nan_positions_equal": true,
+    "rows": 1694,
+    "valid_rows": 1080,
+    "nan_dmean": 614
+   }
+  },
+  "lv1_linux-v1-cpu-recommendationservice-r03": {
+   "fault": "cpu_saturation",
+   "kind": "fault",
+   "lines": 249674,
+   "prepared_rows": 249674,
+   "windows": 154,
+   "lines_equal": true,
+   "prepared_equal": true,
+   "windows_equal": true,
+   "B_service": {
+    "equal": true,
+    "nan_positions_equal": true,
+    "rows": 1694,
+    "valid_rows": 1185,
+    "nan_dmean": 509
+   },
+   "B_all": {
+    "equal": true,
+    "nan_positions_equal": true,
+    "rows": 1694,
+    "valid_rows": 1185,
+    "nan_dmean": 509
+   }
+  }
+ },
+ "windows": {
+  "rows": 21267,
+  "label_count_mismatch": [],
+  "feature_table_join": {
+   "ranking.parquet": {
+    "rows": 5038,
+    "unmatched": 0,
+    "rel_or_label_differs": 0
+   },
+   "ranking-nodeview.parquet": {
+    "rows": 7458,
+    "unmatched": 0,
+    "rel_or_label_differs": 0
+   },
+   "detection.parquet": {
+    "rows": 12473,
+    "unmatched": 0,
+    "rel_or_label_differs": 0
+   },
+   "detection-ineligible.parquet": {
+    "rows": 316,
+    "unmatched": 0,
+    "rel_or_label_differs": 0
+   },
+   "edges.parquet": {
+    "rows": 170136,
+    "unmatched": 0,
+    "rel_or_label_differs": 0
+   }
+  }
+ },
+ "passed": true
+}

@@ -1,0 +1,188 @@
+{
+  "dataset": "linux-v1",
+  "feature_version": "v0",
+  "code_commit": "f179180ef0793752132ffc56b2d1f67cefa5a903",
+  "features_dir_dirty": false,
+  "code_sha256": {
+    "features/compute.py": "1661a9f1dcc731472f47bff91b981f1e366bf5967d89b4c5b7d2ceebc053cb34",
+    "features/windows.py": "1e4450d9ef89239ad5945f69e4ec6f15dd564d175f936d817cb6d8aa6a938393",
+    "features/schema.py": "4d39c8850bbc1d98b6d76561cef5f65eae8f5c8a8a97baf64738e04e7cc28234",
+    "features/adapters/linux_v1.py": "b09b5fb8aaecf0bad88d6265781627faef4ebeaa6d91662512de15ccdcb75208"
+  },
+  "roots": [
+    {
+      "adopted_pairs": 51
+    },
+    {
+      "adopted_pairs": 18
+    }
+  ],
+  "schedule_sha256": "83fce587488b7006eb5cd6ca2bb4beba98c55d61de5a0081a3bea8d5308b59cf",
+  "checks": {
+    "run_id_collision": "none",
+    "one_adopted_attempt_per_pair": true,
+    "adopted_pairs_equal_schedule": 69,
+    "compute_sha256_frozen": true
+  },
+  "excluded_attempts": [
+    {
+      "pair_id": "linux-v1-pod-productcatalogservice-r01",
+      "schedule_index": 20,
+      "attempt": 1,
+      "fault_run_id": "linux-v1-pod-productcatalogservice-r01",
+      "control_run_id": "linux-v1-control-pod-productcatalogservice-r01",
+      "run_folders": {},
+      "decided_on": "2026-10-27"
+    },
+    {
+      "pair_id": "linux-v1-cpu-currencyservice-r02",
+      "schedule_index": 32,
+      "attempt": 1,
+      "fault_run_id": "linux-v1-cpu-currencyservice-r02",
+      "control_run_id": "linux-v1-control-cpu-currencyservice-r02",
+      "run_folders": {},
+      "decided_on": "2026-10-28"
+    },
+    {
+      "pair_id": "linux-v1-pod-currencyservice-r02",
+      "schedule_index": 38,
+      "attempt": 1,
+      "fault_run_id": "linux-v1-pod-currencyservice-r02",
+      "control_run_id": "linux-v1-control-pod-currencyservice-r02",
+      "run_folders": {},
+      "decided_on": "2026-10-30"
+    }
+  ],
+  "translation": {
+    "decisions": "docs/LINUX-V1-DATA-TRANSLATION.md",
+    "cpu_cores": "stored rate(container_cpu_usage_seconds_total[60s]) (no raw counter exported)",
+    "network": "pod-level dropped-packet series (container label empty/POD), exception to POD exclusion",
+    "not_collected_signals_nan": [
+      "net_rx_pkts",
+      "net_tx_pkts"
+    ],
+    "tolerated_missing_points": "NaN on affected grid points, no forward fill",
+    "pod_onset": "first kube_container_ready = 0 of the target service in [started_at, ended_at]",
+    "control_times": "control run_start + (fault time - fault run_start)"
+  },
+  "params": {
+    "window_s": 30,
+    "stride_s": 10,
+    "resample_s": 5,
+    "min_spans": {
+      "p50": 5,
+      "p90": 20,
+      "p99": 100
+    },
+    "with_logs": true,
+    "verify_input_hashes": true,
+    "workers": 2,
+    "limit": null
+  },
+  "cases": 138,
+  "fault_runs": 69,
+  "control_runs": 69,
+  "eligible_fault_runs": 54,
+  "onset_source": {
+    "sham_of_fault": 69,
+    "started_at": 54,
+    "ready_zero": 15
+  },
+  "pod_onset_fallback_runs": [],
+  "tolerated_gap_points": 0,
+  "folds": {
+    "1": 46,
+    "2": 46,
+    "3": 46
+  },
+  "ranking": {
+    "rows": 5038,
+    "feature_columns": 67,
+    "positives": 458
+  },
+  "detection": {
+    "rows": 12473,
+    "feature_columns": 58,
+    "positives": 1136,
+    "by_label": {
+      "recovered": 8645,
+      "sham_active": 1452,
+      "normal": 1240,
+      "fault_active": 1136
+    }
+  },
+  "ranking_nodeview_rows": 7458,
+  "detection_ineligible_rows": 316,
+  "edges_rows": 170136,
+  "missing_ratio_ranking": {
+    "f_cm_cpu_cores_dmean": 0.0143,
+    "f_cm_cpu_cores_dmax": 0.0143,
+    "f_cm_cpu_cores_zero_iqr": 0.0,
+    "f_opt_cpu_cores_mean": 0.0143,
+    "f_opt_cpu_cores_max": 0.0143,
+    "f_opt_cpu_cores_std": 0.0143,
+    "f_opt_cpu_cores_slope": 0.0216,
+    "f_cm_cpu_cores_n": 0.0,
+    "f_cm_cpu_limit_ratio_dmean": 0.0288,
+    "f_cm_cpu_limit_ratio_dmax": 0.0288,
+    "f_cm_cpu_limit_ratio_zero_iqr": 0.0,
+    "f_opt_cpu_limit_ratio_mean": 0.0288,
+    "f_opt_cpu_limit_ratio_max": 0.0288,
+    "f_opt_cpu_limit_ratio_std": 0.0288,
+    "f_opt_cpu_limit_ratio_slope": 0.0383,
+    "f_cm_cpu_limit_ratio_n": 0.0,
+    "f_cm_mem_limit_ratio_dmean": 0.0,
+    "f_cm_mem_limit_ratio_dmax": 0.0,
+    "f_cm_mem_limit_ratio_zero_iqr": 0.0,
+    "f_opt_mem_limit_ratio_mean": 0.0,
+    "f_opt_mem_limit_ratio_max": 0.0,
+    "f_opt_mem_limit_ratio_std": 0.0,
+    "f_opt_mem_limit_ratio_slope": 0.0,
+    "f_cm_mem_limit_ratio_n": 0.0,
+    "f_cm_net_rx_pkts_dmean": 1.0,
+    "f_cm_net_rx_pkts_dmax": 1.0,
+    "f_cm_net_rx_pkts_zero_iqr": 1.0,
+    "f_opt_net_rx_pkts_mean": 1.0,
+    "f_opt_net_rx_pkts_max": 1.0,
+    "f_opt_net_rx_pkts_std": 1.0,
+    "f_opt_net_rx_pkts_slope": 1.0,
+    "f_cm_net_rx_pkts_n": 1.0,
+    "f_cm_net_tx_pkts_dmean": 1.0,
+    "f_cm_net_tx_pkts_dmax": 1.0,
+    "f_cm_net_tx_pkts_zero_iqr": 1.0,
+    "f_opt_net_tx_pkts_mean": 1.0,
+    "f_opt_net_tx_pkts_max": 1.0,
+    "f_opt_net_tx_pkts_std": 1.0,
+    "f_opt_net_tx_pkts_slope": 1.0,
+    "f_cm_net_tx_pkts_n": 1.0,
+    "f_cm_net_drop_pkts_dmean": 0.0002,
+    "f_cm_net_drop_pkts_dmax": 0.0002,
+    "f_cm_net_drop_pkts_zero_iqr": 0.0,
+    "f_opt_net_drop_pkts_mean": 0.0002,
+    "f_opt_net_drop_pkts_max": 0.0002,
+    "f_opt_net_drop_pkts_std": 0.0002,
+    "f_opt_net_drop_pkts_slope": 0.006,
+    "f_cm_net_drop_pkts_n": 0.0,
+    "f_cm_cpu_limit_ratio_mean": 0.0288,
+    "f_cm_mem_limit_ratio_mean": 0.0,
+    "f_ct_mask": 0.0,
+    "f_ct_in_rate_lr": 0.3636,
+    "f_ct_in_err": 0.4899,
+    "f_ct_in_err_d": 0.4899,
+    "f_ct_in_p50_lr": 0.4899,
+    "f_ct_in_p90_lr": 0.4899,
+    "f_opt_in_p99_lr": 0.6771,
+    "f_ct_out_p90_lr": 0.7684,
+    "f_ct_out_err": 0.7684,
+    "f_ct_in_edge_p90_lr": 0.5808,
+    "f_log_rate_lr": 0.0784,
+    "f_log_err_rate": 0.0784,
+    "f_log_err_rate_d": 0.0784,
+    "f_nbr_cm_cpu_cores_dmean": 0.3835,
+    "f_nbr_cm_mem_limit_ratio_dmean": 0.3636,
+    "f_nbr_ct_in_p90_lr": 0.4899,
+    "f_nbr_ct_in_err_d": 0.4899
+  },
+  "max_worker_rss_mb": 1762,
+  "elapsed_s": 411.2
+}
