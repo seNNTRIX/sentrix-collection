@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>SentriX · 로그 의미 공간 · 시연 사례</title>
+/*STYLE*/
+<style>.scenario-note{font-size:14px;color:var(--muted);margin:10px 0 0}.badge{display:inline-block;font-size:12px;padding:2px 8px;border-radius:10px;background:#fbe9e4;color:#94503b;margin-left:6px}</style>
+</head><body>
+<header><strong>SentriX</strong><a href="https://sentrix-system.vercel.app">시스템 화면 열기</a></header>
+<main><h1>로그 의미 공간 탐색 · 시연 사례</h1><p>장애 주입 전후 로그 문장을 MiniLM으로 변환한 뒤, UMAP과 t-SNE로 펼친 분포. 시연 4개 사례를 고를 수 있습니다.</p><p class="facts" id="facts"></p>
+<form class="controls" onsubmit="return false" aria-label="분포 탐색 조건">
+<label>시연 사례<select id="scenario" aria-label="시연 사례"></select></label>
+<label>시각화<select id="projection" aria-label="시각화"><option value="umap3">UMAP · 3D</option><option value="umap2">UMAP · 2D</option><option value="tsne2">t-SNE · 2D</option></select></label>
+<label>서비스<select id="service" aria-label="서비스"><option value="all">전체 서비스</option></select></label>
+<label>시간 구간<select id="phase" aria-label="시간 구간"><option value="all">주입 전후 전체</option><option value="before">주입 전</option><option value="after">주입 후</option></select></label>
+<label>색상 기준<select id="color" aria-label="색상 기준"><option value="phase">장애 주입 전후</option><option value="service">서비스</option><option value="severity">기록된 로그 수준</option></select></label>
+<button type="button" id="reset">전체 보기로 초기화</button></form>
+<p class="scenario-note" id="scenario-note"></p>
+<section class="workspace" aria-label="로그 분포와 선택 로그"><section class="plot-wrap"><p id="count" aria-live="polite"></p><p id="empty" hidden>이 조건에 해당하는 로그가 없습니다.</p><div id="scatter" role="img" aria-label="확대 및 회전 가능한 로그 임베딩 분포"></div><p class="legend-note">점 하나는 같은 서비스·구간의 같은 정제 문장이며, 점 크기는 그 문장이 나온 횟수입니다. 같은 문장은 같은 위치에 놓입니다. 3D는 드래그로 회전, 2D는 드래그로 확대할 수 있습니다.</p></section>
+<aside class="detail"><h2>선택한 로그</h2><p id="detail-meta">분포에서 점을 선택해 보세요.</p><pre id="message">로그 메시지가 여기에 표시됩니다.</pre><p id="distance"></p><p id="detail-help">서비스명은 색상 표시용입니다. 임베딩 입력에는 서비스 식별자와 시간·주입 정답을 넣지 않았습니다.</p></aside></section>
+<section class="lower"><section><h2>서비스별 로그 발생률</h2><p class="muted">구간 길이 차이를 보정한 초당 로그 수. 장애의 원인 점수가 아닙니다.</p><div id="volume" role="img" aria-label="서비스별 장애 주입 전후 로그 발생률"></div></section>
+<section class="method"><h2>데이터와 해석 범위</h2><p id="dataset-note"></p><p>분포는 저장된 실험 로그를 분석한 결과입니다. 가까운 점은 비슷한 표현의 단서이며, 점이 떨어져 있다는 이유만으로 장애나 원인 서비스가 확정되지는 않습니다.</p><p>선택 로그의 거리는 <strong>384차원 원본 벡터의 코사인 거리</strong>입니다. 같은 사례에서 같은 서비스의 주입 전 로그 중 가장 가까운 표현과 비교합니다. 탐색용 비교이며 경보 임계값이 아닙니다.</p>
+<p>네 사례 모두 마스킹 후에는 장애 뒤에 <strong>처음 보는 종류의 문장</strong>이 거의 없었고, 대신 같은 문장의 <strong>양과 오류 비율</strong>이 바뀌었습니다. Pod 장애 사례의 '주입 전'에 이미 오류가 일부 보이는 것은, 장애 시점(onset)을 Pod가 준비 해제된 첫 시각으로 정해서 주입 직후 몇 초가 '주입 전'에 들어가기 때문입니다.</p><p>사전등록 실험(R8)에서 이 로그 의미 거리를 원인 순위 모델에 더했을 때 우리 데이터 22개 사례의 순위는 좋아지지 않았습니다(차이 없음). 그래서 로그는 <strong>원인 판단의 근거를 보여 주는 용도</strong>로 씁니다.</p>
+<details><summary>모델·전처리·차원 축소 설정</summary><p id="settings"></p><p>메시지 본문과 error 필드를 추출한 뒤 식별자, 주소, Pod 이름, 시각, 숫자, 서비스 이름을 마스킹(R8 사전등록 전처리). 중복 문장은 한 번 임베딩해 재사용. 임의 좌표나 시각적 jitter를 추가하지 않음. 네 사례의 문장을 함께 펼쳐서 사례 사이 위치를 비교할 수 있음.</p></details><p class="status">저장된 실제 실험 데이터(linux-v1, 반복 2) 분석 화면 · 실시간 수집·백엔드 추론과 별개 · 대시보드 재생 시연과 같은 사례</p></section></section>
+<footer>임베딩 및 시각화 아이디어: (주)케파스 제공 자료 참고. 해당 기관의 원본 데이터는 포함하지 않았습니다.<br>사용 도구: <a href="https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2">MiniLM</a>, <a href="https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html">t-SNE</a>, <a href="https://umap-learn.readthedocs.io/en/latest/parameters.html">UMAP</a>, Plotly.</footer></main>
+<noscript>분포 탐색에는 JavaScript가 필요합니다.</noscript>
+<script>/*PLOTLY*/</script>
+<script id="dataset" type="application/json">/*DATA*/</script>
+<script>
+'use strict';
+const D=JSON.parse(document.getElementById('dataset').textContent),M=D.meta;
+const $=id=>document.getElementById(id),colors=['#386FA4','#C5822F','#AF4F55','#2D8C81','#8170A7','#345A84','#C27484','#6F8955','#9C6D4A','#5B7FA8','#B8873A'];
+const palette=Object.fromEntries(M.services.map((s,i)=>[s,colors[i%colors.length]]));
+const phaseName={before:`주입 전 ${M.before_seconds}초`,after:`주입 후 ${M.after_seconds}초`},phaseColors={before:'#6285AC',after:'#BC634D'};
+
+const sevColors={'일반':'#7C8AA0','오류·경고':'#C2402E'};
+const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+M.scenarios.forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=s.title;$('scenario').append(o)});
+M.services.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;$('service').append(o)});
+$('phase').options[1].textContent=phaseName.before;$('phase').options[2].textContent=phaseName.after;
+$('settings').textContent=`모델 ${M.model.name}, revision ${M.model.revision}, ${M.dimension}차원, L2 정규화. UMAP: cosine, n_neighbors ${M.umap.n_neighbors}, min_dist ${M.umap.min_dist}. t-SNE: cosine, perplexity ${M.tsne.perplexity}, 1,500회. 고정 seed ${M.seed}. 네 사례 전체 ${M.lines.toLocaleString()}줄, 고유 정제 문장 ${M.unique_texts}개.`;
+const sc=()=>Number($('scenario').value);
+function chosen(){return D.points.filter(p=>p.scenario===sc()&&($('service').value==='all'||p.service===$('service').value)&&($('phase').value==='all'||p.phase===$('phase').value))}
+function scenarioFacts(){const ps=D.points.filter(p=>p.scenario===sc()),lines=ps.reduce((a,p)=>a+p.count,0),nov=ps.filter(p=>p.novel),s=M.scenarios[sc()];
+ $('facts').textContent=`이 사례 로그 ${lines.toLocaleString()}줄 · 서로 다른 표현 ${new Set(ps.map(p=>p.text)).size}개 · 주입 후 처음 나타난 표현 ${nov.length}개 · MiniLM ${M.dimension}차원`;
+ $('dataset-note').textContent=`${s.title} 사례(${s.case_id}). 장애 주입 전 ${M.before_seconds}초와 주입 후 ${M.after_seconds}초의 애플리케이션 로그입니다. productcatalogservice와 redis-cart는 원래 로그를 거의 남기지 않습니다.`;
+ const B=M.before_seconds,A=M.after_seconds,notes=[];
+ const err=ps.filter(p=>p.severity!=='일반'),es=[...new Set(err.map(p=>p.service))];
+ for(const sv of es){const b=err.filter(p=>p.service===sv&&p.phase==='before').reduce((a,p)=>a+p.count,0),a=err.filter(p=>p.service===sv&&p.phase==='after').reduce((a,p)=>a+p.count,0);
+  if(a/A>b/B)notes.push(`<strong>${escapeHtml(sv)}</strong> 오류·경고 로그 초당 ${(b/B).toFixed(2)} → ${(a/A).toFixed(2)}건`)}
+ const S=D.summary.filter(x=>x.scenario===sc()&&x.before>=30).map(x=>({...x,r:(x.after/A)/(x.before/B)})).sort((x,y)=>Math.abs(Math.log(y.r||1e-3))-Math.abs(Math.log(x.r||1e-3)));
+ for(const x of S.slice(0,2))if(Math.abs(Math.log(x.r||1e-3))>Math.log(1.3))notes.push(`<strong>${escapeHtml(x.service)}</strong> 로그 양 ${x.r===0?'중단':(x.r>1?'+':'')+((x.r-1)*100).toFixed(0)+'%'} (초당 ${(x.before/B).toFixed(1)} → ${(x.after/A).toFixed(1)}건)`);
+ $('scenario-note').innerHTML=(notes.length?'주입 전후 변화: '+notes.join(' · '):'주입 전후 로그 양과 오류 로그에 뚜렷한 변화가 없습니다.')+' <span class="badge">새 문장 종류 '+nov.length+'개</span>'}
+function detail(p){$('detail-meta').textContent=`${p.service} · ${phaseName[p.phase]} · ${p.count.toLocaleString()}줄 · 처음 나온 시각 주입 기준 ${p.time_s>=0?'+':''}${p.time_s.toFixed(1)}초 · ${p.severity}`;$('message').textContent=p.text;
+ $('distance').textContent=p.phase==='before'?'주입 전 로그: 비교 거리 미표시':p.distance===null?'같은 서비스의 주입 전 로그가 없어 비교할 수 없음':`같은 서비스의 주입 전 로그와 가장 가까운 거리: ${p.distance.toFixed(4)}${p.novel?' · 주입 후 처음 나타난 표현':' · 주입 전에도 있던 표현'}`}
+let serial=0;
+async function draw(){$('detail-meta').textContent='분포에서 점을 선택해 보세요.';$('message').textContent='로그 메시지가 여기에 표시됩니다.';$('distance').textContent='';
+ const me=++serial,mode=$('projection').value,is3=mode==='umap3',sel=chosen(),by=$('color').value,groups=new Map(),all=D.points.filter(p=>p.scenario===sc());
+ $('count').textContent=`${sel.reduce((a,p)=>a+p.count,0).toLocaleString()}줄 · 점 ${sel.length} / ${all.length} · ${is3?'UMAP 3D':mode==='tsne2'?'t-SNE 2D':'UMAP 2D'}`;$('empty').hidden=sel.length>0;
+ for(const p of sel){const key=String(p[by]);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(p)}
+ const nameOf=k=>by==='phase'?phaseName[k]:k,colorOf=(k,i)=>by==='service'?palette[k]:by==='phase'?phaseColors[k]:(sevColors[k]||colors[i%colors.length]);
+ const size=c=>(is3?3:5)+(is3?2.2:3.2)*Math.log10(c);
+ const traces=[...groups.entries()].map(([k,ps],i)=>({type:is3?'scatter3d':'scattergl',mode:'markers',name:nameOf(k),x:ps.map(p=>p[mode][0]),y:ps.map(p=>p[mode][1]),...(is3?{z:ps.map(p=>p[mode][2])}:{}),customdata:ps.map(p=>p.id),
+  text:ps.map(p=>`${escapeHtml(p.service)} · ${phaseName[p.phase]} · ${p.count.toLocaleString()}줄<br>${escapeHtml(p.text.slice(0,150))}`),hovertemplate:'%{text}<extra></extra>',marker:{size:ps.map(p=>size(p.count)),opacity:.8,color:colorOf(k,i),line:{width:0}},showlegend:true}));
+ const range=a=>{const v=D.points.map(p=>p[mode][a]),mn=Math.min(...v),mx=Math.max(...v),g=(mx-mn)*.06||1;return[mn-g,mx+g]};
+ const axis=n=>({title:`${is3?'UMAP':mode==='tsne2'?'t-SNE':'UMAP'} ${n+1}`,range:range(n),showgrid:true,gridcolor:'#e9edf3',zeroline:false,tickfont:{size:11},showbackground:false});
+ const layout={margin:{l:is3?0:55,r:20,t:8,b:65},paper_bgcolor:'#fff',plot_bgcolor:'#fff',font:{family:'Arial, Apple SD Gothic Neo, sans-serif',color:'#364153'},legend:{orientation:'h',x:0,y:-.12,font:{size:11}},uirevision:mode,hovermode:'closest',...(is3?{scene:{xaxis:axis(0),yaxis:axis(1),zaxis:axis(2),aspectmode:'data',camera:{eye:{x:1.5,y:1.5,z:1.1}}}}:{xaxis:axis(0),yaxis:axis(1),dragmode:'zoom'})};
+ try{await Plotly.react('scatter',traces,layout,{responsive:true,displaylogo:false,scrollZoom:true,modeBarButtonsToRemove:['lasso2d','select2d'],toImageButtonOptions:{filename:'SentriX-log-embedding-demo',scale:2}});if(me!==serial)return;$('scatter').removeAllListeners('plotly_click');$('scatter').on('plotly_click',e=>{const id=e.points?.[0]?.customdata;if(Number.isInteger(id))detail(D.points[id])})}
+ catch(e){$('count').textContent='3D 표시를 지원하지 않는 환경입니다. UMAP 2D로 전환합니다.';if(is3){$('projection').value='umap2';await draw()}else throw e}}
+function volume(){const S=D.summary.filter(x=>x.scenario===sc()),names=S.map(x=>x.service.replace('service',''));
+ Plotly.react('volume',[{type:'bar',name:phaseName.before,x:names,y:S.map(x=>x.before/M.before_seconds),marker:{color:phaseColors.before},hovertemplate:'%{x}<br>%{y:.2f}건/초<extra>주입 전</extra>'},{type:'bar',name:phaseName.after,x:names,y:S.map(x=>x.after/M.after_seconds),marker:{color:phaseColors.after},hovertemplate:'%{x}<br>%{y:.2f}건/초<extra>주입 후</extra>'}],
+ {barmode:'group',margin:{l:50,r:10,t:15,b:95},font:{family:'Arial, sans-serif',color:'#596272'},yaxis:{title:'건 / 초',gridcolor:'#e9edf3',zeroline:false},xaxis:{tickangle:-30,tickfont:{size:11}},legend:{orientation:'h',y:1.13},paper_bgcolor:'#fff',plot_bgcolor:'#fff'},{responsive:true,displaylogo:false})}
+function all(){scenarioFacts();volume();draw()}
+$('scenario').addEventListener('change',all);
+for(const id of ['projection','service','phase','color'])$(id).addEventListener('change',()=>draw());
+$('reset').addEventListener('click',()=>{$('service').value='all';$('phase').value='all';$('color').value='phase';Plotly.purge('scatter');draw()});
+all();
+</script></body></html>
