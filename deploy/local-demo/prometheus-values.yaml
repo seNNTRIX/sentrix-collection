@@ -8,3 +8,19 @@ server:
     limits:
       cpu: 750m
       memory: 512Mi
+
+# Keep frequent container samples for the 30-second model window. The
+# control-plane and Prometheus self metrics are outside its feature set.
+scrapeConfigs:
+  kubernetes-api-servers:
+    scrape_interval: 60s
+    scrape_timeout: 10s
+  kubernetes-nodes:
+    scrape_interval: 60s
+    scrape_timeout: 10s
+  prometheus:
+    scrape_interval: 60s
+    scrape_timeout: 10s
+  kubernetes-nodes-cadvisor:
+    scrape_interval: 5s
+    scrape_timeout: 5s
