@@ -1,0 +1,23 @@
+{
+ "ranking_params": {
+  "min_samples_leaf": 100,
+  "max_features": 0.5
+ },
+ "frozen_ranking_params": {
+  "min_samples_leaf": 100,
+  "max_features": 0.5
+ },
+ "inner_loso_avg5": 0.9622222222222223,
+ "frozen_inner_loso_avg5": 0.9622222222222223,
+ "detection_params": {
+  "num_leaves": 15,
+  "n_estimators": 300
+ },
+ "frozen_detection_params": {
+  "num_leaves": 15,
+  "n_estimators": 300
+ },
+ "inner_rep_auroc": 0.9960397499702127,
+ "frozen_inner_rep_auroc": 0.9960397499702127,
+ "pass": true
+}

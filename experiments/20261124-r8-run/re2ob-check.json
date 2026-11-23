@@ -1,0 +1,33 @@
+{
+ "n_cases": 90,
+ "all_have_message": true,
+ "json_body_share_max": 0.0,
+ "non_candidate_containers": [],
+ "ref_first_half_median_by_service": {
+  "adservice": 1122.0,
+  "cartservice": 1926.5,
+  "checkoutservice": 215.0,
+  "currencyservice": 5899.0,
+  "emailservice": 71.5,
+  "frontend": 6650.0,
+  "paymentservice": 144.0,
+  "productcatalogservice": 0.0,
+  "recommendationservice": 1401.0,
+  "redis-cart": 0.0,
+  "shippingservice": 1117.0
+ },
+ "service_cases_with_ref_lt_20": {
+  "currencyservice": 3,
+  "productcatalogservice": 90,
+  "redis-cart": 90
+ },
+ "service_cases_with_ref_lt_50": {
+  "currencyservice": 3,
+  "emailservice": 1,
+  "productcatalogservice": 90,
+  "redis-cart": 90
+ },
+ "dist_windows": [
+  13
+ ]
+}
