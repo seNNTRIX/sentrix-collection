@@ -799,3 +799,12 @@ queue.log 재구성 방법(실행 안 함): console에서 `2026-10-23T06:18:17` 
 
 - 디스크: 휴지통이 같은 파일시스템이라 아직 회수 없음(`/` 548G 사용, 320G 여유). 휴지통을 비우면 약 101 GB 회수.
 - **휴지통은 데이터셋 생성기(`dataset-linux-v1`)가 두 root로 정상 동작한 것을 확인한 뒤 사용자가 비운다**(`rm -rf /home/cloudman/sentrix-trash-20261116`). 그 전까지 이 저장소의 206-39 데이터 기준은 `/home/cloudman/sentrix-data/206-39/`다.
+
+### 7.25 linux-v1 데이터셋 생성기 구현·빌드 (2026-11-23)
+
+- branch `dataset-linux-v1`(worktree `/home/cloudman/Documents/wt-dataset`, `origin/school-pc` + `origin/research-re2ob` 03d6bea merge, 충돌 없음). 생성기 `features/build_linux_v1.py`, 어댑터 `features/adapters/linux_v1.py`, root 목록 `campaigns/linux-v1/dataset-roots.yaml`. 테스트 201개 통과(기존 177 + 신규 24).
+- 사용자 결정(빌드 전): 비적격 fault_active는 `detection-ineligible.parquet`로 분리, `ranking.parquet`는 적격 CPU·Pod만(연결·급증은 `ranking-nodeview.parquet`). `docs/LINUX-V1-DATA-TRANSLATION.md` 변경 기록에 적음.
+- 빌드: 2026-11-23 14:50~14:57 KST, 411 s, worker 2, `systemd-run --user`(7.21 oomd 이력 때문에 터미널 scope 밖), 중단 없음. 코드 `f179180`, dirty false, compute.py 해시 고정값 일치, 입력 parquet 414개 sha256 일치. worker 최대 RSS 1.76 GB, 호스트 available 최저 7.0 GB.
+- 결과(개수·결측·형식만 확인): case 138(장애 69 + 대조 69, fold당 46), 적격 54, Pod onset 15개 모두 Ready=0 관측(대체 규칙 0). ranking 5,038 / ranking-nodeview 7,458 / detection 12,473(탐지 열 58) / detection-ineligible 316 / edges 170,136행. rx/tx 4개 100% NaN, productcatalogservice 로그 feature 94.5% NaN. baseline_stats window 10개 미만 0(onset 420 s대 pair 22 run은 10~11개).
+- 산출물은 git에 올리지 않음: `/home/cloudman/Documents/wt-dataset/data/features/linux-v1-v0/`(43 MB). 파일별 sha256·표는 `docs/LINUX-V1-DATASET-BUILD.md`.
+- 7.24의 휴지통 `/home/cloudman/sentrix-trash-20261116` 비우기 조건(생성기가 두 root로 정상 동작)은 충족됐다. 비우는 것은 사용자가 한다.
