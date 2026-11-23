@@ -154,3 +154,17 @@ paymentservice 원인 3 case는 모두 Pod 장애다(CPU 3 case는 impact가 없
 
 - 결론: 재생성 표는 고정 때 쓴 표와 결과상 같다. 두 내부 점수가 소수 셋째 자리가 아니라 부동소수점 전체 자릿수까지 일치했다. 모델 파일은 바이트가 다르다. 부동소수점 끝자리 차이로 나무의 분할 기준값이 달라졌기 때문으로 보인다(확인하지 않음).
 - B 방식은 사용자 지시 전까지 실행하지 않는다.
+
+## 4. B 방식 (주 결과) — 실행 전 기록 (2026-11-23, 결과 보기 전)
+
+- **사용 표**
+  - RE2-OB: Linux에서 재생성한 표(1절 해시). ranking `138efc76…65f8`, detection `f41ae001…459e`. 원래 Windows 표와 바이트는 다르지만, 3절 재현 확인에서 하이퍼파라미터 선택과 내부 점수가 같다고 확인했다.
+  - linux-v1: `data/features/linux-v1-v0`. 8개 파일 sha256이 `docs/LINUX-V1-DATASET-BUILD.md` 2절 값과 같음을 실행 전에 확인했다.
+- **코드와 환경:** `evaluation/run_linux_v1.py`(f97ec54, 이후 변경 없음), 시작 커밋 57e5b16. 패키지는 3.1절 재현 확인 때와 같다(numpy 2.5.4, pandas 2.2.3, pyarrow 18.1.0, scikit-learn 1.5.2, lightgbm 4.5.0, scipy 1.18.1, joblib 1.6.0).
+- **방법(코드 그대로):** 반복(repetition) 3-fold. 학습 = RE2-OB 90 case + linux-v1의 나머지 fold. 하이퍼파라미터는 `experiments/20261028-re2ob-v2-freeze/frozen.json` 값이고 선택 단계는 없다.
+  - 순위: RF rel18(주 방법), RF rel14(rx/tx 4개 제외, 보조), stat_combined, random. 짝지은 비교는 rf18 − stat_combined, rf14 − rf18. case 점수는 onset+60~300초 window 평균이다.
+  - 탐지: LightGBM all58. 운영 문턱은 fold별 학습 정상 window 점수의 95번째 백분위다. run 경보는 onset+60초부터 제거 시점까지(fault_active / sham_active window) 문턱을 넘는 window가 2개 연속일 때다.
+- **보고할 것:** 순위 표(전체·장애 종류별·fold별 Avg@5), 짝지은 비교, 탐지 AUROC/AUPRC, fold별 문턱값과 학습 행 수, run 경보율(장애 run 탐지율, 대조 run 오경보율, 비적격·no-impact 장애 run 경보율), 경보까지 걸린 시간 중앙값, 노드 보기, 급증 시 frontend 순위.
+- **일관성 확인:** `--re2ob`를 주면 A 방식도 함께 다시 계산된다. 새 결과의 `method_a`가 `experiments/20261123-linux-v1-eval-a/results.json`의 `method_a`와 같아야 한다. 다르면 B 결과를 해석하지 않고 차이부터 보고한다.
+- 결과가 나빠도 방법을 바꾸지 않는다. 오류가 나면 코드를 고치지 않고 멈춘 뒤 보고한다. 환경 패키지 설치는 고정 기록과 같은 버전일 때만 허용한다.
+- **알고 있는 범위 차이(사실):** METHOD-FREEZE-v2 4절의 비교 행 중 B 방식의 V4(순위)와 v1 탐지기·stat_metric(탐지)은 이 코드의 method_b가 계산하지 않는다. A 방식에서만 나온다. 코드는 바꾸지 않고 그대로 실행한다.
