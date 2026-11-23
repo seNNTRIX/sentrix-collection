@@ -1,16 +1,13 @@
 #!/usr/bin/env bash
 set -eu
 here=$(cd "$(dirname "$0")" && pwd)
-core="$here/../../sentrix-core"
 children=()
 cleanup(){ for child in "${children[@]:-}"; do [[ -z "$child" ]] || kill "$child" 2>/dev/null || true; done; }
 trap cleanup EXIT
 trap 'exit 0' TERM INT
-ready(){ curl -fsS --max-time 4 "http://127.0.0.1:5177/actuator/health" >/dev/null && curl -fsS --max-time 4 http://127.0.0.1:8001/health >/dev/null; }
-if ! ready; then
-  "$core/dev/replay/start-local.sh" &
-  server=$!
-  children+=("$server")
+if ! curl -fsS --max-time 10 http://127.0.0.1:8080/actuator/health >/dev/null || ! curl -fsS --max-time 10 http://127.0.0.1:8000/health >/dev/null; then
+  echo '실시간 전시에는 운영 백엔드(8080)와 모델(8000)이 필요합니다. 맥북 전시 시작.command를 먼저 실행하세요.' >&2
+  exit 1
 fi
 if ! curl -fsS --max-time 3 http://127.0.0.1:5190/state >/dev/null 2>&1; then
   python3 "$here/visitor.py" &

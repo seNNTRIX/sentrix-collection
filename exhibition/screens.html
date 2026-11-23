@@ -42,58 +42,53 @@ dl{margin:0}dt{color:var(--muted);font-size:14px}dd{margin:0;overflow-wrap:anywh
 <button type="button" data-fault="cpu_saturation">CPU 포화</button><button type="button" data-fault="pod_failure">Pod 중단</button></div>
 <div class="selects"><div id="from"><label for="source">호출 출발 서비스</label><select id="source"></select></div>
 <div><label id="toLabel" for="dest">호출 도착 서비스</label><select id="dest"></select></div></div>
-<span class="config" id="availability" aria-live="polite">실험 기록 · 30초 단위 분석</span><button id="start" class="primary" disabled>실험 시작</button></fieldset>
+<span class="config" id="availability" aria-live="polite"></span><button id="start" class="primary" disabled>장애 주입</button></fieldset>
 <p id="notice" role="alert"></p></form>
-<section class="panel" aria-label="최근 실행"><h2>최근 실행</h2><p id="phase" role="status">대기 중</p><dl id="details"></dl></section></div></main></div>
+<section class="panel" aria-label="최근 실행"><h2>최근 실행</h2><p id="phase" role="status">대기 중</p><dl id="details"></dl><a id="resultLink" href="/display" target="_blank" rel="noopener" hidden>원인 분석 열기 ↗</a></section></div></main></div>
 <script>
 const $ = id => document.getElementById(id);
 $('operator').hidden=false;
 const decisions = {NORMAL:'정상',ANOMALY:'이상 감지',ABSTAIN:'판정 보류'};
 const buttons = selector => Array.from(document.querySelectorAll(selector));
 let catalog, fault='network_delay', last={}, sending=false, connected=false;
-function options(select,names,available){
+const conditions={network_delay:'네트워크 지연 100 ms',packet_loss:'패킷 손실 2%',cpu_saturation:'CPU 작업자 1개 · 부하 100%',pod_failure:'Pod 1개 중단'};
+function options(select,names){
  const current=select.value;
- const ordered=[...names].sort((a,b)=>Number(available(b))-Number(available(a)));
- select.replaceChildren(...ordered.map(name=>new Option(available(name)?name:name+' · 재현 파일 미포함',name)));
+ select.replaceChildren(...names.map(name=>new Option(name,name)));
  if(names.includes(current))select.value=current;
 }
-function canStart(){
- const key=$('source').value?$('source').value+'->'+$('dest').value:$('dest').value;
- return !!catalog?.recordings[fault]?.includes(key);
-}
 function choose(){
- if(!catalog) return;
+ if(!catalog)return;
  const edge=['network_delay','packet_loss'].includes(fault);
- const recorded=(catalog.recordings[fault]||[]).map(x=>x.split('->'));
  $('from').hidden=!edge;
  $('toLabel').textContent=edge?'호출 도착 서비스':'대상 서비스';
- options($('source'),edge?Object.keys(catalog.edges):[],name=>recorded.some(pair=>pair[0]===name));
- const destinations=edge?(catalog.edges[$('source').value]||[]):catalog.services;
- const ready=edge?recorded.filter(pair=>pair[0]===$('source').value).map(pair=>pair[1]):recorded.map(pair=>pair[0]);
- options($('dest'),destinations,name=>ready.includes(name));
- $('availability').textContent=canStart()?'실험 기록 · 30초 단위 분석':'이 조합은 전시용 재현 파일에 포함되지 않았습니다.';
- for(const b of buttons('[data-fault]')){
-  b.setAttribute('aria-pressed',b.dataset.fault===fault);
-  b.disabled=!catalog.recordings[b.dataset.fault]?.length;
- }
+ options($('source'),edge?Object.keys(catalog.edges):[]);
+ options($('dest'),edge?catalog.edges[$('source').value]||[]:catalog.services);
+ $('availability').textContent=conditions[fault]+' · 설정 시간 3분';
+ for(const b of buttons('[data-fault]')) b.setAttribute('aria-pressed',b.dataset.fault===fault);
  lockInputs();
 }
 function lockInputs(){
  const locked=sending || !connected || last.phase==='running';
  $('fields').disabled=locked;
- $('start').disabled=locked || !canStart();
+ $('start').disabled=locked || !$('dest').value;
 }
 const pretty = s => s?.replaceAll('->',' → ');
+const reasons = {INSUFFICIENT_METRIC_SAMPLES:'30초 동안 수집된 지표가 부족합니다.',TELEMETRY_UPSTREAM_ERROR:'관측 데이터를 제시간에 가져오지 못했습니다.'};
 function render(s){
  last=s;
+ if(s.mode==='replay')s={phase:'idle'};
  const decision=decisions[s.decision], first=s.candidates?.[0];
  const firstName=first && (first.kind==='EDGE'?first.source+' → '+first.target:first.service);
- const status=s.phase==='idle'?'대기 중':s.phase==='failed'?'실행 확인 필요':s.phase==='done'?'실험 종료':s.step;
+ const status=s.phase==='idle'?'대기 중':s.phase==='failed'?'실행 확인 필요':s.step||'실험 종료';
  $('phase').textContent=status;
+ const result=s.job&&s.link?new URL(s.link,location.origin):null;
+ $('resultLink').hidden=!result;
+ if(result)$('resultLink').href='/display?environment=1'+result.hash;
  const fields=[['실험 조건',s.label],['선택한 위치',pretty(s.location)],
- ['주입 전 판정',decisions[s.before]],['모델 판정',decision || (s.phase==='done'?'결과 없음':'대기 중')],
+ ['주입 시각',s.applied&&new Date(s.applied).toLocaleTimeString('ko-KR')],['복구 시각',s.recovered&&new Date(s.recovered).toLocaleTimeString('ko-KR')],['주입 전 판정',decisions[s.before]],['모델 판정',decision || (s.phase==='done'?'결과 없음':'대기 중')],
  ['모델 1순위',firstName],['선택 위치 순위',s.locationRank?s.locationRank+'위':first?'후보 밖':null],
- ['실행 시각',s.started && new Date(s.started).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour12:false})],['상세',s.message || s.reason]];
+ ['실행 시각',s.started && new Date(s.started).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour12:false})],['상세',s.message || reasons[s.reason] || s.reason]];
  $('details').replaceChildren(...fields.filter(([,v])=>v).map(([k,v])=>{
   const row=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');
   row.className='row';dt.textContent=k;dd.textContent=v;row.append(dt,dd);return row;
@@ -103,7 +98,6 @@ function render(s){
 async function poll(){
  try{
   if(!catalog){const r=await fetch('/catalog');if(!r.ok)throw Error();catalog=await r.json();
-   if(!catalog.recordings[fault]?.length)fault=Object.keys(catalog.recordings).find(k=>catalog.recordings[k].length)||fault;
    choose();}
   const r=await fetch('/state',{cache:'no-store'});if(!r.ok)throw Error();
   connected=true;render(await r.json());
@@ -114,10 +108,10 @@ for(const b of buttons('[data-fault]')) b.onclick=()=>{fault=b.dataset.fault;$('
 $('source').onchange=choose;
 $('dest').onchange=choose;
 $('form').onsubmit=async e=>{
- e.preventDefault();if(sending || last.phase==='running' || !canStart())return;
+ e.preventDefault();if(sending || last.phase==='running' || !$('dest').value)return;
  sending=true;lockInputs();$('notice').textContent='';
  try{
-  const r=await fetch('/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'replay',case:fault,source:$('source').value,target:$('dest').value})});
+  const r=await fetch('/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'live',case:fault,source:$('source').value,target:$('dest').value})});
   if(!r.ok)throw Error(r.status===409?'진행 중인 실험이 있습니다.':r.status===400?await r.text():'실험 요청에 실패했습니다.');
   render(await (await fetch('/state')).json());
  }catch(err){$('notice').textContent=err.message;}finally{sending=false;lockInputs();}

@@ -17,7 +17,7 @@ SERVICES = sorted(set(EDGES).union(*EDGES.values()))
 KINDS = {"network_delay":"NetworkChaos","packet_loss":"NetworkChaos","cpu_saturation":"StressChaos","pod_failure":"PodChaos"}
 PREFIX = "/apis/chaos-mesh.org/v1alpha1/namespaces/sentrix/"
 OWNER = "sentrix-exhibit"
-DASHBOARD = "http://127.0.0.1:5176"
+DASHBOARD = "http://127.0.0.1:5190/display"
 CORE = "http://127.0.0.1:8080/api/v1/environments/1"
 DURATION = 180
 
@@ -95,7 +95,15 @@ def observe(manifest, api, update, rank):
     if not settings.get("enabled") or settings.get("executionStatus")!="SCHEDULED":
         raise ValueError("SentriX 설정에서 환경의 자동 분석을 먼저 활성화하세요.")
     update(step="실험 생성 중")
-    kube("create","--raw="+PREFIX+fault+"?fieldValidation=Strict","-f","-",body=manifest)
+    try:
+        kube("create","--raw="+PREFIX+fault+"?fieldValidation=Strict","-f","-",body=manifest)
+    except (RuntimeError,subprocess.TimeoutExpired):
+        # A lost create response can still mean the experiment was accepted.
+        # Read the same unique run; never start a second experiment as a retry.
+        try:
+            kube("get","--raw="+path)
+        except (RuntimeError,subprocess.TimeoutExpired) as error:
+            raise RuntimeError("클러스터에서 이번 주입 요청의 접수를 확인하지 못했습니다.") from error
     update(created=True,step="주입 확인 중")
     started=time.monotonic()
     found=False
@@ -125,7 +133,7 @@ def observe(manifest, api, update, rank):
                     if result["jobId"]!=j or result["decision"]!="ANOMALY": raise ValueError("판정 응답 불일치")
                     update(decision="ANOMALY",score=result["score"],candidates=result["candidates"],
                            locationRank=rank(result["candidates"],location),job=j,window=result["windowEnd"],detected=alarm.get("finishedAt"),
-                           link=f"{DASHBOARD}/#B4-Incident?incidentId={i}&jobId={j}")
+                           link=f"{DASHBOARD}#B4-Incident?incidentId={i}&jobId={j}")
                     found=True
             except (OSError,ValueError,KeyError):
                 update(step="모델 결과 조회 재시도 중")
