@@ -1,0 +1,15 @@
+# Dataset roots for the linux-v1 dataset builder (features/build_linux_v1.py).
+# Each root holds runs/, incidents/, audits/ (and optionally runs/_campaign/linux-v1/decisions.yaml).
+# Run IDs must not repeat across roots (the builder stops on a collision).
+# Basis: docs/LINUX-V1-COLLECTION-FINAL.md (206-40 51 pairs + 206-39 18 pairs = 69), SETUP-REVIEW 7.24.
+campaign_id: linux-v1
+roots:
+  - name: "206-40"
+    environment_id: "206-40"
+    # this repository (school-pc) main working tree; run folders are git-ignored, so the
+    # dataset worktree points at the main tree instead of its own checkout
+    path: /home/cloudman/Documents/sentrix-final-v1-main
+  - name: "206-39"
+    environment_id: "206-39"
+    # 206-39 data copied to 206-40 (files-206-39.txt, sha256-206-39.txt in the same folder)
+    path: /home/cloudman/sentrix-data/206-39
