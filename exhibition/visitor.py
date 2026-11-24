@@ -1,5 +1,8 @@
 """Local exhibition console and wall display."""
+import logging
+import os
 import subprocess
+import tempfile
 import live
 import playback
 import mimetypes
@@ -28,6 +31,52 @@ LABELS = {"network_delay": "네트워크 지연", "pod_failure": "Pod 중단",
 CASES = playback.cases(DEMO)
 lock = threading.Lock()
 state = {"phase": "idle", "mode": "live"}
+state_file = None
+pending_live_write = None
+
+
+def restore_live(path):
+    idle = {"phase":"idle", "mode":"live"}
+    if path is None:
+        return idle
+    try:
+        with path.open("rb") as src:
+            data = src.read(1024 * 1024 + 1)
+        if len(data) > 1024 * 1024:
+            raise ValueError("oversized run")
+        saved = json.loads(data)
+        if not isinstance(saved, dict) or saved.get("mode") != "live" or saved.get("phase") not in ("running","done","failed"):
+            raise ValueError("invalid run")
+        if not all(isinstance(saved.get(k), str) and saved[k] for k in ("run","started","fault","location")):
+            raise ValueError("missing run identity")
+        uuid.UUID(saved["run"])
+        if saved["phase"] == "running":
+            saved["phase"] = "failed"
+            saved["message"] = "실험실 재시작으로 관측이 중단됐습니다. 표시된 결과는 재시작 전 마지막으로 확인한 값입니다."
+        return saved
+    except FileNotFoundError:
+        return idle
+    except (OSError, ValueError):
+        logging.getLogger(__name__).warning("Could not read the last live run at %s", path)
+        return idle
+
+
+def write_live(path, current):
+    if path is None or current.get("mode") != "live":
+        return
+    tmp = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent, delete=False) as fp:
+            tmp = Path(fp.name)
+            json.dump(current, fp, ensure_ascii=False, allow_nan=False)
+            fp.flush()
+            os.fsync(fp.fileno())
+        os.replace(tmp, path)
+        tmp = None
+    finally:
+        if tmp is not None:
+            tmp.unlink(missing_ok=True)
+
 
 
 def api(url, body=None, method=None):
@@ -36,9 +85,25 @@ def api(url, body=None, method=None):
         return json.load(response)
 
 
+def checkpoint(current):
+    """Called under lock. Keep the last live observation for a retry if storage is unavailable."""
+    global pending_live_write
+    if current.get("mode") != "live":
+        return
+    try:
+        write_live(state_file, current)
+        pending_live_write = None
+    except (OSError, ValueError):
+        if pending_live_write is None:
+            logging.getLogger(__name__).exception("Could not save the latest live observation")
+        pending_live_write = current.copy()
+
+
 def update(**fields):
     with lock:
-        state.update(fields)
+        if any(k not in state or state[k] != v for k,v in fields.items()):
+            state.update(fields)
+            checkpoint(state)
 
 
 def location_rank(candidates, target):
@@ -200,6 +265,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.send(200,"application/json",json.dumps(catalog).encode())
         if self.path == "/state":
             with lock:
+                if pending_live_write is not None:
+                    checkpoint(pending_live_write)
                 payload = json.dumps(state, ensure_ascii=False).encode()
             return self.send(200,"application/json; charset=utf-8",payload)
         if self.path == "/":
@@ -207,6 +274,7 @@ class Handler(BaseHTTPRequestHandler):
         return self.send_error(404)
 
     def do_POST(self):
+        global pending_live_write
         if self.path != "/start": return self.send_error(404)
         if self.headers.get("Origin")!=ORIGIN or self.headers.get("Host")!=live.AUTHORITY:
             return self.send_error(403)
@@ -222,9 +290,17 @@ class Handler(BaseHTTPRequestHandler):
         mode, fault = payload["mode"], payload["case"]
         with lock:
             if state["phase"]=="running": return self.send_error(409)
+            initial = dict(phase="running", mode=mode, run=run, label=LABELS[fault],
+                           location=location, fault=fault, step="요청 접수", started=datetime.now(timezone.utc).isoformat())
+            try:
+                write_live(state_file, initial)
+            except (OSError, ValueError):
+                logging.getLogger(__name__).exception("Could not save the requested live run")
+                return self.send(503, "text/plain; charset=utf-8", "실험 기록을 저장할 수 없어 주입을 시작하지 않았습니다.".encode())
+            if mode == "live":
+                pending_live_write = None
             state.clear()
-            state.update(phase="running", mode=mode, run=run, label=LABELS[fault],
-                         location=location, fault=fault, step="요청 접수", started=datetime.now(timezone.utc).isoformat())
+            state.update(initial)
         if mode == "live":
             worker = threading.Thread(target=run_live, args=(manifest,), daemon=True)
         else:
@@ -234,6 +310,12 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__=="__main__":
+    configured = os.environ.get("SENTRIX_EXHIBIT_STATE_FILE")
+    if configured:
+        state_file = Path(configured)
+        if not state_file.is_absolute():
+            raise ValueError("SENTRIX_EXHIBIT_STATE_FILE must be an absolute path")
+        state = restore_live(state_file)
     server=ThreadingHTTPServer(("127.0.0.1",live.PORT),Handler)
     pending=playback.ROOT/"active-environment"
     if pending.exists():
