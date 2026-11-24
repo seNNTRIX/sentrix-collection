@@ -97,6 +97,63 @@ def timestamp(s):
     return datetime.fromisoformat(s.replace("Z","+00:00")).timestamp()
 
 
+def model_observation(windows, applied, recovered, baseline, api, location, rank):
+    start = timestamp(applied)
+    stop = timestamp(recovered) if recovered else time.time()
+    baseline_end = timestamp(baseline["windowEnd"])
+    version = baseline["modelVersion"]
+    rows = sorted((w for w in windows if w.get("modelVersion") == version),
+                  key=lambda w: (timestamp(w["windowEnd"]), w.get("createdAt", ""), w["jobId"]))
+    before = next((w for w in reversed(rows) if w.get("decision") and baseline_end <= timestamp(w["windowEnd"]) <= start), baseline)
+    update = {"before": before["decision"], "beforeJob": before["jobId"], "beforeWindow": before["windowEnd"]}
+    overlapping = [w for w in rows if w.get("status") == "SUCCEEDED" and w.get("decision")
+                   and timestamp(w["windowEnd"]) > start and timestamp(w["windowStart"]) < stop]
+    # Both 30-second model windows are fully exposed when the earlier one (10 s back) starts after Apply.
+    full = [w for w in overlapping if timestamp(w["windowStart"]) - 10 >= start and timestamp(w["windowEnd"]) <= stop]
+    # An older job may still finish first in model-window order.
+    pending = [timestamp(w["windowEnd"]) for w in rows
+               if w.get("status") in ("QUEUED", "RUNNING") and timestamp(w["windowEnd"]) > baseline_end]
+    checked_incidents = set()
+    for alarm in overlapping:
+        incident = alarm.get("incidentId")
+        if alarm["decision"] != "ANOMALY" or not incident or incident in checked_incidents:
+            continue
+        if pending and min(pending) <= timestamp(alarm["windowEnd"]):
+            break
+        checked_incidents.add(incident)
+        opening = api(f"{CORE}/incidents/{incident}/rca?at=first")
+        result = opening.get("result")
+        if not result:
+            break
+        if opening["incidentId"] != incident or result["decision"] != "ANOMALY":
+            raise ValueError("첫 경보 응답 불일치")
+        if timestamp(result["windowEnd"]) <= start:
+            full = [w for w in full if w.get("incidentId") != incident]
+            continue  # This incident was already underway before Apply.
+        if result["jobId"] != alarm["jobId"] or timestamp(result["windowEnd"]) != timestamp(alarm["windowEnd"]):
+            break  # The first-result and scheduler reads straddled a completion; poll again.
+        if result["modelVersion"] != version:
+            break
+        job = result["jobId"]
+        full = [w for w in full if timestamp(w["windowEnd"]) <= timestamp(alarm["windowEnd"])]
+        update.update(decision="ANOMALY", reason=alarm.get("reason"), score=result["score"], candidates=result["candidates"],
+                      locationRank=rank(result["candidates"], location), job=job, window=result["windowEnd"],
+                      detected=alarm.get("finishedAt"), partialWindow=alarm not in full,
+                      link=f"{DASHBOARD}#B4-Incident?incidentId={incident}&jobId={job}")
+        break
+    if "job" not in update:
+        # Only a verified opening result can establish an anomaly for this run.
+        full = [w for w in full if w["decision"] != "ANOMALY"]
+    if full or "job" in update:
+        if "job" not in update:
+            last = full[-1]
+            update.update(decision=last["decision"], reason=last.get("reason"), window=last["windowEnd"])
+        update.update(windowsChecked=len(full), normalWindows=sum(w["decision"]=="NORMAL" for w in full),
+                      abstainedWindows=sum(w["decision"]=="ABSTAIN" for w in full),
+                      anomalyWindows=sum(w["decision"]=="ANOMALY" for w in full))
+    return update
+
+
 def observe(manifest, api, update, rank):
     fault=manifest["kind"].lower()
     name=manifest["metadata"]["name"]
@@ -112,13 +169,14 @@ def observe(manifest, api, update, rank):
     if not settings.get("enabled") or settings.get("executionStatus")!="SCHEDULED":
         raise ValueError("SentriX 설정에서 환경의 자동 분석을 먼저 활성화하세요.")
     update(step="주입 전 정상 판정 확인 중")
-    recent = api(CORE + "/anomaly-scores?limit=8")
-    baseline = next((w for w in recent if w.get("decision")), None)
+    overview = api(CORE + "/overview?limit=8")
+    recent = overview["recentWindows"]
+    baseline = next((w for w in recent if w.get("status") not in ("QUEUED", "RUNNING")), None)
     if not baseline or not 0 <= time.time()-timestamp(baseline["windowEnd"]) <= 120:
         raise ValueError("최근 2분의 모델 판정이 없습니다. 자동 분석이 재개된 뒤 다시 시작하세요.")
-    update(before=baseline["decision"])
-    if baseline["decision"] != "NORMAL":
-        raise ValueError("최근 모델 판정이 정상으로 돌아온 뒤 새 실험을 시작하세요.")
+    update(before=baseline.get("decision"), beforeJob=baseline["jobId"], beforeWindow=baseline["windowEnd"])
+    if baseline.get("status") != "SUCCEEDED" or baseline.get("decision") != "NORMAL" or overview["openIncidents"]:
+        raise ValueError("최근 모델 판정이 정상이고 진행 중인 장애가 모두 종료된 뒤 새 실험을 시작하세요.")
     update(step="실험 생성 중")
     try:
         kube("create","--raw="+PREFIX+fault+"?fieldValidation=Strict","-f","-",body=manifest)
@@ -144,25 +202,9 @@ def observe(manifest, api, update, rank):
         if applied and not found:
             try:
                 windows=api(CORE+"/anomaly-scores?limit=50")
-                previous=next((w for w in windows if w.get("decision") and timestamp(w["windowEnd"])<=timestamp(applied) and timestamp(w["windowEnd"])>=timestamp(applied)-180),None)
-                if previous: update(before=previous["decision"])
-                limit=timestamp(recovered) if recovered else time.time()
-                eligible=sorted((w for w in windows if w.get("decision") and timestamp(w["windowStart"])>=timestamp(applied)+10 and timestamp(w["windowEnd"])<=limit),key=lambda w:w["windowEnd"])
-                if eligible:
-                    last=eligible[-1]
-                    update(decision=last["decision"],reason=last.get("reason"),window=last["windowEnd"],
-                           windowsChecked=len(eligible), normalWindows=sum(w["decision"]=="NORMAL" for w in eligible),
-                           abstainedWindows=sum(w["decision"]=="ABSTAIN" for w in eligible),
-                           anomalyWindows=sum(w["decision"]=="ANOMALY" for w in eligible))
-                alarm=next((w for w in eligible if w.get("decision")=="ANOMALY" and w.get("incidentId")),None)
-                if alarm:
-                    i,j=alarm["incidentId"],alarm["jobId"]
-                    result=api(f"{CORE}/incidents/{i}/rca-jobs/{j}/result")
-                    if result["jobId"]!=j or result["decision"]!="ANOMALY": raise ValueError("판정 응답 불일치")
-                    update(decision="ANOMALY",score=result["score"],candidates=result["candidates"],
-                           locationRank=rank(result["candidates"],location),job=j,window=result["windowEnd"],detected=alarm.get("finishedAt"),
-                           link=f"{DASHBOARD}#B4-Incident?incidentId={i}&jobId={j}")
-                    found=True
+                observation = model_observation(windows, applied, recovered, baseline, api, location, rank)
+                update(**observation)
+                found = bool(observation.get("job"))
             except (OSError,ValueError,KeyError):
                 update(step="모델 결과 조회 재시도 중")
         if done and (not applied or found or (recovered and time.time()-timestamp(recovered)>90)):

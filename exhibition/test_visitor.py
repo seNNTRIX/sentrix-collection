@@ -61,7 +61,8 @@ class ExperimentTest(unittest.TestCase):
         for age, decision in [(121, "NORMAL"), (10, "ABSTAIN"), (10, "ANOMALY")]:
             end = datetime.now(timezone.utc) - timedelta(seconds=age)
             api = Mock(side_effect=[{"enabled":True, "executionStatus":"SCHEDULED"},
-                                    [{"windowEnd": end.isoformat(), "decision":decision}]])
+                                    {"openIncidents":0, "recentWindows":[{"windowEnd":end.isoformat(), "status":"SUCCEEDED",
+                                                                        "jobId":"preflight", "decision":decision}]}])
             with patch.object(live, "active_experiments", return_value=[]), patch.object(live, "kube") as kube:
                 with self.assertRaises(ValueError):
                     live.observe(manifest, api, Mock(), Mock())
